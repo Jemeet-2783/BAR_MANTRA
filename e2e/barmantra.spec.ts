@@ -126,4 +126,59 @@ test.describe('Barmantra E2E Production Suite', () => {
     expect(restoreData.booking.deletedAt).toBeUndefined();
   });
 
+  test('Scenario 4: Dynamic CMS API and Admin User Registration lifecycle', async ({ request }) => {
+    // 1. Check public site content API
+    const cmsRes = await request.get('/api/site-content');
+    expect(cmsRes.ok()).toBeTruthy();
+    const cmsData = await cmsRes.json();
+    expect(cmsData.siteSettings).toBeDefined();
+
+    // 2. Log in as superadmin
+    const loginRes = await request.post('/api/admin/login', {
+      data: {
+        email: 'admin@barmantra.com',
+        password: process.env.ADMIN_PASSWORD || 'barmantra123'
+      }
+    });
+    expect(loginRes.ok()).toBeTruthy();
+    const authHeaders = { Cookie: loginRes.headers()['set-cookie'] };
+
+    // 3. Update dynamic CMS branding section
+    const updateCmsRes = await request.put('/api/admin/site-content/siteSettings', {
+      headers: authHeaders,
+      data: {
+        ...cmsData.siteSettings,
+        heroHeadline: 'E2E Dynamic Royal Bar'
+      }
+    });
+    expect(updateCmsRes.ok()).toBeTruthy();
+
+    // 4. Register new admin user
+    const newAdminEmail = `e2e.admin.${Date.now()}@barmantra.com`;
+    const regRes = await request.post('/api/admin/register', {
+      headers: authHeaders,
+      data: {
+        email: newAdminEmail,
+        name: 'E2E Admin User',
+        password: 'e2eSecurePassword123',
+        role: 'staff'
+      }
+    });
+    expect(regRes.status()).toBe(201);
+    const regData = await regRes.json();
+    expect(regData.success).toBe(true);
+
+    // 5. Test login with newly registered admin user
+    const newAdminLogin = await request.post('/api/admin/login', {
+      data: {
+        email: newAdminEmail,
+        password: 'e2eSecurePassword123'
+      }
+    });
+    expect(newAdminLogin.ok()).toBeTruthy();
+    const newAdminData = await newAdminLogin.json();
+    expect(newAdminData.user.email).toBe(newAdminEmail);
+  });
+
 });
+
