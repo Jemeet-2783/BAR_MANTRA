@@ -62,7 +62,7 @@ test.describe('Barmantra E2E Production Suite', () => {
   });
 
   test('Scenario 3: Admin approve proposal, soft-delete, and restore from Trash Archive', async ({ request }) => {
-    // 1. Log in to establish admin session cookie
+    // 1. Log in to establish admin session cookie & CSRF token
     const loginRes = await request.post('/api/admin/login', {
       data: {
         email: 'admin@barmantra.com',
@@ -70,8 +70,10 @@ test.describe('Barmantra E2E Production Suite', () => {
       }
     });
     expect(loginRes.ok()).toBeTruthy();
+    const loginData = await loginRes.json();
     const authHeaders = {
-      Cookie: loginRes.headers()['set-cookie']
+      Cookie: loginRes.headers()['set-cookie'],
+      'X-CSRF-Token': loginData.csrfToken
     };
 
     // 2. Create test booking to manipulate
@@ -141,7 +143,11 @@ test.describe('Barmantra E2E Production Suite', () => {
       }
     });
     expect(loginRes.ok()).toBeTruthy();
-    const authHeaders = { Cookie: loginRes.headers()['set-cookie'] };
+    const loginData = await loginRes.json();
+    const authHeaders = {
+      Cookie: loginRes.headers()['set-cookie'],
+      'X-CSRF-Token': loginData.csrfToken
+    };
 
     // 3. Update dynamic CMS branding section
     const updateCmsRes = await request.put('/api/admin/site-content/siteSettings', {
@@ -178,6 +184,39 @@ test.describe('Barmantra E2E Production Suite', () => {
     expect(newAdminLogin.ok()).toBeTruthy();
     const newAdminData = await newAdminLogin.json();
     expect(newAdminData.user.email).toBe(newAdminEmail);
+  });
+
+  test('Scenario 5: Phase 1 Security Boundary (HTTP 401 logged-out, HTTP 403 missing CSRF, Security Headers)', async ({ request }) => {
+    // 1. Unauthenticated request to /api/admin/bookings must return 401
+    const unauthRes = await request.get('/api/admin/bookings');
+    expect(unauthRes.status()).toBe(401);
+
+    // 2. Log in to get session cookie
+    const loginRes = await request.post('/api/admin/login', {
+      data: {
+        email: 'admin@barmantra.com',
+        password: process.env.ADMIN_PASSWORD || 'barmantra123'
+      }
+    });
+    expect(loginRes.ok()).toBeTruthy();
+    const cookieOnlyHeader = { Cookie: loginRes.headers()['set-cookie'] };
+
+    // 3. State-changing request WITH cookie BUT WITHOUT CSRF header must return 403 Forbidden
+    const csrfFailRes = await request.put('/api/admin/site-content/siteSettings', {
+      headers: cookieOnlyHeader,
+      data: { siteTitle: 'Attempt without CSRF' }
+    });
+    expect(csrfFailRes.status()).toBe(403);
+    const csrfFailData = await csrfFailRes.json();
+    expect(csrfFailData.error).toContain('CSRF');
+
+    // 4. Verify HTTP Security Headers
+    const healthRes = await request.get('/api/health');
+    const headers = healthRes.headers();
+    expect(headers['x-frame-options']).toBe('DENY');
+    expect(headers['x-content-type-options']).toBe('nosniff');
+    expect(headers['strict-transport-security']).toBeDefined();
+    expect(headers['content-security-policy']).toBeDefined();
   });
 
 });

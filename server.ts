@@ -23,6 +23,7 @@ import {
   getDeletedContacts,
   createSession,
   getSession,
+  validateSession,
   destroySession,
   validateUserCredentials,
   logAuditAction,
@@ -73,7 +74,7 @@ const publicFormRateLimiter = createRateLimiter({
 
 const adminLoginRateLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 30,
   message: 'Too many authentication attempts. Royal Command Studio access restricted for 15 minutes.'
 });
 
@@ -81,6 +82,19 @@ const adminLoginRateLimiter = createRateLimiter({
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // Security Headers Middleware (HSTS, X-Frame-Options, CSP, nosniff)
+  app.use((req, res, next) => {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https:;"
+    );
+    next();
+  });
 
   // Body parser
   app.use(express.json());
@@ -101,10 +115,13 @@ async function startServer() {
     next();
   });
 
-  // Admin session authentication check
+  // Admin session & CSRF authentication middleware
   const adminAuthMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const sessionToken = (req as any).cookies.barmantra_session || req.headers.authorization?.split('Bearer ')[1];
-    const session = getSession(sessionToken);
+    const csrfHeaderToken = (req.headers['x-csrf-token'] || req.headers['x-xsrf-token']) as string | undefined;
+    const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase());
+
+    const { session, error } = validateSession(sessionToken, csrfHeaderToken, isStateChanging);
     
     if (session) {
       (req as any).user = {
@@ -113,9 +130,24 @@ async function startServer() {
         name: session.name,
         role: session.role
       } as DbActor;
+      (req as any).sessionObj = session;
       next();
     } else {
-      res.status(401).json({ error: 'Unauthorized. Royal clearance is missing or expired.' });
+      if (error && error.includes('CSRF')) {
+        res.status(403).json({ error: `Forbidden. ${error}.` });
+      } else {
+        res.status(401).json({ error: `Unauthorized. ${error || 'Royal session missing or expired.'}` });
+      }
+    }
+  };
+
+  // Superadmin Role Enforcement Middleware
+  const superadminOnlyMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const user = (req as any).user as DbActor | undefined;
+    if (user && user.role === 'superadmin') {
+      next();
+    } else {
+      res.status(403).json({ error: 'Access denied. Superadmin role privilege strictly required for this action.' });
     }
   };
 
@@ -415,6 +447,8 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   app.post('/api/admin/login', adminLoginRateLimiter, (req, res) => {
     const { email, password } = req.body;
     const loginEmail = email ? String(email).trim() : 'admin@barmantra.com';
+    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1';
+    const userAgent = (req.headers['user-agent'] as string) || 'Unknown Client';
     
     if (!password) {
       return res.status(400).json({ error: 'Password is strictly required.' });
@@ -423,41 +457,43 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
     const user = validateUserCredentials(loginEmail, String(password));
 
     if (user) {
-      const token = createSession(user);
+      const { token, csrfToken, expiresAt } = createSession(user);
       const actor: DbActor = { id: user.id, email: user.email, name: user.name, role: user.role };
-      logAuditAction('LOGIN', 'auth', actor, user.id, `Successful command studio login for ${user.email}`);
+      logAuditAction('LOGIN', 'auth', actor, user.id, `Successful command studio login for ${user.email}`, undefined, undefined, { ip: clientIp, userAgent });
 
-      // Set secure session cookie
-      res.setHeader('Set-Cookie', `barmantra_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=86400`);
+      // Set httpOnly secure session cookie
+      res.setHeader('Set-Cookie', `barmantra_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800`);
       res.json({ 
         success: true, 
-        token, 
+        token,
+        csrfToken,
         user: { id: user.id, email: user.email, name: user.name, role: user.role },
         message: 'Welcome to Barmantra Royal Command Studio.' 
       });
     } else {
-      logAuditAction('LOGIN_FAILED', 'auth', null, undefined, `Failed login attempt for email: ${loginEmail}`);
+      logAuditAction('LOGIN_FAILED', 'auth', null, undefined, `Failed login attempt for email: ${loginEmail}`, undefined, undefined, { ip: clientIp, userAgent });
       res.status(401).json({ error: 'Invalid royal credentials or access key. Intrusion recorded.' });
     }
   });
 
   // Admin: Logout endpoint
   app.post('/api/admin/logout', (req, res) => {
-    const sessionToken = (req as any).cookies.barmantra_session;
+    const sessionToken = (req as any).cookies.barmantra_session || req.headers.authorization?.split('Bearer ')[1];
     if (sessionToken) {
       destroySession(sessionToken);
     }
-    res.setHeader('Set-Cookie', 'barmantra_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly');
+    res.setHeader('Set-Cookie', 'barmantra_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict');
     res.json({ success: true, message: 'Logged out successfully.' });
   });
 
   // Admin: Check Auth Status
   app.get('/api/admin/check-auth', (req, res) => {
     const sessionToken = (req as any).cookies.barmantra_session || req.headers.authorization?.split('Bearer ')[1];
-    const session = getSession(sessionToken);
+    const { session } = validateSession(sessionToken, undefined, false);
     if (session) {
       res.json({ 
         authenticated: true, 
+        csrfToken: session.csrfToken,
         user: { id: session.userId, email: session.email, name: session.name, role: session.role } 
       });
     } else {

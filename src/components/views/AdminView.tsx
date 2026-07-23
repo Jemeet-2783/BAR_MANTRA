@@ -102,6 +102,8 @@ export function AdminView() {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [messageNotification, setMessageNotification] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
+  const [csrfToken, setCsrfToken] = useState('');
+
   // Check auth on load
   useEffect(() => {
     checkAuthStatus();
@@ -113,6 +115,7 @@ export function AdminView() {
       const data = await res.json();
       setIsAuthenticated(data.authenticated);
       if (data.authenticated && data.user) {
+        if (data.csrfToken) setCsrfToken(data.csrfToken);
         setUserProfile(data.user);
         fetchDashboardData();
       }
@@ -158,7 +161,7 @@ export function AdminView() {
     try {
       const res = await fetch(`/api/admin/site-content/${section}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
         body: JSON.stringify(payloadData)
       });
       const result = await res.json();
@@ -194,7 +197,7 @@ export function AdminView() {
     try {
       const res = await fetch('/api/admin/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
         body: JSON.stringify({ email: regEmail, password: regPassword, name: regName, role: regRole })
       });
       const result = await res.json();
@@ -219,7 +222,7 @@ export function AdminView() {
     try {
       const res = await fetch(`/api/admin/users/${userProfile.id}/credentials`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
         body: JSON.stringify({ email: profEmail, name: profName, password: profPassword })
       });
       const result = await res.json();
@@ -253,6 +256,7 @@ export function AdminView() {
       const data = await res.json();
       
       if (res.ok) {
+        if (data.csrfToken) setCsrfToken(data.csrfToken);
         setIsAuthenticated(true);
         setUserProfile(data.user);
         fetchDashboardData();
@@ -268,10 +272,14 @@ export function AdminView() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/admin/logout', { method: 'POST' });
+      await fetch('/api/admin/logout', { 
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrfToken }
+      });
       setIsAuthenticated(false);
       setUserProfile(null);
       setPassword('');
+      setCsrfToken('');
     } catch (err) {
       console.error('Logout request failed:', err);
     }
@@ -281,7 +289,7 @@ export function AdminView() {
     try {
       const res = await fetch(`/api/admin/bookings/${id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
         body: JSON.stringify({ status: newStatus })
       });
       if (res.ok) {
@@ -301,7 +309,10 @@ export function AdminView() {
       return;
     }
     try {
-      const res = await fetch(`/api/admin/bookings/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/bookings/${id}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-Token': csrfToken }
+      });
       if (res.ok) {
         showNotification(`Proposal ${id} soft-deleted to trash.`, 'success');
         fetchDashboardData();
@@ -315,7 +326,10 @@ export function AdminView() {
 
   const handleRestoreBooking = async (id: string) => {
     try {
-      const res = await fetch(`/api/admin/bookings/${id}/restore`, { method: 'POST' });
+      const res = await fetch(`/api/admin/bookings/${id}/restore`, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrfToken }
+      });
       if (res.ok) {
         showNotification(`Proposal ${id} restored to active ledger!`, 'success');
         fetchDashboardData();
@@ -331,7 +345,7 @@ export function AdminView() {
     try {
       const res = await fetch(`/api/admin/contacts/${id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
         body: JSON.stringify({ status: newStatus })
       });
       if (res.ok) {
@@ -350,7 +364,10 @@ export function AdminView() {
       return;
     }
     try {
-      const res = await fetch(`/api/admin/contacts/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/contacts/${id}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-Token': csrfToken }
+      });
       if (res.ok) {
         showNotification('Inquiry soft-deleted to trash.', 'success');
         fetchDashboardData();
@@ -364,7 +381,10 @@ export function AdminView() {
 
   const handleRestoreContact = async (id: string) => {
     try {
-      const res = await fetch(`/api/admin/contacts/${id}/restore`, { method: 'POST' });
+      const res = await fetch(`/api/admin/contacts/${id}/restore`, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrfToken }
+      });
       if (res.ok) {
         showNotification('Inquiry restored to active ledger!', 'success');
         fetchDashboardData();

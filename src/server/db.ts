@@ -17,6 +17,8 @@ export interface DbUser {
   name: string;
   role: UserRole;
   createdAt: string;
+  isDeactivated?: boolean;
+  lastLoginIp?: string;
 }
 
 export interface DbBooking {
@@ -56,7 +58,10 @@ export interface DbSession {
   email: string;
   role: UserRole;
   name: string;
-  expiresAt: string;
+  expiresAt: string; // Absolute expiry (8 hours)
+  createdAt: string;
+  lastActiveAt: string; // Idle timeout (30 mins)
+  csrfToken: string;
 }
 
 export interface DbActor {
@@ -365,9 +370,18 @@ export function logAuditAction(
   entityId?: string,
   details?: string,
   beforeState?: any,
-  afterState?: any
+  afterState?: any,
+  meta?: { ip?: string; userAgent?: string }
 ): void {
   const db = getDb();
+  let detailStr = details || '';
+  if (meta?.ip) {
+    detailStr += ` [IP: ${meta.ip}]`;
+  }
+  if (meta?.userAgent) {
+    detailStr += ` [UA: ${meta.userAgent.slice(0, 80)}]`;
+  }
+
   const entry: DbAuditLogEntry = {
     id: `log-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     timestamp: new Date().toISOString(),
@@ -375,7 +389,7 @@ export function logAuditAction(
     entityType,
     entityId,
     actor,
-    details,
+    details: detailStr,
     beforeState,
     afterState
   };
@@ -397,6 +411,7 @@ export function validateUserCredentials(email: string, password: string): DbUser
   const db = getDb();
   const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return null;
+  if (user.isDeactivated) return null;
 
   const { isMatch, needsRehash } = verifyPassword(password, user.passwordHash, user.salt);
   if (!isMatch) return null;
@@ -413,41 +428,94 @@ export function validateUserCredentials(email: string, password: string): DbUser
 }
 
 // Session management
-export function createSession(user: DbUser): string {
+export function createSession(user: DbUser): { token: string; csrfToken: string; expiresAt: string; session: DbSession } {
   const db = getDb();
-  const token = `sess_${crypto.randomBytes(24).toString('hex')}`;
+  const token = `sess_${crypto.randomBytes(32).toString('hex')}`;
+  const csrfToken = `csrf_${crypto.randomBytes(32).toString('hex')}`;
   
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(); // 24 hours
-  
+  const expiresAt = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString(); // 8 hours absolute lifetime
+  const isoNow = now.toISOString();
+
+  // Purge expired sessions
   db.sessions = db.sessions.filter(s => new Date(s.expiresAt) > now);
-  db.sessions.push({
+
+  const sessionObj: DbSession = {
     token,
     userId: user.id,
     email: user.email,
     role: user.role,
     name: user.name,
-    expiresAt
-  });
+    expiresAt,
+    createdAt: isoNow,
+    lastActiveAt: isoNow,
+    csrfToken
+  };
+
+  db.sessions.push(sessionObj);
   saveDb(db);
   
-  return token;
+  return { token, csrfToken, expiresAt, session: sessionObj };
+}
+
+export function validateSession(
+  token: string | undefined,
+  csrfHeaderToken?: string,
+  isStateChanging: boolean = false
+): { session: DbSession | null; error?: string } {
+  if (!token) return { session: null, error: 'Session token missing' };
+  
+  const db = getDb();
+  const sessionIndex = db.sessions.findIndex(s => s.token === token);
+  if (sessionIndex === -1) return { session: null, error: 'Session not found' };
+
+  const session = db.sessions[sessionIndex];
+
+  // 1. Check if user is deactivated
+  const user = db.users.find(u => u.id === session.userId);
+  if (!user || user.isDeactivated) {
+    db.sessions.splice(sessionIndex, 1);
+    saveDb(db);
+    return { session: null, error: 'User account has been deactivated' };
+  }
+
+  const nowMs = Date.now();
+  const createdMs = new Date(session.createdAt || session.expiresAt).getTime();
+  const lastActiveMs = new Date(session.lastActiveAt || session.createdAt || session.expiresAt).getTime();
+
+  // 2. Absolute lifetime check (8 hours)
+  const MAX_ABSOLUTE_MS = 8 * 60 * 60 * 1000;
+  if (nowMs - createdMs > MAX_ABSOLUTE_MS || new Date(session.expiresAt).getTime() < nowMs) {
+    db.sessions.splice(sessionIndex, 1);
+    saveDb(db);
+    return { session: null, error: 'Session expired (absolute lifetime limit reached)' };
+  }
+
+  // 3. Idle timeout check (30 minutes inactivity)
+  const MAX_IDLE_MS = 30 * 60 * 1000;
+  if (nowMs - lastActiveMs > MAX_IDLE_MS) {
+    db.sessions.splice(sessionIndex, 1);
+    saveDb(db);
+    return { session: null, error: 'Session timed out due to 30 minutes of inactivity' };
+  }
+
+  // 4. CSRF Validation on state-changing requests (POST, PUT, PATCH, DELETE)
+  if (isStateChanging) {
+    if (!csrfHeaderToken || !session.csrfToken || csrfHeaderToken !== session.csrfToken) {
+      return { session: null, error: 'CSRF token validation failed' };
+    }
+  }
+
+  // Update last active timestamp
+  session.lastActiveAt = new Date().toISOString();
+  saveDb(db);
+
+  return { session };
 }
 
 export function getSession(token: string | undefined): DbSession | null {
-  if (!token) return null;
-  const db = getDb();
-  const session = db.sessions.find(s => s.token === token);
-  if (!session) return null;
-  
-  const isExpired = new Date(session.expiresAt) < new Date();
-  if (isExpired) {
-    db.sessions = db.sessions.filter(s => s.token !== token);
-    saveDb(db);
-    return null;
-  }
-  
-  return session;
+  const result = validateSession(token, undefined, false);
+  return result.session;
 }
 
 export function destroySession(token: string): void {
