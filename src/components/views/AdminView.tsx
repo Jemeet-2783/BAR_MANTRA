@@ -1085,8 +1085,6 @@ export function AdminView() {
               </div>
             )}
 
-          </div>
-
           {/* Table Area */}
           <div className="overflow-x-auto">
             {activeTab === 'bookings' ? (
@@ -1305,6 +1303,7 @@ export function AdminView() {
                 </table>
               )
             )}
+          </div>
 
             {/* TRASH VIEW */}
             {activeTab === 'trash' && (
@@ -2432,8 +2431,7 @@ export function AdminView() {
 
               </div>
             )}
-          </div>
-
+          </main>
         </div>
       </section>
 
