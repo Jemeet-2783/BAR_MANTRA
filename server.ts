@@ -33,6 +33,11 @@ import {
   getAllUsers,
   registerAdminUser,
   updateUserCredentials,
+  getPricingRules,
+  updatePricingRules,
+  purgeTrashItem,
+  setUserDeactivated,
+  forceUserPasswordReset,
   DbActor
 } from './src/server/db.ts';
 
@@ -706,6 +711,70 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
     const result = updateUserCredentials(id, { email, name, password, role }, actor);
     if (result.success) {
       res.json({ success: true, message: 'User credentials updated successfully.' });
+    } else {
+      res.status(400).json({ error: result.error });
+    }
+  });
+
+  // Public & Admin: Get dynamic pricing rules
+  app.get('/api/pricing/rules', (req, res) => {
+    res.json(getPricingRules());
+  });
+
+  // Admin SECURED (Superadmin Only): Update dynamic pricing rules
+  app.put('/api/admin/pricing/rules', adminAuthMiddleware, superadminOnlyMiddleware, (req, res) => {
+    const actor = (req as any).user as DbActor;
+    const { eventTypes, setupFee } = req.body;
+    if (!eventTypes || !Array.isArray(eventTypes)) {
+      return res.status(400).json({ error: 'eventTypes array is required.' });
+    }
+    const success = updatePricingRules({ eventTypes, setupFee: Number(setupFee || 25000) }, actor);
+    if (success) {
+      res.json({ success: true, message: 'Dynamic pricing rules updated successfully.' });
+    } else {
+      res.status(500).json({ error: 'Failed to save pricing rules.' });
+    }
+  });
+
+  // Admin SECURED (Superadmin Only): Permanent purge from Trash Archive
+  app.delete('/api/admin/trash/purge/:type/:id', adminAuthMiddleware, superadminOnlyMiddleware, (req, res) => {
+    const actor = (req as any).user as DbActor;
+    const { type, id } = req.params;
+    if (type !== 'booking' && type !== 'contact') {
+      return res.status(400).json({ error: 'Invalid entity type for purge.' });
+    }
+    const success = purgeTrashItem(type, id, actor);
+    if (success) {
+      res.json({ success: true, message: `Record ${id} permanently purged from database.` });
+    } else {
+      res.status(404).json({ error: 'Record not found in trash archive.' });
+    }
+  });
+
+  // Admin SECURED (Superadmin Only): Deactivate / Reactivate User Account
+  app.patch('/api/admin/users/:id/deactivate', adminAuthMiddleware, superadminOnlyMiddleware, (req, res) => {
+    const actor = (req as any).user as DbActor;
+    const { id } = req.params;
+    const { isDeactivated } = req.body;
+    const result = setUserDeactivated(id, Boolean(isDeactivated), actor);
+    if (result.success) {
+      res.json({ success: true, message: `User account ${isDeactivated ? 'deactivated' : 'reactivated'} successfully.` });
+    } else {
+      res.status(400).json({ error: result.error });
+    }
+  });
+
+  // Admin SECURED (Superadmin Only): Force Password Reset for User Account
+  app.post('/api/admin/users/:id/reset-password', adminAuthMiddleware, superadminOnlyMiddleware, (req, res) => {
+    const actor = (req as any).user as DbActor;
+    const { id } = req.params;
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.trim().length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+    }
+    const result = forceUserPasswordReset(id, newPassword, actor);
+    if (result.success) {
+      res.json({ success: true, message: 'Password reset forced successfully.' });
     } else {
       res.status(400).json({ error: result.error });
     }

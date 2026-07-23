@@ -88,11 +88,23 @@ export interface HeroSlide {
   title: string;
 }
 
+export interface EventPricingRule {
+  eventType: string;
+  name: string;
+  basePrice: number;
+  perGuestRate: number;
+}
+
+export interface PricingRules {
+  eventTypes: EventPricingRule[];
+  setupFee: number;
+}
+
 export interface DbAuditLogEntry {
   id: string;
   timestamp: string;
-  action: 'STATUS_UPDATE' | 'SOFT_DELETE' | 'RESTORE' | 'LOGIN' | 'LOGIN_FAILED' | 'CMS_UPDATE' | 'USER_CREATE' | 'CREDENTIALS_UPDATE';
-  entityType: 'booking' | 'contact' | 'auth' | 'cms' | 'user';
+  action: 'STATUS_UPDATE' | 'SOFT_DELETE' | 'RESTORE' | 'LOGIN' | 'LOGIN_FAILED' | 'CMS_UPDATE' | 'USER_CREATE' | 'CREDENTIALS_UPDATE' | 'PRICING_UPDATE' | 'PURGE' | 'USER_DEACTIVATE';
+  entityType: 'booking' | 'contact' | 'auth' | 'cms' | 'user' | 'pricing';
   entityId?: string;
   actor: DbActor | null;
   details?: string;
@@ -113,6 +125,7 @@ export interface DatabaseSchema {
   team?: any[];
   testimonials?: any[];
   faqs?: any[];
+  pricingRules?: PricingRules;
 }
 
 const DB_FILE_PATH = path.resolve(process.cwd(), 'db.json');
@@ -170,21 +183,28 @@ const INITIAL_USERS: DbUser[] = [
   }
 ];
 
+export const DEFAULT_PRICING_RULES: PricingRules = {
+  setupFee: 25000,
+  eventTypes: [
+    { eventType: 'wedding-bar', name: 'Royal Wedding Bar Curation', basePrice: 25000, perGuestRate: 2500 },
+    { eventType: 'corporate-bar', name: 'Corporate Lounges & Brand Bars', basePrice: 25000, perGuestRate: 1800 },
+    { eventType: 'private-bar', name: 'Boutique Private Soirée Bar', basePrice: 25000, perGuestRate: 1500 },
+    { eventType: 'flair-bar', name: 'Interactive Flair Bar Show', basePrice: 25000, perGuestRate: 2000 },
+    { eventType: 'masterclass', name: 'Private Cocktail Masterclass', basePrice: 20000, perGuestRate: 1200 }
+  ]
+};
+
 // Helper to calculate realistic luxury beverage pricing estimate
 export function calculatePricingEstimate(eventType: string, guestCount: number): number {
-  let perGuestBase = 1200; // Base INR per guest for standard bar styling
-  if (eventType.includes('wedding')) {
-    perGuestBase = 2500; // Premium royal wedding bar
-  } else if (eventType.includes('corporate')) {
-    perGuestBase = 1800; // Elegant corporate lounge
-  } else if (eventType.includes('flair') || eventType.includes('show')) {
-    perGuestBase = 2000; // Custom flair bar setup
-  } else if (eventType.includes('private')) {
-    perGuestBase = 1500; // Crafts cocktail boutique
-  }
-  
-  const setupFee = 25000; // Fixed setup, glassware, custom lighting fee
-  return (guestCount * perGuestBase) + setupFee;
+  const db = getDb();
+  const rules = db.pricingRules || DEFAULT_PRICING_RULES;
+  const normalizedType = eventType ? eventType.toLowerCase() : '';
+  const rule = rules.eventTypes.find(r => normalizedType.includes(r.eventType.toLowerCase()) || r.eventType.toLowerCase().includes(normalizedType));
+
+  const perGuestRate = rule ? rule.perGuestRate : 1500;
+  const basePrice = rule ? rule.basePrice : (rules.setupFee !== undefined ? rules.setupFee : 25000);
+
+  return basePrice + (guestCount * perGuestRate);
 }
 
 // Initial seed data to populate the admin panel beautifully on first run
@@ -337,6 +357,9 @@ export function getDb(): DatabaseSchema {
     }
     if (!data.heroSlides) {
       data.heroSlides = DEFAULT_HERO_SLIDES;
+    }
+    if (!data.pricingRules) {
+      data.pricingRules = DEFAULT_PRICING_RULES;
     }
 
     return data;
@@ -759,6 +782,79 @@ export function updateUserCredentials(
   saveDb(db);
   logAuditAction('CREDENTIALS_UPDATE', 'user', actor, userId, `Updated credentials for ${user.email}`);
   return { success: true, user };
+}
+
+// --- DYNAMIC PRICING ENGINE HELPERS ---
+export function getPricingRules(): PricingRules {
+  const db = getDb();
+  return db.pricingRules || DEFAULT_PRICING_RULES;
+}
+
+export function updatePricingRules(rules: PricingRules, actor: DbActor): boolean {
+  const db = getDb();
+  const beforeState = db.pricingRules || DEFAULT_PRICING_RULES;
+  db.pricingRules = rules;
+  saveDb(db);
+
+  logAuditAction('PRICING_UPDATE', 'pricing', actor, 'pricing-rules', `Updated dynamic event pricing rules & per-guest rates`, beforeState, rules);
+  return true;
+}
+
+// --- TRASH PURGE HELPER (SUPERADMIN ONLY) ---
+export function purgeTrashItem(type: 'booking' | 'contact', id: string, actor: DbActor): boolean {
+  const db = getDb();
+  if (type === 'booking') {
+    const idx = db.bookings.findIndex(b => b.id === id && !!b.deletedAt);
+    if (idx !== -1) {
+      const removed = db.bookings.splice(idx, 1)[0];
+      saveDb(db);
+      logAuditAction('PURGE', 'booking', actor, id, `Permanently purged deleted proposal for ${removed.name}`);
+      return true;
+    }
+  } else if (type === 'contact') {
+    const idx = db.contacts.findIndex(c => c.id === id && !!c.deletedAt);
+    if (idx !== -1) {
+      const removed = db.contacts.splice(idx, 1)[0];
+      saveDb(db);
+      logAuditAction('PURGE', 'contact', actor, id, `Permanently purged deleted inquiry for ${removed.name}`);
+      return true;
+    }
+  }
+  return false;
+}
+
+// --- USER DEACTIVATION & FORCED PASSWORD RESET HELPERS (SUPERADMIN ONLY) ---
+export function setUserDeactivated(userId: string, isDeactivated: boolean, actor: DbActor): { success: boolean; error?: string } {
+  const db = getDb();
+  const user = db.users.find(u => u.id === userId);
+  if (!user) return { success: false, error: 'User record not found.' };
+
+  user.isDeactivated = isDeactivated;
+  if (isDeactivated) {
+    // Invalidate all active sessions for this deactivated user immediately
+    db.sessions = db.sessions.filter(s => s.userId !== userId);
+  }
+  saveDb(db);
+
+  logAuditAction('USER_DEACTIVATE', 'user', actor, userId, `${isDeactivated ? 'Deactivated' : 'Reactivated'} admin account: ${user.email}`);
+  return { success: true };
+}
+
+export function forceUserPasswordReset(userId: string, newPassword: string, actor: DbActor): { success: boolean; error?: string } {
+  const db = getDb();
+  const user = db.users.find(u => u.id === userId);
+  if (!user) return { success: false, error: 'User record not found.' };
+
+  const { hash, salt } = hashPassword(newPassword);
+  user.passwordHash = hash;
+  user.salt = salt;
+
+  // Invalidate active sessions forcing re-login with new password
+  db.sessions = db.sessions.filter(s => s.userId !== userId);
+  saveDb(db);
+
+  logAuditAction('CREDENTIALS_UPDATE', 'user', actor, userId, `Forced password reset for ${user.email}`);
+  return { success: true };
 }
 
 
