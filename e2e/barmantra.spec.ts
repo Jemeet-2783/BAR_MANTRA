@@ -219,5 +219,66 @@ test.describe('Barmantra E2E Production Suite', () => {
     expect(headers['content-security-policy']).toBeDefined();
   });
 
+  test('Scenario 6: Dynamic Pricing Rules Engine & User Deactivation Lifecycle', async ({ request }) => {
+    // 1. Log in as superadmin
+    const loginRes = await request.post('/api/admin/login', {
+      data: {
+        email: 'admin@barmantra.com',
+        password: process.env.ADMIN_PASSWORD || 'barmantra123'
+      }
+    });
+    expect(loginRes.ok()).toBeTruthy();
+    const loginData = await loginRes.json();
+    const authHeaders = {
+      Cookie: loginRes.headers()['set-cookie'],
+      'X-CSRF-Token': loginData.csrfToken
+    };
+
+    // 2. Fetch current pricing rules
+    const pricingRes = await request.get('/api/pricing/rules');
+    expect(pricingRes.ok()).toBeTruthy();
+    const currentRules = await pricingRes.json();
+    expect(currentRules.eventTypes).toBeDefined();
+
+    // 3. Update pricing rules dynamically
+    const updatedSetupFee = 30000;
+    const updatePricingRes = await request.put('/api/admin/pricing/rules', {
+      headers: authHeaders,
+      data: {
+        setupFee: updatedSetupFee,
+        eventTypes: currentRules.eventTypes
+      }
+    });
+    expect(updatePricingRes.ok()).toBeTruthy();
+
+    // 4. Verify pricing rules updated
+    const newPricingRes = await request.get('/api/pricing/rules');
+    const newRulesData = await newPricingRes.json();
+    expect(newRulesData.setupFee).toBe(30000);
+
+    // 5. Test user deactivation on staff account
+    const staffUserRes = await request.patch('/api/admin/users/usr-staff-1/deactivate', {
+      headers: authHeaders,
+      data: { isDeactivated: true }
+    });
+    expect(staffUserRes.ok()).toBeTruthy();
+
+    // 6. Attempt login with deactivated staff account -> should fail
+    const deactivatedLoginRes = await request.post('/api/admin/login', {
+      data: {
+        email: 'events@barmantra.com',
+        password: 'staff123'
+      }
+    });
+    expect(deactivatedLoginRes.status()).toBe(401);
+
+    // 7. Reactivate staff account
+    const reactivateRes = await request.patch('/api/admin/users/usr-staff-1/deactivate', {
+      headers: authHeaders,
+      data: { isDeactivated: false }
+    });
+    expect(reactivateRes.ok()).toBeTruthy();
+  });
+
 });
 
