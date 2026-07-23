@@ -6,25 +6,29 @@
 import React, { useState, useEffect } from 'react';
 import { TESTIMONIALS } from '../data';
 import { Star, ChevronLeft, ChevronRight, MessageSquare, Pause, Play } from 'lucide-react';
+import { useSiteContent } from '../useSiteContent';
 
 export function TestimonialsCarousel() {
+  const { testimonials } = useSiteContent();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+
+  const reviewsList = testimonials && testimonials.length > 0 ? testimonials : TESTIMONIALS;
 
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % TESTIMONIALS.length);
+      setCurrentIndex((prev) => (prev + 1) % reviewsList.length);
     }, 8000);
     return () => clearInterval(timer);
-  }, [isPaused]);
+  }, [isPaused, reviewsList.length]);
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+    setCurrentIndex((prev) => (prev - 1 + reviewsList.length) % reviewsList.length);
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % TESTIMONIALS.length);
+    setCurrentIndex((prev) => (prev + 1) % reviewsList.length);
   };
 
   return (
@@ -84,7 +88,7 @@ export function TestimonialsCarousel() {
 
           {/* Testimonial card container with transition */}
           <div className="w-full">
-            {TESTIMONIALS.map((t, idx) => (
+            {reviewsList.map((t, idx) => (
               <div
                 key={t.id}
                 tabIndex={0}
@@ -132,7 +136,7 @@ export function TestimonialsCarousel() {
         {/* Controls: Dots & Play/Pause Button */}
         <div className="flex items-center justify-center space-x-4 mt-8">
           <div className="flex items-center space-x-2">
-            {TESTIMONIALS.map((_, idx) => (
+            {reviewsList.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}

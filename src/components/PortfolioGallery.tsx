@@ -8,11 +8,15 @@ import { PORTFOLIO_ITEMS } from '../data';
 import { Search, X, MapPin, Calendar, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { useHashRoute } from '../useHashRoute';
 import { getResponsiveImageUrl } from '../utils/cloudinary';
+import { useSiteContent } from '../useSiteContent';
 
 export function PortfolioGallery() {
   const { navigateTo } = useHashRoute();
+  const { portfolioItems } = useSiteContent();
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'cocktails' | 'event-bars' | 'guest-experiences'>('all');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const itemsList = portfolioItems && portfolioItems.length > 0 ? portfolioItems : PORTFOLIO_ITEMS;
 
   const categories: { label: string; value: typeof selectedCategory }[] = [
     { label: 'All Work', value: 'all' },
@@ -22,7 +26,7 @@ export function PortfolioGallery() {
   ];
 
   // Filtering the portfolio items based on selection
-  const filteredItems = PORTFOLIO_ITEMS.filter(
+  const filteredItems = itemsList.filter(
     (item) => selectedCategory === 'all' || item.category === selectedCategory
   );
 

@@ -7,9 +7,11 @@ import React from 'react';
 import { useHashRoute } from '../useHashRoute';
 import { Instagram, Facebook, Phone, MessageSquare, MapPin, Mail, Sparkles } from 'lucide-react';
 import { BarmantraLogo } from './BarmantraLogo';
+import { useSiteContent } from '../useSiteContent';
 
 export function Footer() {
   const { currentRoute, navigateTo } = useHashRoute();
+  const { siteSettings } = useSiteContent();
 
   const handleLinkClick = (hashPath: string, targetId?: string) => {
     navigateTo(hashPath);
@@ -107,19 +109,19 @@ export function Footer() {
                 <li className="flex items-start space-x-3">
                   <MapPin className="w-4.5 h-4.5 text-gold-500 flex-shrink-0 mt-0.5" />
                   <span className="leading-relaxed font-light">
-                    D-45, Raja Park, Jaipur,<br />Rajasthan 302020, India
+                    {siteSettings.address || 'D-45, Raja Park, Jaipur, Rajasthan 302020, India'}
                   </span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Phone className="w-4.5 h-4.5 text-gold-500 flex-shrink-0" />
-                  <a href="tel:+919829012345" className="hover:text-gold-500 transition-colors font-mono">
-                    +91 98290 12345
+                  <a href={`tel:${siteSettings.phone.replace(/\s+/g, '')}`} className="hover:text-gold-500 transition-colors font-mono">
+                    {siteSettings.phone || '+91 98290 12345'}
                   </a>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Mail className="w-4.5 h-4.5 text-gold-500 flex-shrink-0" />
-                  <a href="mailto:plan@barmantra.com" className="hover:text-gold-500 transition-colors font-mono">
-                    plan@barmantra.com
+                  <a href={`mailto:${siteSettings.email}`} className="hover:text-gold-500 transition-colors font-mono">
+                    {siteSettings.email || 'concierge@barmantra.com'}
                   </a>
                 </li>
               </ul>

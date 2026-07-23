@@ -6,9 +6,13 @@
 import React, { useState } from 'react';
 import { FAQS } from '../data';
 import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { useSiteContent } from '../useSiteContent';
 
 export function FAQAccordion() {
+  const { faqs } = useSiteContent();
   const [openId, setOpenId] = useState<string | null>('faq-1');
+
+  const faqList = faqs && faqs.length > 0 ? faqs : FAQS;
 
   const toggleFaq = (id: string) => {
     setOpenId(openId === id ? null : id);
@@ -36,7 +40,7 @@ export function FAQAccordion() {
 
         {/* Accordions List */}
         <div className="space-y-4">
-          {FAQS.map((faq) => {
+          {faqList.map((faq) => {
             const isOpen = openId === faq.id;
 
             return (

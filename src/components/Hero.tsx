@@ -7,32 +7,27 @@ import React, { useState, useEffect } from 'react';
 import { Star, MapPin, Sparkles, ChevronRight } from 'lucide-react';
 import { useHashRoute } from '../useHashRoute';
 import { getResponsiveImageUrl } from '../utils/cloudinary';
-
-const HERO_SLIDES = [
-  {
-    image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1920&q=80',
-    title: 'Royal Wedding Bar Curation',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1575444758702-4a6b9222336e?auto=format&fit=crop&w=1920&q=80',
-    title: 'Exquisite Mixology Showcase',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1574096079513-d8259312b785?auto=format&fit=crop&w=1920&q=80',
-    title: 'Heritage Palace Lounge Bar',
-  },
-];
+import { useSiteContent } from '../useSiteContent';
 
 export function Hero() {
   const { navigateTo } = useHashRoute();
+  const { siteSettings, heroSlides } = useSiteContent();
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = heroSlides && heroSlides.length > 0 ? heroSlides : [
+    {
+      id: '1',
+      image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1920&q=80',
+      title: 'Royal Wedding Bar Curation',
+    }
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   return (
     <section
@@ -44,9 +39,9 @@ export function Hero() {
     >
       {/* Background slideshow with absolute sizing and crossfade */}
       <div className="absolute inset-0 z-0">
-        {HERO_SLIDES.map((slide, index) => (
+        {slides.map((slide, index) => (
           <div
-            key={slide.image}
+            key={slide.id || slide.image}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
               index === currentSlide ? 'opacity-100' : 'opacity-0'
             }`}
@@ -76,18 +71,18 @@ export function Hero() {
         <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-gold-600/20 border border-gold-500/30 mb-6 animate-fade-in-down">
           <Sparkles className="w-3.5 h-3.5 text-gold-400" />
           <span className="text-xs uppercase tracking-widest text-gold-400 font-mono font-semibold">
-            The Premiere Luxury Bartending Service of Jaipur
+            {siteSettings.tagline || 'The Premiere Luxury Bartending Service of Jaipur'}
           </span>
         </div>
 
         {/* Headline */}
         <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-ivory-50 tracking-tight leading-[1.1] mb-6 max-w-4xl font-medium">
-          Luxury <span className="shimmer-gold font-semibold italic">Bar</span> Experiences
+          {siteSettings.heroHeadline || 'Luxury Bar Experiences'}
         </h1>
 
         {/* Subheadline */}
         <p className="font-sans text-base sm:text-lg md:text-xl text-ivory-200 max-w-2xl mb-10 leading-relaxed font-light">
-          We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.
+          {siteSettings.heroSubheadline || 'We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.'}
         </p>
 
         {/* Action Buttons */}

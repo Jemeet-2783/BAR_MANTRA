@@ -8,9 +8,13 @@ import { TEAM } from '../data';
 import { X, Sparkles, Award } from 'lucide-react';
 import { TeamMember } from '../types';
 import { getResponsiveImageUrl } from '../utils/cloudinary';
+import { useSiteContent } from '../useSiteContent';
 
 export function TeamSection() {
+  const { team } = useSiteContent();
   const [activeMember, setActiveMember] = useState<TeamMember | null>(null);
+
+  const teamList = team && team.length > 0 ? team : TEAM;
 
   return (
     <section id="team-section" className="relative py-24 bg-ivory-50 overflow-hidden">
@@ -35,7 +39,7 @@ export function TeamSection() {
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {TEAM.map((member) => (
+          {teamList.map((member) => (
             <div
               key={member.id}
               onClick={() => setActiveMember(member)}
