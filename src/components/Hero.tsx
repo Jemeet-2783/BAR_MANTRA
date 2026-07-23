@@ -34,7 +34,7 @@ export function Hero() {
       id="hero-section"
       className="relative h-screen w-full overflow-hidden flex items-center justify-center bg-maroon-950 bg-cover bg-center"
       style={{
-        backgroundImage: `linear-gradient(to top, rgba(61, 2, 18, 0.95), rgba(61, 2, 18, 0.6), rgba(61, 2, 18, 0.4)), url(${HERO_SLIDES[0].image})`,
+        backgroundImage: `linear-gradient(to top, rgba(61, 2, 18, 0.95), rgba(61, 2, 18, 0.6), rgba(61, 2, 18, 0.4)), url(${slides[0]?.image || ''})`,
       }}
     >
       {/* Background slideshow with absolute sizing and crossfade */}

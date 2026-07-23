@@ -27,13 +27,26 @@ import {
   RotateCcw,
   UserCheck,
   History,
-  Archive
+  Archive,
+  Edit3,
+  Sliders,
+  Plus,
+  Key,
+  UserPlus,
+  Settings,
+  Image as ImageIcon,
+  Sparkles,
+  Globe,
+  Save
 } from 'lucide-react';
 import { useHashRoute } from '../../useHashRoute';
 import { DbBooking, DbContact } from '../../server/db';
+import { useSiteContent } from '../../useSiteContent';
 
 export function AdminView() {
   const { navigateTo } = useHashRoute();
+  const { siteSettings, heroSlides, services, portfolioItems, team, testimonials, faqs, refreshContent } = useSiteContent();
+
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userProfile, setUserProfile] = useState<{ id: string; email: string; name: string; role: string } | null>(null);
   const [email, setEmail] = useState('admin@barmantra.com');
@@ -42,7 +55,43 @@ export function AdminView() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   
   // Dashboard states
-  const [activeTab, setActiveTab] = useState<'bookings' | 'contacts' | 'trash' | 'audit'>('bookings');
+  const [activeTab, setActiveTab] = useState<'bookings' | 'contacts' | 'trash' | 'audit' | 'cms' | 'users'>('bookings');
+  const [activeCmsSubTab, setActiveCmsSubTab] = useState<'branding' | 'services' | 'portfolio' | 'team' | 'testimonials' | 'faqs'>('branding');
+
+  // CMS Editor States
+  const [cmsBranding, setCmsBranding] = useState<any>(siteSettings);
+  const [cmsSlides, setCmsSlides] = useState<any[]>(heroSlides);
+  const [cmsServicesList, setCmsServicesList] = useState<any[]>(services);
+  const [cmsPortfolioList, setCmsPortfolioList] = useState<any[]>(portfolioItems);
+  const [cmsTeamList, setCmsTeamList] = useState<any[]>(team);
+  const [cmsTestimonialsList, setCmsTestimonialsList] = useState<any[]>(testimonials);
+  const [cmsFaqsList, setCmsFaqsList] = useState<any[]>(faqs);
+
+  // Sync CMS state when useSiteContent context finishes fetching
+  useEffect(() => {
+    if (siteSettings) setCmsBranding(siteSettings);
+    if (heroSlides) setCmsSlides(heroSlides);
+    if (services) setCmsServicesList(services);
+    if (portfolioItems) setCmsPortfolioList(portfolioItems);
+    if (team) setCmsTeamList(team);
+    if (testimonials) setCmsTestimonialsList(testimonials);
+    if (faqs) setCmsFaqsList(faqs);
+  }, [siteSettings, heroSlides, services, portfolioItems, team, testimonials, faqs]);
+
+  // Admin User Management State
+  const [usersList, setUsersList] = useState<any[]>([]);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [regEmail, setRegEmail] = useState('');
+  const [regName, setRegName] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regRole, setRegRole] = useState<'superadmin' | 'admin' | 'staff'>('staff');
+
+  // Profile credentials state
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [profEmail, setProfEmail] = useState('');
+  const [profName, setProfName] = useState('');
+  const [profPassword, setProfPassword] = useState('');
+
   const [bookings, setBookings] = useState<DbBooking[]>([]);
   const [contacts, setContacts] = useState<DbContact[]>([]);
   const [trashItems, setTrashItems] = useState<{ bookings: DbBooking[]; contacts: DbContact[] }>({ bookings: [], contacts: [] });
@@ -102,6 +151,87 @@ export function AdminView() {
       showNotification('Could not synchronize ledger with remote server.', 'error');
     } finally {
       setIsLoadingData(false);
+    }
+  };
+
+  const handleSaveCmsSection = async (section: string, payloadData: any) => {
+    try {
+      const res = await fetch(`/api/admin/site-content/${section}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payloadData)
+      });
+      const result = await res.json();
+      if (res.ok) {
+        showNotification(`Dynamic section '${section}' updated & published live!`, 'success');
+        await refreshContent();
+      } else {
+        showNotification(result.error || 'Failed to save section', 'error');
+      }
+    } catch (err) {
+      showNotification('Network error while saving CMS changes', 'error');
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch('/api/admin/users');
+      if (res.ok) {
+        const data = await res.json();
+        setUsersList(data);
+      }
+    } catch (err) {
+      console.error('Failed to load users list:', err);
+    }
+  };
+
+  const handleRegisterUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!regEmail || !regPassword || !regName) {
+      showNotification('Please fill out all required user registration fields.', 'error');
+      return;
+    }
+    try {
+      const res = await fetch('/api/admin/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: regEmail, password: regPassword, name: regName, role: regRole })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        showNotification('New admin account successfully registered!', 'success');
+        setIsRegisterModalOpen(false);
+        setRegEmail('');
+        setRegPassword('');
+        setRegName('');
+        fetchUsers();
+      } else {
+        showNotification(result.error || 'Registration failed', 'error');
+      }
+    } catch (err) {
+      showNotification('Error connecting to user registration server', 'error');
+    }
+  };
+
+  const handleUpdateCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userProfile) return;
+    try {
+      const res = await fetch(`/api/admin/users/${userProfile.id}/credentials`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: profEmail, name: profName, password: profPassword })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        showNotification('Admin credentials updated successfully! Log in again if password changed.', 'success');
+        setIsProfileModalOpen(false);
+        checkAuthStatus();
+      } else {
+        showNotification(result.error || 'Failed to update credentials', 'error');
+      }
+    } catch (err) {
+      showNotification('Network error while updating credentials', 'error');
     }
   };
 
@@ -575,6 +705,28 @@ export function AdminView() {
                 <History size={13} />
                 <span>Audit Logs</span>
               </button>
+              <button
+                onClick={() => { setActiveTab('cms'); setStatusFilter('all'); }}
+                className={`px-5 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center space-x-1.5 ${
+                  activeTab === 'cms'
+                    ? 'bg-maroon-950 text-gold-400'
+                    : 'bg-ivory-50 text-maroon-950 hover:bg-ivory-100'
+                }`}
+              >
+                <Edit3 size={13} />
+                <span>CMS Page Editor</span>
+              </button>
+              <button
+                onClick={() => { setActiveTab('users'); fetchUsers(); setStatusFilter('all'); }}
+                className={`px-5 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center space-x-1.5 ${
+                  activeTab === 'users'
+                    ? 'bg-maroon-950 text-gold-400'
+                    : 'bg-ivory-50 text-maroon-950 hover:bg-ivory-100'
+                }`}
+              >
+                <UserPlus size={13} />
+                <span>Admin Sign-Up & Credentials</span>
+              </button>
             </div>
 
             {/* Filter and Search Box */}
@@ -946,6 +1098,792 @@ export function AdminView() {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* DYNAMIC CMS PAGE EDITOR VIEW */}
+            {activeTab === 'cms' && (
+              <div className="p-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
+                  <div>
+                    <h3 className="font-serif text-xl font-medium text-maroon-950 flex items-center gap-2">
+                      <Edit3 className="text-gold-600" size={20} />
+                      <span>Dynamic Studio CMS Editor</span>
+                    </h3>
+                    <p className="text-xs text-gray-500 font-sans mt-0.5">
+                      Update text, background slides, team bios, portfolio images, and site branding live on the public website.
+                    </p>
+                  </div>
+
+                  {/* CMS Sub-tabs */}
+                  <div className="flex flex-wrap gap-1.5 bg-ivory-100 p-1 rounded-xl border border-gray-200">
+                    {(['branding', 'services', 'portfolio', 'team', 'testimonials', 'faqs'] as const).map((sub) => (
+                      <button
+                        key={sub}
+                        onClick={() => setActiveCmsSubTab(sub)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition-all cursor-pointer ${
+                          activeCmsSubTab === sub
+                            ? 'bg-maroon-950 text-gold-400 shadow-sm'
+                            : 'text-gray-600 hover:text-maroon-950'
+                        }`}
+                      >
+                        {sub}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sub-Tab 1: Branding & Hero */}
+                {activeCmsSubTab === 'branding' && (
+                  <div className="space-y-6">
+                    <div className="bg-ivory-50/60 p-5 rounded-2xl border border-gray-200 space-y-4">
+                      <h4 className="font-serif text-base font-semibold text-maroon-950">Site Branding & Headlines</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans">
+                        <div>
+                          <label className="block font-bold text-gray-700 mb-1">Hero Main Headline</label>
+                          <input
+                            type="text"
+                            value={cmsBranding?.heroHeadline || ''}
+                            onChange={(e) => setCmsBranding({ ...cmsBranding, heroHeadline: e.target.value })}
+                            className="w-full p-2.5 rounded-lg border border-gray-300 focus:border-gold-600 outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block font-bold text-gray-700 mb-1">Hero Badge Tagline</label>
+                          <input
+                            type="text"
+                            value={cmsBranding?.tagline || ''}
+                            onChange={(e) => setCmsBranding({ ...cmsBranding, tagline: e.target.value })}
+                            className="w-full p-2.5 rounded-lg border border-gray-300 focus:border-gold-600 outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block font-bold text-gray-700 mb-1">Hero Subheadline</label>
+                          <textarea
+                            rows={2}
+                            value={cmsBranding?.heroSubheadline || ''}
+                            onChange={(e) => setCmsBranding({ ...cmsBranding, heroSubheadline: e.target.value })}
+                            className="w-full p-2.5 rounded-lg border border-gray-300 focus:border-gold-600 outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block font-bold text-gray-700 mb-1">Concierge Phone Number</label>
+                          <input
+                            type="text"
+                            value={cmsBranding?.phone || ''}
+                            onChange={(e) => setCmsBranding({ ...cmsBranding, phone: e.target.value })}
+                            className="w-full p-2.5 rounded-lg border border-gray-300 focus:border-gold-600 outline-none font-mono"
+                          />
+                        </div>
+                        <div>
+                          <label className="block font-bold text-gray-700 mb-1">Concierge Email</label>
+                          <input
+                            type="text"
+                            value={cmsBranding?.email || ''}
+                            onChange={(e) => setCmsBranding({ ...cmsBranding, email: e.target.value })}
+                            className="w-full p-2.5 rounded-lg border border-gray-300 focus:border-gold-600 outline-none font-mono"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block font-bold text-gray-700 mb-1">Studio Address</label>
+                          <input
+                            type="text"
+                            value={cmsBranding?.address || ''}
+                            onChange={(e) => setCmsBranding({ ...cmsBranding, address: e.target.value })}
+                            className="w-full p-2.5 rounded-lg border border-gray-300 focus:border-gold-600 outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Hero Background Slides list */}
+                    <div className="bg-ivory-50/60 p-5 rounded-2xl border border-gray-200 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-serif text-base font-semibold text-maroon-950">Hero Background Slideshow</h4>
+                        <button
+                          onClick={() => setCmsSlides([...cmsSlides, { id: `hs-${Date.now()}`, image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1920&q=80', title: 'New Slide' }])}
+                          className="px-3 py-1 bg-gold-600 hover:bg-gold-700 text-white rounded-lg text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus size={12} /> Add Slide
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        {cmsSlides.map((slide, idx) => (
+                          <div key={slide.id || idx} className="p-3 bg-white rounded-xl border border-gray-200 flex flex-col md:flex-row gap-3 items-center">
+                            <img src={slide.image} alt={slide.title} className="w-16 h-12 object-cover rounded-lg flex-shrink-0" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 flex-grow text-xs">
+                              <input
+                                type="text"
+                                placeholder="Slide Title"
+                                value={slide.title}
+                                onChange={(e) => {
+                                  const updated = [...cmsSlides];
+                                  updated[idx].title = e.target.value;
+                                  setCmsSlides(updated);
+                                }}
+                                className="p-2 rounded border border-gray-200 font-sans"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Image URL (Unsplash or Cloudinary)"
+                                value={slide.image}
+                                onChange={(e) => {
+                                  const updated = [...cmsSlides];
+                                  updated[idx].image = e.target.value;
+                                  setCmsSlides(updated);
+                                }}
+                                className="p-2 rounded border border-gray-200 font-mono text-[11px]"
+                              />
+                            </div>
+                            <button
+                              onClick={() => setCmsSlides(cmsSlides.filter((_, i) => i !== idx))}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"
+                              title="Delete slide"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={async () => {
+                        await handleSaveCmsSection('siteSettings', cmsBranding);
+                        await handleSaveCmsSection('heroSlides', cmsSlides);
+                      }}
+                      className="px-6 py-3 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md"
+                    >
+                      <Save size={14} /> Publish Branding & Slides Live
+                    </button>
+                  </div>
+                )}
+
+                {/* Sub-Tab 2: Services */}
+                {activeCmsSubTab === 'services' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-serif text-base font-semibold text-maroon-950">Service Packages Catalog</h4>
+                      <button
+                        onClick={() => setCmsServicesList([...cmsServicesList, { slug: `service-${Date.now()}`, title: 'New Luxury Package', iconName: 'Sparkles', description: 'Package description...', longDescription: 'Detailed overview...', features: ['Feature 1', 'Feature 2'], images: ['https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80'], timeline: [] }])}
+                        className="px-3 py-1.5 bg-gold-600 hover:bg-gold-700 text-white rounded-lg text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus size={13} /> Add New Package
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {cmsServicesList.map((srv, idx) => (
+                        <div key={srv.slug || idx} className="p-4 bg-ivory-50/80 rounded-2xl border border-gray-200 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-xs font-bold text-gold-700 uppercase">Package #{idx + 1} ({srv.slug})</span>
+                            <button
+                              onClick={() => setCmsServicesList(cmsServicesList.filter((_, i) => i !== idx))}
+                              className="text-red-600 hover:bg-red-50 p-1.5 rounded-lg text-xs flex items-center gap-1 cursor-pointer font-mono"
+                            >
+                              <Trash2 size={13} /> Remove
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-1">Package Title</label>
+                              <input
+                                type="text"
+                                value={srv.title}
+                                onChange={(e) => {
+                                  const updated = [...cmsServicesList];
+                                  updated[idx].title = e.target.value;
+                                  setCmsServicesList(updated);
+                                }}
+                                className="w-full p-2 rounded-lg border border-gray-300 font-sans"
+                              />
+                            </div>
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-1">Short Description</label>
+                              <input
+                                type="text"
+                                value={srv.description}
+                                onChange={(e) => {
+                                  const updated = [...cmsServicesList];
+                                  updated[idx].description = e.target.value;
+                                  setCmsServicesList(updated);
+                                }}
+                                className="w-full p-2 rounded-lg border border-gray-300 font-sans"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => handleSaveCmsSection('services', cmsServicesList)}
+                      className="px-6 py-3 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md"
+                    >
+                      <Save size={14} /> Publish Services Live
+                    </button>
+                  </div>
+                )}
+
+                {/* Sub-Tab 3: Portfolio */}
+                {activeCmsSubTab === 'portfolio' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-serif text-base font-semibold text-maroon-950">Portfolio Showcase Gallery</h4>
+                      <button
+                        onClick={() => setCmsPortfolioList([...cmsPortfolioList, { id: `port-${Date.now()}`, title: 'Palace Celebration', category: 'event-bars', image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80', location: 'Jaipur Palace', date: '2026', description: 'Royal mixology event...' }])}
+                        className="px-3 py-1.5 bg-gold-600 hover:bg-gold-700 text-white rounded-lg text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus size={13} /> Add Portfolio Item
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {cmsPortfolioList.map((item, idx) => (
+                        <div key={item.id || idx} className="p-4 bg-ivory-50/80 rounded-2xl border border-gray-200 space-y-3 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[11px] font-bold text-gold-700 uppercase">Item #{idx + 1}</span>
+                            <button
+                              onClick={() => setCmsPortfolioList(cmsPortfolioList.filter((_, i) => i !== idx))}
+                              className="text-red-600 hover:bg-red-50 p-1 rounded-lg cursor-pointer"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                          <div>
+                            <label className="block font-bold text-gray-700 mb-1">Title</label>
+                            <input
+                              type="text"
+                              value={item.title}
+                              onChange={(e) => {
+                                const updated = [...cmsPortfolioList];
+                                updated[idx].title = e.target.value;
+                                setCmsPortfolioList(updated);
+                              }}
+                              className="w-full p-2 rounded-lg border border-gray-300 font-sans"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-1">Category</label>
+                              <select
+                                value={item.category}
+                                onChange={(e) => {
+                                  const updated = [...cmsPortfolioList];
+                                  updated[idx].category = e.target.value;
+                                  setCmsPortfolioList(updated);
+                                }}
+                                className="w-full p-2 rounded-lg border border-gray-300 font-sans"
+                              >
+                                <option value="cocktails">Cocktails</option>
+                                <option value="event-bars">Event Bars</option>
+                                <option value="guest-experiences">Guest Experiences</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-1">Location</label>
+                              <input
+                                type="text"
+                                value={item.location}
+                                onChange={(e) => {
+                                  const updated = [...cmsPortfolioList];
+                                  updated[idx].location = e.target.value;
+                                  setCmsPortfolioList(updated);
+                                }}
+                                className="w-full p-2 rounded-lg border border-gray-300 font-sans"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block font-bold text-gray-700 mb-1">Image URL</label>
+                            <input
+                              type="text"
+                              value={item.image}
+                              onChange={(e) => {
+                                const updated = [...cmsPortfolioList];
+                                updated[idx].image = e.target.value;
+                                setCmsPortfolioList(updated);
+                              }}
+                              className="w-full p-2 rounded-lg border border-gray-300 font-mono text-[11px]"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => handleSaveCmsSection('portfolioItems', cmsPortfolioList)}
+                      className="px-6 py-3 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md"
+                    >
+                      <Save size={14} /> Publish Portfolio Live
+                    </button>
+                  </div>
+                )}
+
+                {/* Sub-Tab 4: Team */}
+                {activeCmsSubTab === 'team' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-serif text-base font-semibold text-maroon-950">Leadership & Team Members</h4>
+                      <button
+                        onClick={() => setCmsTeamList([...cmsTeamList, { id: `tm-${Date.now()}`, name: 'New Team Member', role: 'Senior Mixologist', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80', bio: 'Expert craft mixologist...' }])}
+                        className="px-3 py-1.5 bg-gold-600 hover:bg-gold-700 text-white rounded-lg text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus size={13} /> Add Team Member
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      {cmsTeamList.map((tm, idx) => (
+                        <div key={tm.id || idx} className="p-4 bg-ivory-50/80 rounded-2xl border border-gray-200 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[11px] font-bold text-gold-700">Member #{idx + 1}</span>
+                            <button
+                              onClick={() => setCmsTeamList(cmsTeamList.filter((_, i) => i !== idx))}
+                              className="text-red-600 hover:bg-red-50 p-1 rounded-lg cursor-pointer"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-1">Full Name</label>
+                              <input
+                                type="text"
+                                value={tm.name}
+                                onChange={(e) => {
+                                  const updated = [...cmsTeamList];
+                                  updated[idx].name = e.target.value;
+                                  setCmsTeamList(updated);
+                                }}
+                                className="w-full p-2 rounded-lg border border-gray-300 font-sans"
+                              />
+                            </div>
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-1">Title / Role</label>
+                              <input
+                                type="text"
+                                value={tm.role}
+                                onChange={(e) => {
+                                  const updated = [...cmsTeamList];
+                                  updated[idx].role = e.target.value;
+                                  setCmsTeamList(updated);
+                                }}
+                                className="w-full p-2 rounded-lg border border-gray-300 font-sans"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block font-bold text-gray-700 mb-1">Profile Photo URL</label>
+                            <input
+                              type="text"
+                              value={tm.image}
+                              onChange={(e) => {
+                                const updated = [...cmsTeamList];
+                                updated[idx].image = e.target.value;
+                                setCmsTeamList(updated);
+                              }}
+                              className="w-full p-2 rounded-lg border border-gray-300 font-mono text-[11px]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block font-bold text-gray-700 mb-1">Bio Overview</label>
+                            <textarea
+                              rows={2}
+                              value={tm.bio}
+                              onChange={(e) => {
+                                const updated = [...cmsTeamList];
+                                updated[idx].bio = e.target.value;
+                                setCmsTeamList(updated);
+                              }}
+                              className="w-full p-2 rounded-lg border border-gray-300 font-sans"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => handleSaveCmsSection('team', cmsTeamList)}
+                      className="px-6 py-3 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md"
+                    >
+                      <Save size={14} /> Publish Team Live
+                    </button>
+                  </div>
+                )}
+
+                {/* Sub-Tab 5: Testimonials */}
+                {activeCmsSubTab === 'testimonials' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-serif text-base font-semibold text-maroon-950">Client Reviews & Testimonials</h4>
+                      <button
+                        onClick={() => setCmsTestimonialsList([...cmsTestimonialsList, { id: `t-${Date.now()}`, name: 'Royal Client', eventType: 'Palace Wedding', rating: 5, quote: 'Immaculate cocktail curation...', date: 'July 2026' }])}
+                        className="px-3 py-1.5 bg-gold-600 hover:bg-gold-700 text-white rounded-lg text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus size={13} /> Add Testimonial
+                      </button>
+                    </div>
+
+                    <div className="space-y-3 text-xs">
+                      {cmsTestimonialsList.map((t, idx) => (
+                        <div key={t.id || idx} className="p-4 bg-ivory-50/80 rounded-2xl border border-gray-200 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[11px] font-bold text-gold-700">Review #{idx + 1}</span>
+                            <button
+                              onClick={() => setCmsTestimonialsList(cmsTestimonialsList.filter((_, i) => i !== idx))}
+                              className="text-red-600 hover:bg-red-50 p-1 rounded-lg cursor-pointer"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <input
+                              type="text"
+                              placeholder="Client Name"
+                              value={t.name}
+                              onChange={(e) => {
+                                const updated = [...cmsTestimonialsList];
+                                updated[idx].name = e.target.value;
+                                setCmsTestimonialsList(updated);
+                              }}
+                              className="p-2 rounded border border-gray-300 font-sans"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Event Type"
+                              value={t.eventType}
+                              onChange={(e) => {
+                                const updated = [...cmsTestimonialsList];
+                                updated[idx].eventType = e.target.value;
+                                setCmsTestimonialsList(updated);
+                              }}
+                              className="p-2 rounded border border-gray-300 font-sans"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Event Date"
+                              value={t.date}
+                              onChange={(e) => {
+                                const updated = [...cmsTestimonialsList];
+                                updated[idx].date = e.target.value;
+                                setCmsTestimonialsList(updated);
+                              }}
+                              className="p-2 rounded border border-gray-300 font-sans"
+                            />
+                          </div>
+                          <textarea
+                            rows={2}
+                            placeholder="Quote text..."
+                            value={t.quote}
+                            onChange={(e) => {
+                              const updated = [...cmsTestimonialsList];
+                              updated[idx].quote = e.target.value;
+                              setCmsTestimonialsList(updated);
+                            }}
+                            className="w-full p-2 rounded-lg border border-gray-300 font-sans"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => handleSaveCmsSection('testimonials', cmsTestimonialsList)}
+                      className="px-6 py-3 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md"
+                    >
+                      <Save size={14} /> Publish Testimonials Live
+                    </button>
+                  </div>
+                )}
+
+                {/* Sub-Tab 6: FAQs */}
+                {activeCmsSubTab === 'faqs' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-serif text-base font-semibold text-maroon-950">Frequently Asked Questions</h4>
+                      <button
+                        onClick={() => setCmsFaqsList([...cmsFaqsList, { id: `faq-${Date.now()}`, question: 'What is your booking timeline?', answer: 'We recommend reserving your date at least 2-4 months in advance.' }])}
+                        className="px-3 py-1.5 bg-gold-600 hover:bg-gold-700 text-white rounded-lg text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus size={13} /> Add FAQ Item
+                      </button>
+                    </div>
+
+                    <div className="space-y-3 text-xs">
+                      {cmsFaqsList.map((faq, idx) => (
+                        <div key={faq.id || idx} className="p-4 bg-ivory-50/80 rounded-2xl border border-gray-200 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[11px] font-bold text-gold-700">FAQ #{idx + 1}</span>
+                            <button
+                              onClick={() => setCmsFaqsList(cmsFaqsList.filter((_, i) => i !== idx))}
+                              className="text-red-600 hover:bg-red-50 p-1 rounded-lg cursor-pointer"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Question"
+                            value={faq.question}
+                            onChange={(e) => {
+                              const updated = [...cmsFaqsList];
+                              updated[idx].question = e.target.value;
+                              setCmsFaqsList(updated);
+                            }}
+                            className="w-full p-2 rounded-lg border border-gray-300 font-serif font-medium text-maroon-950"
+                          />
+                          <textarea
+                            rows={2}
+                            placeholder="Answer"
+                            value={faq.answer}
+                            onChange={(e) => {
+                              const updated = [...cmsFaqsList];
+                              updated[idx].answer = e.target.value;
+                              setCmsFaqsList(updated);
+                            }}
+                            className="w-full p-2 rounded-lg border border-gray-300 font-sans"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => handleSaveCmsSection('faqs', cmsFaqsList)}
+                      className="px-6 py-3 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md"
+                    >
+                      <Save size={14} /> Publish FAQs Live
+                    </button>
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            {/* ADMIN USER SIGN-UP & CREDENTIALS SUITE VIEW */}
+            {activeTab === 'users' && (
+              <div className="p-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
+                  <div>
+                    <h3 className="font-serif text-xl font-medium text-maroon-950 flex items-center gap-2">
+                      <UserPlus className="text-gold-600" size={20} />
+                      <span>Production Admin Sign-Up & Credentials Control</span>
+                    </h3>
+                    <p className="text-xs text-gray-500 font-sans mt-0.5">
+                      Register new admin/staff team members and update PBKDF2 hashed credential keys.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => setIsRegisterModalOpen(true)}
+                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-mono font-bold flex items-center gap-2 cursor-pointer shadow-sm transition-all"
+                    >
+                      <UserPlus size={14} /> Register New Admin
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (userProfile) {
+                          setProfEmail(userProfile.email);
+                          setProfName(userProfile.name);
+                          setProfPassword('');
+                        }
+                        setIsProfileModalOpen(true);
+                      }}
+                      className="px-4 py-2 bg-maroon-950 text-gold-400 hover:bg-maroon-900 rounded-xl text-xs font-mono font-bold flex items-center gap-2 cursor-pointer border border-gold-500/20 shadow-sm transition-all"
+                    >
+                      <Key size={14} /> My Credentials
+                    </button>
+                  </div>
+                </div>
+
+                {/* Users List Table */}
+                <div className="bg-ivory-50/50 rounded-2xl border border-gray-200 overflow-hidden">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-maroon-950/5 text-maroon-950 text-[11px] font-mono uppercase tracking-wider border-b border-gray-200">
+                        <th className="py-3.5 px-6">Name</th>
+                        <th className="py-3.5 px-6">Email Account</th>
+                        <th className="py-3.5 px-6">Access Role</th>
+                        <th className="py-3.5 px-6">Registered On</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 text-xs font-sans">
+                      {usersList.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-8 text-center text-gray-500 font-mono">
+                            No registered users loaded. Click "Register New Admin" to add your first account.
+                          </td>
+                        </tr>
+                      ) : (
+                        usersList.map((u) => (
+                          <tr key={u.id} className="hover:bg-white transition-colors">
+                            <td className="py-4 px-6 font-bold text-gray-900">{u.name}</td>
+                            <td className="py-4 px-6 font-mono text-gray-700">{u.email}</td>
+                            <td className="py-4 px-6">
+                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase ${
+                                u.role === 'superadmin' ? 'bg-gold-500/20 text-gold-800 border border-gold-400/40' : 'bg-gray-200 text-gray-800'
+                              }`}>
+                                {u.role}
+                              </span>
+                            </td>
+                            <td className="py-4 px-6 font-mono text-gray-500 text-[11px]">
+                              {new Date(u.createdAt).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* REGISTER NEW ADMIN USER MODAL */}
+                {isRegisterModalOpen && (
+                  <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-gold-500/20 shadow-2xl space-y-5 animate-scale-in">
+                      <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                        <h4 className="font-serif text-xl font-medium text-maroon-950 flex items-center gap-2">
+                          <UserPlus className="text-gold-600" size={20} />
+                          <span>Register Admin Account</span>
+                        </h4>
+                        <button onClick={() => setIsRegisterModalOpen(false)} className="text-gray-400 hover:text-gray-600 font-mono text-sm cursor-pointer">✕</button>
+                      </div>
+
+                      <form onSubmit={handleRegisterUser} className="space-y-4 text-xs">
+                        <div>
+                          <label className="block font-mono font-bold text-gray-700 uppercase mb-1">Full Name *</label>
+                          <input
+                            type="text"
+                            required
+                            value={regName}
+                            onChange={(e) => setRegName(e.target.value)}
+                            placeholder="e.g. Vikram Singh"
+                            className="w-full p-3 rounded-xl border border-gray-300 font-sans outline-none focus:border-gold-600"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block font-mono font-bold text-gray-700 uppercase mb-1">Admin Email *</label>
+                          <input
+                            type="email"
+                            required
+                            value={regEmail}
+                            onChange={(e) => setRegEmail(e.target.value)}
+                            placeholder="admin@barmantra.com"
+                            className="w-full p-3 rounded-xl border border-gray-300 font-mono outline-none focus:border-gold-600"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block font-mono font-bold text-gray-700 uppercase mb-1">Role Privilege *</label>
+                          <select
+                            value={regRole}
+                            onChange={(e) => setRegRole(e.target.value as any)}
+                            className="w-full p-3 rounded-xl border border-gray-300 font-mono outline-none focus:border-gold-600 bg-white"
+                          >
+                            <option value="staff">Staff (Bookings & Contacts)</option>
+                            <option value="admin">Admin (Full Operations)</option>
+                            <option value="superadmin">Superadmin (All Privileges + Trash Restore)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block font-mono font-bold text-gray-700 uppercase mb-1">Initial Password Key *</label>
+                          <input
+                            type="password"
+                            required
+                            value={regPassword}
+                            onChange={(e) => setRegPassword(e.target.value)}
+                            placeholder="Set secure password..."
+                            className="w-full p-3 rounded-xl border border-gray-300 font-mono outline-none focus:border-gold-600"
+                          />
+                        </div>
+
+                        <div className="pt-2 flex items-center justify-end space-x-3">
+                          <button
+                            type="button"
+                            onClick={() => setIsRegisterModalOpen(false)}
+                            className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 font-mono text-xs cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="px-5 py-2.5 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-mono font-bold text-xs uppercase cursor-pointer shadow-md"
+                          >
+                            Register Account
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
+                {/* MY CREDENTIALS MODAL */}
+                {isProfileModalOpen && (
+                  <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-gold-500/20 shadow-2xl space-y-5 animate-scale-in">
+                      <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                        <h4 className="font-serif text-xl font-medium text-maroon-950 flex items-center gap-2">
+                          <Key className="text-gold-600" size={20} />
+                          <span>Update Credentials</span>
+                        </h4>
+                        <button onClick={() => setIsProfileModalOpen(false)} className="text-gray-400 hover:text-gray-600 font-mono text-sm cursor-pointer">✕</button>
+                      </div>
+
+                      <form onSubmit={handleUpdateCredentials} className="space-y-4 text-xs">
+                        <div>
+                          <label className="block font-mono font-bold text-gray-700 uppercase mb-1">Display Name</label>
+                          <input
+                            type="text"
+                            value={profName}
+                            onChange={(e) => setProfName(e.target.value)}
+                            className="w-full p-3 rounded-xl border border-gray-300 font-sans outline-none focus:border-gold-600"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block font-mono font-bold text-gray-700 uppercase mb-1">Email Account</label>
+                          <input
+                            type="email"
+                            value={profEmail}
+                            onChange={(e) => setProfEmail(e.target.value)}
+                            className="w-full p-3 rounded-xl border border-gray-300 font-mono outline-none focus:border-gold-600"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block font-mono font-bold text-gray-700 uppercase mb-1">New Password (Leave blank to keep current)</label>
+                          <input
+                            type="password"
+                            value={profPassword}
+                            onChange={(e) => setProfPassword(e.target.value)}
+                            placeholder="Enter new password..."
+                            className="w-full p-3 rounded-xl border border-gray-300 font-mono outline-none focus:border-gold-600"
+                          />
+                        </div>
+
+                        <div className="pt-2 flex items-center justify-end space-x-3">
+                          <button
+                            type="button"
+                            onClick={() => setIsProfileModalOpen(false)}
+                            className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 font-mono text-xs cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="px-5 py-2.5 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-mono font-bold text-xs uppercase cursor-pointer shadow-md"
+                          >
+                            Save Credentials
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
               </div>
             )}
           </div>
