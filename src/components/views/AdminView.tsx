@@ -54,9 +54,62 @@ export function AdminView() {
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   
-  // Dashboard states
-  const [activeTab, setActiveTab] = useState<'bookings' | 'contacts' | 'trash' | 'audit' | 'cms' | 'users'>('bookings');
+  // Dashboard states - 12 Persistent Sidebar Sections
+  const [activeTab, setActiveTab] = useState<
+    | 'dashboard'
+    | 'proposals'
+    | 'inquiries'
+    | 'trash'
+    | 'audit'
+    | 'services'
+    | 'portfolio'
+    | 'testimonials'
+    | 'faqs'
+    | 'pricing'
+    | 'content'
+    | 'users'
+  >('dashboard');
+
   const [activeCmsSubTab, setActiveCmsSubTab] = useState<'branding' | 'services' | 'portfolio' | 'team' | 'testimonials' | 'faqs'>('branding');
+
+  // Dynamic Pricing Engine State
+  const [pricingRulesData, setPricingRulesData] = useState<any>({
+    setupFee: 25000,
+    eventTypes: [
+      { eventType: 'wedding-bar', name: 'Royal Wedding Bar Curation', basePrice: 25000, perGuestRate: 2500 },
+      { eventType: 'corporate-bar', name: 'Corporate Lounges & Brand Bars', basePrice: 25000, perGuestRate: 1800 },
+      { eventType: 'private-bar', name: 'Boutique Private Soirée Bar', basePrice: 25000, perGuestRate: 1500 },
+      { eventType: 'flair-bar', name: 'Interactive Flair Bar Show', basePrice: 25000, perGuestRate: 2000 },
+      { eventType: 'masterclass', name: 'Private Cocktail Masterclass', basePrice: 20000, perGuestRate: 1200 }
+    ]
+  });
+
+  // Confirmation Modal State (Safety & UX Detail 16)
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    isDanger?: boolean;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
+
+  // Force Password Reset Modal State for Superadmin
+  const [forceResetModal, setForceResetModal] = useState<{
+    isOpen: boolean;
+    userId: string;
+    userEmail: string;
+    newPassword: string;
+  }>({
+    isOpen: false,
+    userId: '',
+    userEmail: '',
+    newPassword: ''
+  });
 
   // CMS Editor States
   const [cmsBranding, setCmsBranding] = useState<any>(siteSettings);
@@ -173,6 +226,119 @@ export function AdminView() {
       }
     } catch (err) {
       showNotification('Network error while saving CMS changes', 'error');
+    }
+  };
+
+  const fetchPricingRules = async () => {
+    try {
+      const res = await fetch('/api/pricing/rules');
+      if (res.ok) {
+        const data = await res.json();
+        setPricingRulesData(data);
+      }
+    } catch (err) {
+      console.error('Failed to load pricing rules:', err);
+    }
+  };
+
+  const handleSavePricingRules = async (newRules: any) => {
+    try {
+      const res = await fetch('/api/admin/pricing/rules', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+        body: JSON.stringify(newRules)
+      });
+      const result = await res.json();
+      if (res.ok) {
+        setPricingRulesData(newRules);
+        showNotification('Dynamic pricing rules updated & live server calculator updated!', 'success');
+      } else {
+        showNotification(result.error || 'Failed to update pricing rules', 'error');
+      }
+    } catch (err) {
+      showNotification('Network error while updating pricing rules', 'error');
+    }
+  };
+
+  const handlePurgeTrashItem = (type: 'booking' | 'contact', id: string, name: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Permanent Database Purge Confirmation',
+      message: `Are you strictly sure you want to PERMANENTLY PURGE the deleted ${type} record for '${name}'? This action cannot be undone.`,
+      isDanger: true,
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/admin/trash/purge/${type}/${id}`, {
+            method: 'DELETE',
+            headers: { 'X-CSRF-Token': csrfToken }
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showNotification(`Record ${id} permanently purged from database.`, 'success');
+            fetchDashboardData();
+          } else {
+            showNotification(data.error || 'Failed to purge record.', 'error');
+          }
+        } catch (err) {
+          showNotification('Network error during purge operation.', 'error');
+        }
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
+
+  const handleToggleDeactivateUser = (userId: string, userEmail: string, currentDeactivated: boolean) => {
+    const nextState = !currentDeactivated;
+    setConfirmModal({
+      isOpen: true,
+      title: `${nextState ? 'Deactivate' : 'Reactivate'} Admin Account`,
+      message: nextState
+        ? `Are you sure you want to DEACTIVATE '${userEmail}'? They will be immediately blocked from accessing the Royal Command Studio.`
+        : `Are you sure you want to REACTIVATE '${userEmail}'?`,
+      isDanger: nextState,
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/admin/users/${userId}/deactivate`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+            body: JSON.stringify({ isDeactivated: nextState })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showNotification(`Account ${userEmail} ${nextState ? 'deactivated' : 'reactivated'} successfully!`, 'success');
+            fetchUsers();
+          } else {
+            showNotification(data.error || 'Operation failed', 'error');
+          }
+        } catch (err) {
+          showNotification('Network error changing user activation state.', 'error');
+        }
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
+
+  const handleForcePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forceResetModal.newPassword || forceResetModal.newPassword.length < 6) {
+      showNotification('Password must be at least 6 characters long.', 'error');
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/users/${forceResetModal.userId}/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+        body: JSON.stringify({ newPassword: forceResetModal.newPassword })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showNotification(`Password for ${forceResetModal.userEmail} has been reset. Active sessions invalidated.`, 'success');
+        setForceResetModal({ isOpen: false, userId: '', userEmail: '', newPassword: '' });
+      } else {
+        showNotification(data.error || 'Failed to reset password', 'error');
+      }
+    } catch (err) {
+      showNotification('Network error during password reset.', 'error');
     }
   };
 
@@ -674,80 +840,205 @@ export function AdminView() {
         </div>
       </section>
 
-      {/* LEAD DATA VIEWER SYSTEM */}
+      {/* PERSISTENT 12-SECTION SIDEBAR AND STUDIO WORKSPACE LAYOUT */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-        <div className="bg-white rounded-3xl border border-gold-600/10 shadow-md overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* Header Controls */}
-          <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* PERSISTENT SIDEBAR NAVIGATION (4 Cols) */}
+          <aside className="lg:col-span-3 space-y-6">
             
-            {/* View Tabs */}
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => { setActiveTab('bookings'); setStatusFilter('all'); }}
-                className={`px-5 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                  activeTab === 'bookings'
-                    ? 'bg-maroon-950 text-gold-400'
-                    : 'bg-ivory-50 text-maroon-950 hover:bg-ivory-100'
-                }`}
-              >
-                Event Proposals ({bookings.length})
-              </button>
-              <button
-                onClick={() => { setActiveTab('contacts'); setStatusFilter('all'); }}
-                className={`px-5 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                  activeTab === 'contacts'
-                    ? 'bg-maroon-950 text-gold-400'
-                    : 'bg-ivory-50 text-maroon-950 hover:bg-ivory-100'
-                }`}
-              >
-                General Inquiries ({contacts.length})
-              </button>
-              <button
-                onClick={() => { setActiveTab('trash'); setStatusFilter('all'); }}
-                className={`px-5 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center space-x-1.5 ${
-                  activeTab === 'trash'
-                    ? 'bg-maroon-950 text-gold-400'
-                    : 'bg-ivory-50 text-maroon-950 hover:bg-ivory-100'
-                }`}
-              >
-                <Archive size={13} />
-                <span>Trash ({trashItems.bookings.length + trashItems.contacts.length})</span>
-              </button>
-              <button
-                onClick={() => { setActiveTab('audit'); setStatusFilter('all'); }}
-                className={`px-5 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center space-x-1.5 ${
-                  activeTab === 'audit'
-                    ? 'bg-maroon-950 text-gold-400'
-                    : 'bg-ivory-50 text-maroon-950 hover:bg-ivory-100'
-                }`}
-              >
-                <History size={13} />
-                <span>Audit Logs</span>
-              </button>
-              <button
-                onClick={() => { setActiveTab('cms'); setStatusFilter('all'); }}
-                className={`px-5 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center space-x-1.5 ${
-                  activeTab === 'cms'
-                    ? 'bg-maroon-950 text-gold-400'
-                    : 'bg-ivory-50 text-maroon-950 hover:bg-ivory-100'
-                }`}
-              >
-                <Edit3 size={13} />
-                <span>CMS Page Editor</span>
-              </button>
-              <button
-                onClick={() => { setActiveTab('users'); fetchUsers(); setStatusFilter('all'); }}
-                className={`px-5 py-2.5 rounded-full font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center space-x-1.5 ${
-                  activeTab === 'users'
-                    ? 'bg-maroon-950 text-gold-400'
-                    : 'bg-ivory-50 text-maroon-950 hover:bg-ivory-100'
-                }`}
-              >
-                <UserPlus size={13} />
-                <span>Admin Sign-Up & Credentials</span>
-              </button>
+            {/* CORE OPERATIONS */}
+            <div className="bg-white rounded-2xl p-4 border border-gold-600/10 shadow-sm">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-maroon-900 font-bold block mb-3 px-2">
+                Core Operations
+              </span>
+              <nav className="space-y-1">
+                <button
+                  onClick={() => { setActiveTab('dashboard'); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
+                    activeTab === 'dashboard'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <TrendingUp size={15} />
+                  <span>Dashboard Overview</span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('proposals'); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                    activeTab === 'proposals'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2.5">
+                    <FileText size={15} />
+                    <span>Event Proposals</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-gold-500/20 text-gold-400 text-[10px]">
+                    {bookings.length}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('inquiries'); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                    activeTab === 'inquiries'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2.5">
+                    <MessageSquare size={15} />
+                    <span>General Inquiries</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px]">
+                    {contacts.length}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('trash'); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                    activeTab === 'trash'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2.5">
+                    <Archive size={15} />
+                    <span>Trash Archive</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[10px]">
+                    {trashItems.bookings.length + trashItems.contacts.length}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('audit'); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
+                    activeTab === 'audit'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <History size={15} />
+                  <span>Audit Log Ledger</span>
+                </button>
+              </nav>
             </div>
+
+            {/* CONTENT MANAGEMENT */}
+            <div className="bg-white rounded-2xl p-4 border border-gold-600/10 shadow-sm">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-maroon-900 font-bold block mb-3 px-2">
+                Content Management
+              </span>
+              <nav className="space-y-1">
+                <button
+                  onClick={() => { setActiveTab('services'); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
+                    activeTab === 'services'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <Sliders size={15} />
+                  <span>Services Catalog</span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('portfolio'); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
+                    activeTab === 'portfolio'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <ImageIcon size={15} />
+                  <span>Portfolio Showcase</span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('testimonials'); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
+                    activeTab === 'testimonials'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <Sparkles size={15} />
+                  <span>Testimonials & Reviews</span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('faqs'); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
+                    activeTab === 'faqs'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <AlertCircle size={15} />
+                  <span>FAQ Accordion</span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('content'); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
+                    activeTab === 'content'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <Globe size={15} />
+                  <span>About Page & Team</span>
+                </button>
+              </nav>
+            </div>
+
+            {/* SYSTEM & PRICING */}
+            <div className="bg-white rounded-2xl p-4 border border-gold-600/10 shadow-sm">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-maroon-900 font-bold block mb-3 px-2">
+                System & Governance
+              </span>
+              <nav className="space-y-1">
+                <button
+                  onClick={() => { setActiveTab('pricing'); fetchPricingRules(); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
+                    activeTab === 'pricing'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <IndianRupee size={15} />
+                  <span>Pricing Rules Engine</span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('users'); fetchUsers(); setStatusFilter('all'); }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                    activeTab === 'users'
+                      ? 'bg-maroon-950 text-gold-400 shadow-md'
+                      : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2.5">
+                    <UserPlus size={15} />
+                    <span>Admin Users</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-500 uppercase text-[9px]">
+                    Superadmin
+                  </span>
+                </button>
+              </nav>
+            </div>
+
+          </aside>
+
+          {/* MAIN STUDIO WORKSPACE AREA (9 Cols) */}
+          <main className="lg:col-span-9 bg-white rounded-3xl border border-gold-600/10 shadow-md p-6 overflow-hidden">
 
             {/* Filter and Search Box */}
             {(activeTab === 'bookings' || activeTab === 'contacts') && (
@@ -1039,13 +1330,24 @@ export function AdminView() {
                                 <span className="font-bold text-gray-900 text-sm">{tb.name} ({tb.eventType})</span>
                                 <p className="text-xs text-gray-500 mt-0.5">Deleted on: {tb.deletedAt ? new Date(tb.deletedAt).toLocaleString() : 'N/A'} by {tb.deletedBy || 'Admin'}</p>
                               </div>
-                              <button
-                                onClick={() => handleRestoreBooking(tb.id)}
-                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-mono font-bold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-sm"
-                              >
-                                <RotateCcw size={13} />
-                                <span>Restore</span>
-                              </button>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => handleRestoreBooking(tb.id)}
+                                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-mono font-bold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-sm"
+                                >
+                                  <RotateCcw size={13} />
+                                  <span>Restore</span>
+                                </button>
+                                {userProfile?.role === 'superadmin' && (
+                                  <button
+                                    onClick={() => handlePurgeTrashItem('booking', tb.id, tb.name)}
+                                    className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-mono font-bold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-sm"
+                                  >
+                                    <Trash2 size={13} />
+                                    <span>Purge Permanently</span>
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -1062,13 +1364,24 @@ export function AdminView() {
                                 <span className="font-bold text-gray-900 text-sm">{tc.name} ({tc.email})</span>
                                 <p className="text-xs text-gray-500 mt-0.5">Deleted on: {tc.deletedAt ? new Date(tc.deletedAt).toLocaleString() : 'N/A'} by {tc.deletedBy || 'Admin'}</p>
                               </div>
-                              <button
-                                onClick={() => handleRestoreContact(tc.id)}
-                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-mono font-bold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-sm"
-                              >
-                                <RotateCcw size={13} />
-                                <span>Restore</span>
-                              </button>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => handleRestoreContact(tc.id)}
+                                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-mono font-bold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-sm"
+                                >
+                                  <RotateCcw size={13} />
+                                  <span>Restore</span>
+                                </button>
+                                {userProfile?.role === 'superadmin' && (
+                                  <button
+                                    onClick={() => handlePurgeTrashItem('contact', tc.id, tc.name)}
+                                    className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-mono font-bold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-sm"
+                                  >
+                                    <Trash2 size={13} />
+                                    <span>Purge Permanently</span>
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -1680,6 +1993,99 @@ export function AdminView() {
               </div>
             )}
 
+            {/* DYNAMIC PRICING RULES ENGINE VIEW */}
+            {activeTab === 'pricing' && (
+              <div className="p-6 space-y-6">
+                <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                  <div>
+                    <h3 className="font-serif text-xl font-medium text-maroon-950 flex items-center gap-2">
+                      <IndianRupee className="text-gold-600" size={20} />
+                      <span>Dynamic Pricing Rules Engine</span>
+                    </h3>
+                    <p className="text-xs text-gray-500 font-sans mt-0.5">
+                      Single source of truth powering both the public quote calculator and server-side price locking verification.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => handleSavePricingRules(pricingRulesData)}
+                    className="px-5 py-2.5 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md"
+                  >
+                    <Save size={14} /> Update Server Pricing Rules
+                  </button>
+                </div>
+
+                <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-200/80 text-xs font-sans text-amber-900 flex items-center justify-between">
+                  <div>
+                    <span className="font-bold block text-sm">Fixed Event Base Setup & Curation Fee</span>
+                    <span className="text-[11px] text-amber-800">Applies to all luxury mobile bar setups (glassware, custom lighting, transport & barware).</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <span className="font-mono font-bold text-sm">₹</span>
+                    <input
+                      type="number"
+                      value={pricingRulesData.setupFee || 25000}
+                      onChange={(e) => setPricingRulesData({ ...pricingRulesData, setupFee: Number(e.target.value) })}
+                      className="w-28 p-2 rounded-lg border border-amber-300 font-mono font-bold text-sm outline-none bg-white text-right"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-mono text-xs uppercase tracking-wider text-gray-500 font-bold">Event Type Base Prices & Per-Guest Rates</h4>
+                  <div className="grid grid-cols-1 gap-4">
+                    {pricingRulesData.eventTypes?.map((rule: any, idx: number) => (
+                      <div key={rule.eventType || idx} className="p-4 bg-ivory-50/80 rounded-2xl border border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                          <span className="font-mono text-[10px] uppercase font-bold text-gold-700 block">{rule.eventType}</span>
+                          <input
+                            type="text"
+                            value={rule.name}
+                            onChange={(e) => {
+                              const updated = [...pricingRulesData.eventTypes];
+                              updated[idx].name = e.target.value;
+                              setPricingRulesData({ ...pricingRulesData, eventTypes: updated });
+                            }}
+                            className="font-serif font-bold text-maroon-950 text-base border-b border-dashed border-gray-300 focus:border-gold-600 outline-none bg-transparent"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-6 text-xs">
+                          <div>
+                            <label className="block text-[10px] font-mono uppercase text-gray-500 font-bold mb-1">Base Package Price (₹)</label>
+                            <input
+                              type="number"
+                              value={rule.basePrice}
+                              onChange={(e) => {
+                                const updated = [...pricingRulesData.eventTypes];
+                                updated[idx].basePrice = Number(e.target.value);
+                                setPricingRulesData({ ...pricingRulesData, eventTypes: updated });
+                              }}
+                              className="w-32 p-2 rounded-lg border border-gray-300 font-mono font-bold text-xs outline-none bg-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-mono uppercase text-gray-500 font-bold mb-1">Per-Guest Rate (₹/Pax)</label>
+                            <input
+                              type="number"
+                              value={rule.perGuestRate}
+                              onChange={(e) => {
+                                const updated = [...pricingRulesData.eventTypes];
+                                updated[idx].perGuestRate = Number(e.target.value);
+                                setPricingRulesData({ ...pricingRulesData, eventTypes: updated });
+                              }}
+                              className="w-32 p-2 rounded-lg border border-gray-300 font-mono font-bold text-xs outline-none bg-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* ADMIN USER SIGN-UP & CREDENTIALS SUITE VIEW */}
             {activeTab === 'users' && (
               <div className="p-6">
@@ -1690,17 +2096,19 @@ export function AdminView() {
                       <span>Production Admin Sign-Up & Credentials Control</span>
                     </h3>
                     <p className="text-xs text-gray-500 font-sans mt-0.5">
-                      Register new admin/staff team members and update PBKDF2 hashed credential keys.
+                      Register new admin/staff team members, deactivate accounts, and force password resets.
                     </p>
                   </div>
 
                   <div className="flex items-center space-x-3">
-                    <button
-                      onClick={() => setIsRegisterModalOpen(true)}
-                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-mono font-bold flex items-center gap-2 cursor-pointer shadow-sm transition-all"
-                    >
-                      <UserPlus size={14} /> Register New Admin
-                    </button>
+                    {userProfile?.role === 'superadmin' && (
+                      <button
+                        onClick={() => setIsRegisterModalOpen(true)}
+                        className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-mono font-bold flex items-center gap-2 cursor-pointer shadow-sm transition-all"
+                      >
+                        <UserPlus size={14} /> Register New Admin
+                      </button>
+                    )}
 
                     <button
                       onClick={() => {
@@ -1726,13 +2134,14 @@ export function AdminView() {
                         <th className="py-3.5 px-6">Name</th>
                         <th className="py-3.5 px-6">Email Account</th>
                         <th className="py-3.5 px-6">Access Role</th>
-                        <th className="py-3.5 px-6">Registered On</th>
+                        <th className="py-3.5 px-6">Account Status</th>
+                        <th className="py-3.5 px-6 text-right">Superadmin Control</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 text-xs font-sans">
                       {usersList.length === 0 ? (
                         <tr>
-                          <td colSpan={4} className="py-8 text-center text-gray-500 font-mono">
+                          <td colSpan={5} className="py-8 text-center text-gray-500 font-mono">
                             No registered users loaded. Click "Register New Admin" to add your first account.
                           </td>
                         </tr>
@@ -1748,8 +2157,39 @@ export function AdminView() {
                                 {u.role}
                               </span>
                             </td>
-                            <td className="py-4 px-6 font-mono text-gray-500 text-[11px]">
-                              {new Date(u.createdAt).toLocaleDateString()}
+                            <td className="py-4 px-6 font-mono text-[11px]">
+                              {u.isDeactivated ? (
+                                <span className="px-2.5 py-1 rounded-full bg-red-100 text-red-800 font-bold uppercase text-[9px]">
+                                  Deactivated
+                                </span>
+                              ) : (
+                                <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold uppercase text-[9px]">
+                                  Active
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-4 px-6 text-right">
+                              {userProfile?.role === 'superadmin' && u.id !== userProfile.id && (
+                                <div className="flex items-center justify-end space-x-2">
+                                  <button
+                                    onClick={() => handleToggleDeactivateUser(u.id, u.email, Boolean(u.isDeactivated))}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold cursor-pointer transition-colors ${
+                                      u.isDeactivated
+                                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                        : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
+                                    }`}
+                                  >
+                                    {u.isDeactivated ? 'Reactivate' : 'Deactivate'}
+                                  </button>
+
+                                  <button
+                                    onClick={() => setForceResetModal({ isOpen: true, userId: u.id, userEmail: u.email, newPassword: '' })}
+                                    className="px-3 py-1.5 bg-maroon-950 text-gold-400 hover:bg-maroon-900 rounded-lg text-xs font-mono font-bold cursor-pointer transition-colors border border-gold-500/20"
+                                  >
+                                    Reset Password
+                                  </button>
+                                </div>
+                              )}
                             </td>
                           </tr>
                         ))
@@ -1836,6 +2276,92 @@ export function AdminView() {
                           </button>
                         </div>
                       </form>
+                    </div>
+                  </div>
+                )}
+
+                {/* FORCE PASSWORD RESET MODAL */}
+                {forceResetModal.isOpen && (
+                  <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-gold-500/20 shadow-2xl space-y-5 animate-scale-in">
+                      <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                        <h4 className="font-serif text-xl font-medium text-maroon-950 flex items-center gap-2">
+                          <Key className="text-gold-600" size={20} />
+                          <span>Force Password Reset</span>
+                        </h4>
+                        <button onClick={() => setForceResetModal({ isOpen: false, userId: '', userEmail: '', newPassword: '' })} className="text-gray-400 hover:text-gray-600 font-mono text-sm cursor-pointer">✕</button>
+                      </div>
+
+                      <form onSubmit={handleForcePasswordReset} className="space-y-4 text-xs">
+                        <p className="text-gray-600 font-sans">
+                          Resetting password for: <strong className="font-mono text-maroon-950">{forceResetModal.userEmail}</strong>. Active session keys for this account will be invalidated immediately.
+                        </p>
+
+                        <div>
+                          <label className="block font-mono font-bold text-gray-700 uppercase mb-1">New Password *</label>
+                          <input
+                            type="password"
+                            required
+                            value={forceResetModal.newPassword}
+                            onChange={(e) => setForceResetModal({ ...forceResetModal, newPassword: e.target.value })}
+                            placeholder="Enter new password (min 6 chars)..."
+                            className="w-full p-3 rounded-xl border border-gray-300 font-mono outline-none focus:border-gold-600"
+                          />
+                        </div>
+
+                        <div className="pt-2 flex items-center justify-end space-x-3">
+                          <button
+                            type="button"
+                            onClick={() => setForceResetModal({ isOpen: false, userId: '', userEmail: '', newPassword: '' })}
+                            className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 font-mono text-xs cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="px-5 py-2.5 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-mono font-bold text-xs uppercase cursor-pointer shadow-md"
+                          >
+                            Force Reset
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
+                {/* CONFIRMATION MODAL DIALOG (SAFETY UX DETAIL 16) */}
+                {confirmModal.isOpen && (
+                  <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-gold-500/20 shadow-2xl space-y-5 animate-scale-in">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${confirmModal.isDanger ? 'bg-red-100 text-red-600' : 'bg-gold-100 text-gold-700'}`}>
+                          <AlertCircle size={20} />
+                        </div>
+                        <h4 className="font-serif text-lg font-bold text-maroon-950">
+                          {confirmModal.title}
+                        </h4>
+                      </div>
+
+                      <p className="text-xs text-gray-600 font-sans leading-relaxed">
+                        {confirmModal.message}
+                      </p>
+
+                      <div className="pt-2 flex items-center justify-end space-x-3">
+                        <button
+                          onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                          className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 font-mono text-xs cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={confirmModal.onConfirm}
+                          className={`px-5 py-2.5 rounded-xl text-white font-mono font-bold text-xs uppercase cursor-pointer shadow-md ${
+                            confirmModal.isDanger ? 'bg-red-600 hover:bg-red-700' : 'bg-maroon-950 hover:bg-maroon-900 text-gold-400'
+                          }`}
+                        >
+                          Confirm Action
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
