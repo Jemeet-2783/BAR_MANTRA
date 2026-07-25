@@ -7,7 +7,15 @@ import { useState, useEffect } from 'react';
 import { PageRoute } from './types';
 
 export function useHashRoute() {
-  const [hash, setHash] = useState(window.location.hash || '#/');
+  const getInitialHash = () => {
+    if (window.location.pathname === '/admin') {
+      window.history.replaceState(null, '', '/#/admin');
+      return '#/admin';
+    }
+    return window.location.hash || '#/';
+  };
+
+  const [hash, setHash] = useState(getInitialHash);
 
   useEffect(() => {
     const handleHashChange = () => {
