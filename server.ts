@@ -452,14 +452,14 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   // Admin: Login endpoint (Rate Limited & Hashed Account Verification)
   app.post('/api/admin/login', adminLoginRateLimiter, (req, res) => {
     const { email, password } = req.body;
-    const loginEmail = email ? String(email).trim() : 'admin@barmantra.com';
     const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1';
     const userAgent = (req.headers['user-agent'] as string) || 'Unknown Client';
     
-    if (!password) {
-      return res.status(400).json({ error: 'Password is strictly required.' });
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Both email and password are strictly required.' });
     }
 
+    const loginEmail = String(email).trim().toLowerCase();
     const user = validateUserCredentials(loginEmail, String(password));
 
     if (user) {
@@ -467,19 +467,61 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
       const actor: DbActor = { id: user.id, email: user.email, name: user.name, role: user.role };
       logAuditAction('LOGIN', 'auth', actor, user.id, `Successful command studio login for ${user.email}`, undefined, undefined, { ip: clientIp, userAgent });
 
+      const isDefaultPass = (password === 'barmantra123' || password === 'staff123');
+
       // Set httpOnly secure session cookie
       res.setHeader('Set-Cookie', `barmantra_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800`);
       res.json({ 
         success: true, 
         token,
         csrfToken,
+        requiresPasswordChange: isDefaultPass,
         user: { id: user.id, email: user.email, name: user.name, role: user.role },
-        message: 'Welcome to Barmantra Royal Command Studio.' 
+        message: isDefaultPass 
+          ? 'Default password detected. Please change your password to secure your admin account.'
+          : 'Welcome to Barmantra Royal Command Studio.' 
       });
     } else {
       logAuditAction('LOGIN_FAILED', 'auth', null, undefined, `Failed login attempt for email: ${loginEmail}`, undefined, undefined, { ip: clientIp, userAgent });
-      res.status(401).json({ error: 'Invalid royal credentials or access key. Intrusion recorded.' });
+      res.status(401).json({ error: 'Invalid admin credentials. Access denied.' });
     }
+  });
+
+  // Admin SECURED: Password Change Endpoint
+  app.post('/api/admin/change-password', adminAuthMiddleware, (req, res) => {
+    const { newPassword } = req.body;
+    const actor = (req as any).user as DbActor;
+
+    if (!newPassword || String(newPassword).length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters long.' });
+    }
+
+    if (newPassword === 'barmantra123' || newPassword === 'staff123') {
+      return res.status(400).json({ error: 'Cannot use a generic default password. Please choose a custom secure password.' });
+    }
+
+    const result = forceUserPasswordReset(actor.id, String(newPassword), actor);
+    if (result.success) {
+      res.json({ success: true, message: 'Password updated successfully. Account is now secured.' });
+    } else {
+      res.status(400).json({ error: result.error || 'Failed to update password.' });
+    }
+  });
+
+  // Public: Admin Access Sign-Up / Access Request
+  app.post('/api/admin/request-access', (req, res) => {
+    const { name, email, role, reason } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required to request admin access.' });
+    }
+
+    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1';
+    logAuditAction('LOGIN_FAILED', 'auth', null, undefined, `Admin access request from ${email} (${name})`, undefined, undefined, { ip: clientIp });
+
+    res.json({
+      success: true,
+      message: 'Access request submitted. A Superadmin will review your application in the Admin Users panel.'
+    });
   });
 
   // Admin: Logout endpoint

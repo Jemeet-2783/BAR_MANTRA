@@ -52,10 +52,23 @@ export function AdminView() {
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userProfile, setUserProfile] = useState<{ id: string; email: string; name: string; role: string } | null>(null);
-  const [email, setEmail] = useState('admin@barmantra.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  
+  // Access Request & Sign-Up Portal state
+  const [isAccessRequestMode, setIsAccessRequestMode] = useState(false);
+  const [reqName, setReqName] = useState('');
+  const [reqEmail, setReqEmail] = useState('');
+  const [reqRole, setReqRole] = useState<'superadmin' | 'staff'>('staff');
+  const [reqSuccessMsg, setReqSuccessMsg] = useState<string | null>(null);
+
+  // Forced Custom Password Change state
+  const [requiresPasswordChange, setRequiresPasswordChange] = useState(false);
+  const [newCustomPassword, setNewCustomPassword] = useState('');
+  const [confirmCustomPassword, setConfirmCustomPassword] = useState('');
+  const [passwordChangeError, setPasswordChangeError] = useState('');
   
   // Dashboard states - 12 Persistent Sidebar Sections
   const [activeTab, setActiveTab] = useState<
@@ -427,8 +440,8 @@ export function AdminView() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password) {
-      setLoginError('Password is strictly required.');
+    if (!email || !password) {
+      setLoginError('Both email and password are strictly required.');
       return;
     }
 
@@ -446,14 +459,78 @@ export function AdminView() {
         if (data.csrfToken) setCsrfToken(data.csrfToken);
         setIsAuthenticated(true);
         setUserProfile(data.user);
-        fetchDashboardData();
+        if (data.requiresPasswordChange) {
+          setRequiresPasswordChange(true);
+        } else {
+          fetchDashboardData();
+        }
       } else {
-        setLoginError(data.error || 'Invalid credentials or Royal Access Key.');
+        setLoginError(data.error || 'Invalid admin credentials or access key.');
       }
     } catch (err) {
       setLoginError('Could not contact authentication bridge.');
     } finally {
       setIsLoggingIn(false);
+    }
+  };
+
+  const handlePasswordChangeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordChangeError('');
+    if (!newCustomPassword || newCustomPassword.length < 6) {
+      setPasswordChangeError('Password must be at least 6 characters.');
+      return;
+    }
+    if (newCustomPassword !== confirmCustomPassword) {
+      setPasswordChangeError('Passwords do not match.');
+      return;
+    }
+    if (newCustomPassword === 'barmantra123' || newCustomPassword === 'staff123') {
+      setPasswordChangeError('Please enter a custom password (cannot use default).');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/admin/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+        body: JSON.stringify({ newPassword: newCustomPassword })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setRequiresPasswordChange(false);
+        showNotification('Master Password updated & secured successfully!', 'success');
+        fetchDashboardData();
+      } else {
+        setPasswordChangeError(data.error || 'Failed to change password.');
+      }
+    } catch (err) {
+      setPasswordChangeError('Network error while changing password.');
+    }
+  };
+
+  const handleRequestAccess = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setReqSuccessMsg(null);
+    if (!reqName || !reqEmail) {
+      setLoginError('Name and email are required.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/admin/request-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: reqName, email: reqEmail, role: reqRole })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setReqSuccessMsg(data.message);
+      } else {
+        setLoginError(data.error || 'Failed to submit access request.');
+      }
+    } catch (err) {
+      setLoginError('Network error while requesting access.');
     }
   };
 
@@ -652,6 +729,24 @@ export function AdminView() {
             Barmantra Studio Control Platform
           </p>
 
+          {/* MODE TOGGLE */}
+          <div className="flex items-center justify-center p-1 bg-ivory-100 rounded-xl mb-6 font-mono text-xs">
+            <button
+              type="button"
+              onClick={() => { setIsAccessRequestMode(false); setLoginError(''); setReqSuccessMsg(null); }}
+              className={`flex-1 py-2 rounded-lg font-bold transition-all cursor-pointer ${!isAccessRequestMode ? 'bg-maroon-950 text-gold-400 shadow-sm' : 'text-gray-600 hover:text-maroon-950'}`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => { setIsAccessRequestMode(true); setLoginError(''); setReqSuccessMsg(null); }}
+              className={`flex-1 py-2 rounded-lg font-bold transition-all cursor-pointer ${isAccessRequestMode ? 'bg-maroon-950 text-gold-400 shadow-sm' : 'text-gray-600 hover:text-maroon-950'}`}
+            >
+              Request Access
+            </button>
+          </div>
+
           {loginError && (
             <div className="mb-6 p-4 bg-red-50 rounded-xl border border-red-200 flex items-start space-x-2.5 text-red-700 text-xs font-sans animate-shake">
               <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
@@ -659,52 +754,107 @@ export function AdminView() {
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
-                Admin Email Account *
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@barmantra.com"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 focus:ring-1 focus:ring-gold-500 bg-ivory-50/50 outline-none text-sm transition-all font-mono"
-              />
+          {reqSuccessMsg && (
+            <div className="mb-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex items-start space-x-2.5 text-emerald-800 text-xs font-sans">
+              <Check size={16} className="flex-shrink-0 mt-0.5 text-emerald-600" />
+              <span>{reqSuccessMsg}</span>
             </div>
+          )}
 
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
-                Royal Password Key *
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password..."
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 focus:ring-1 focus:ring-gold-500 bg-ivory-50/50 outline-none text-sm transition-all font-mono"
-              />
-            </div>
+          {!isAccessRequestMode ? (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
+                  Admin Email Account *
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@barmantra.com"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 focus:ring-1 focus:ring-gold-500 bg-ivory-50/50 outline-none text-sm transition-all font-mono"
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              className="w-full py-3.5 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-sans font-bold text-sm shadow-md transition-all cursor-pointer flex items-center justify-center space-x-2 border border-gold-500/20 mt-2"
-            >
-              {isLoggingIn ? (
-                <RefreshCw className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  <ShieldCheck size={16} />
-                  <span>Verify Credentials</span>
-                </>
-              )}
-            </button>
-          </form>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
+                  Password Key *
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password..."
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 focus:ring-1 focus:ring-gold-500 bg-ivory-50/50 outline-none text-sm transition-all font-mono"
+                />
+              </div>
 
-          <div className="mt-5 p-3 bg-amber-50/60 rounded-xl border border-amber-200/60 text-[11px] font-mono text-amber-900 text-center">
-            Default Login: <span className="font-bold">admin@barmantra.com</span> / <span className="font-bold">barmantra123</span>
-          </div>
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full py-3.5 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-sans font-bold text-sm shadow-md transition-all cursor-pointer flex items-center justify-center space-x-2 border border-gold-500/20 mt-2"
+              >
+                {isLoggingIn ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <ShieldCheck size={16} />
+                    <span>Verify Credentials</span>
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleRequestAccess} className="space-y-4 text-xs font-sans">
+              <div>
+                <label className="block font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  value={reqName}
+                  onChange={(e) => setReqName(e.target.value)}
+                  placeholder="e.g. Kartik Arora"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 outline-none font-sans"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
+                  Work Email Address *
+                </label>
+                <input
+                  type="email"
+                  value={reqEmail}
+                  onChange={(e) => setReqEmail(e.target.value)}
+                  placeholder="e.g. kartik@barmantra.com"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
+                  Requested Access Level
+                </label>
+                <select
+                  value={reqRole}
+                  onChange={(e) => setReqRole(e.target.value as any)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 outline-none font-sans"
+                >
+                  <option value="staff">Staff (Proposals & Content Editor)</option>
+                  <option value="superadmin">Superadmin (Full Control & User Manager)</option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3.5 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-sans font-bold text-sm shadow-md transition-all cursor-pointer flex items-center justify-center space-x-2 border border-gold-500/20 mt-2"
+              >
+                <UserPlus size={16} />
+                <span>Submit Access Request</span>
+              </button>
+            </form>
+          )}
 
           <div className="mt-6 pt-4 border-t border-gray-100 text-center">
             <button
@@ -714,6 +864,70 @@ export function AdminView() {
               ← Cancel & Return Home
             </button>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- MANDATORY FORCED CUSTOM PASSWORD CHANGE MODAL ---
+  if (requiresPasswordChange) {
+    return (
+      <div className="pt-32 pb-24 max-w-md mx-auto px-4">
+        <div className="bg-white rounded-3xl p-8 sm:p-10 border border-amber-500/30 shadow-2xl relative overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-amber-600 via-gold-500 to-amber-600" />
+          
+          <div className="w-14 h-14 bg-amber-950 rounded-2xl flex items-center justify-center text-gold-400 mx-auto mb-6 border border-gold-500/20">
+            <Key size={26} />
+          </div>
+
+          <h2 className="font-serif text-2xl text-maroon-950 font-medium text-center mb-1">
+            Secure Your Admin Account
+          </h2>
+          <p className="font-sans text-xs text-amber-900 text-center mb-6">
+            Default seed password detected. To maintain production security, please set your custom master password now.
+          </p>
+
+          {passwordChangeError && (
+            <div className="mb-6 p-4 bg-red-50 rounded-xl border border-red-200 flex items-start space-x-2.5 text-red-700 text-xs font-sans animate-shake">
+              <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+              <span>{passwordChangeError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handlePasswordChangeSubmit} className="space-y-4 text-xs font-sans">
+            <div>
+              <label className="block font-mono uppercase font-bold text-gray-700 mb-1">
+                New Custom Password *
+              </label>
+              <input
+                type="password"
+                value={newCustomPassword}
+                onChange={(e) => setNewCustomPassword(e.target.value)}
+                placeholder="Enter at least 6 characters..."
+                className="w-full p-3 rounded-xl border border-gray-300 font-mono outline-none focus:border-gold-600"
+              />
+            </div>
+
+            <div>
+              <label className="block font-mono uppercase font-bold text-gray-700 mb-1">
+                Confirm Custom Password *
+              </label>
+              <input
+                type="password"
+                value={confirmCustomPassword}
+                onChange={(e) => setConfirmCustomPassword(e.target.value)}
+                placeholder="Re-enter custom password..."
+                className="w-full p-3 rounded-xl border border-gray-300 font-mono outline-none focus:border-gold-600"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3.5 bg-maroon-950 hover:bg-maroon-900 text-gold-400 font-mono font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer border border-gold-500/20"
+            >
+              Set Custom Password & Enter
+            </button>
+          </form>
         </div>
       </div>
     );
