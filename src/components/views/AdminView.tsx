@@ -37,11 +37,14 @@ import {
   Image as ImageIcon,
   Sparkles,
   Globe,
-  Save
+  Save,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { useHashRoute } from '../../useHashRoute';
 import { DbBooking, DbContact } from '../../server/db';
 import { useSiteContent } from '../../useSiteContent';
+import { ImageUploadControl } from '../ImageUploadControl';
 
 export function AdminView() {
   const { navigateTo } = useHashRoute();
@@ -227,6 +230,24 @@ export function AdminView() {
     } catch (err) {
       showNotification('Network error while saving CMS changes', 'error');
     }
+  };
+
+  const moveArrayItemUp = (list: any[], setList: (arr: any[]) => void, index: number) => {
+    if (index <= 0) return;
+    const updated = [...list];
+    const temp = updated[index];
+    updated[index] = updated[index - 1];
+    updated[index - 1] = temp;
+    setList(updated);
+  };
+
+  const moveArrayItemDown = (list: any[], setList: (arr: any[]) => void, index: number) => {
+    if (index >= list.length - 1) return;
+    const updated = [...list];
+    const temp = updated[index];
+    updated[index] = updated[index + 1];
+    updated[index + 1] = temp;
+    setList(updated);
   };
 
   const fetchPricingRules = async () => {
@@ -1609,7 +1630,29 @@ export function AdminView() {
                       {cmsServicesList.map((srv, idx) => (
                         <div key={srv.slug || idx} className="p-4 bg-ivory-50/80 rounded-2xl border border-gray-200 space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="font-mono text-xs font-bold text-gold-700 uppercase">Package #{idx + 1} ({srv.slug})</span>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-mono text-xs font-bold text-gold-700 uppercase">Package #{idx + 1} ({srv.slug})</span>
+                              <div className="flex items-center space-x-1">
+                                <button
+                                  type="button"
+                                  onClick={() => moveArrayItemUp(cmsServicesList, setCmsServicesList, idx)}
+                                  disabled={idx === 0}
+                                  className="p-1 text-gray-600 hover:text-gold-700 disabled:opacity-30 rounded hover:bg-gray-100 cursor-pointer"
+                                  title="Move Up"
+                                >
+                                  <ArrowUp size={13} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => moveArrayItemDown(cmsServicesList, setCmsServicesList, idx)}
+                                  disabled={idx === cmsServicesList.length - 1}
+                                  className="p-1 text-gray-600 hover:text-gold-700 disabled:opacity-30 rounded hover:bg-gray-100 cursor-pointer"
+                                  title="Move Down"
+                                >
+                                  <ArrowDown size={13} />
+                                </button>
+                              </div>
+                            </div>
                             <button
                               onClick={() => setCmsServicesList(cmsServicesList.filter((_, i) => i !== idx))}
                               className="text-red-600 hover:bg-red-50 p-1.5 rounded-lg text-xs flex items-center gap-1 cursor-pointer font-mono"
@@ -1645,6 +1688,17 @@ export function AdminView() {
                               />
                             </div>
                           </div>
+
+                          <ImageUploadControl
+                            label="Service Cover Asset (Cloudinary Upload)"
+                            value={srv.images && srv.images[0] ? srv.images[0] : ''}
+                            onChange={(url) => {
+                              const updated = [...cmsServicesList];
+                              updated[idx].images = [url];
+                              setCmsServicesList(updated);
+                            }}
+                            csrfToken={csrfToken}
+                          />
                         </div>
                       ))}
                     </div>
@@ -1675,7 +1729,29 @@ export function AdminView() {
                       {cmsPortfolioList.map((item, idx) => (
                         <div key={item.id || idx} className="p-4 bg-ivory-50/80 rounded-2xl border border-gray-200 space-y-3 text-xs">
                           <div className="flex items-center justify-between">
-                            <span className="font-mono text-[11px] font-bold text-gold-700 uppercase">Item #{idx + 1}</span>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-mono text-[11px] font-bold text-gold-700 uppercase">Item #{idx + 1}</span>
+                              <div className="flex items-center space-x-1">
+                                <button
+                                  type="button"
+                                  onClick={() => moveArrayItemUp(cmsPortfolioList, setCmsPortfolioList, idx)}
+                                  disabled={idx === 0}
+                                  className="p-1 text-gray-600 hover:text-gold-700 disabled:opacity-30 rounded hover:bg-gray-100 cursor-pointer"
+                                  title="Move Up"
+                                >
+                                  <ArrowUp size={13} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => moveArrayItemDown(cmsPortfolioList, setCmsPortfolioList, idx)}
+                                  disabled={idx === cmsPortfolioList.length - 1}
+                                  className="p-1 text-gray-600 hover:text-gold-700 disabled:opacity-30 rounded hover:bg-gray-100 cursor-pointer"
+                                  title="Move Down"
+                                >
+                                  <ArrowDown size={13} />
+                                </button>
+                              </div>
+                            </div>
                             <button
                               onClick={() => setCmsPortfolioList(cmsPortfolioList.filter((_, i) => i !== idx))}
                               className="text-red-600 hover:bg-red-50 p-1 rounded-lg cursor-pointer"
@@ -1727,19 +1803,17 @@ export function AdminView() {
                               />
                             </div>
                           </div>
-                          <div>
-                            <label className="block font-bold text-gray-700 mb-1">Image URL</label>
-                            <input
-                              type="text"
-                              value={item.image}
-                              onChange={(e) => {
-                                const updated = [...cmsPortfolioList];
-                                updated[idx].image = e.target.value;
-                                setCmsPortfolioList(updated);
-                              }}
-                              className="w-full p-2 rounded-lg border border-gray-300 font-mono text-[11px]"
-                            />
-                          </div>
+
+                          <ImageUploadControl
+                            label="Portfolio Media Asset (Cloudinary Upload)"
+                            value={item.image || ''}
+                            onChange={(url) => {
+                              const updated = [...cmsPortfolioList];
+                              updated[idx].image = url;
+                              setCmsPortfolioList(updated);
+                            }}
+                            csrfToken={csrfToken}
+                          />
                         </div>
                       ))}
                     </div>
@@ -1806,19 +1880,16 @@ export function AdminView() {
                               />
                             </div>
                           </div>
-                          <div>
-                            <label className="block font-bold text-gray-700 mb-1">Profile Photo URL</label>
-                            <input
-                              type="text"
-                              value={tm.image}
-                              onChange={(e) => {
-                                const updated = [...cmsTeamList];
-                                updated[idx].image = e.target.value;
-                                setCmsTeamList(updated);
-                              }}
-                              className="w-full p-2 rounded-lg border border-gray-300 font-mono text-[11px]"
-                            />
-                          </div>
+                          <ImageUploadControl
+                            label="Profile Photo (Cloudinary Upload)"
+                            value={tm.image || ''}
+                            onChange={(url) => {
+                              const updated = [...cmsTeamList];
+                              updated[idx].image = url;
+                              setCmsTeamList(updated);
+                            }}
+                            csrfToken={csrfToken}
+                          />
                           <div>
                             <label className="block font-bold text-gray-700 mb-1">Bio Overview</label>
                             <textarea
@@ -1946,7 +2017,29 @@ export function AdminView() {
                       {cmsFaqsList.map((faq, idx) => (
                         <div key={faq.id || idx} className="p-4 bg-ivory-50/80 rounded-2xl border border-gray-200 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="font-mono text-[11px] font-bold text-gold-700">FAQ #{idx + 1}</span>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-mono text-[11px] font-bold text-gold-700">FAQ #{idx + 1}</span>
+                              <div className="flex items-center space-x-1">
+                                <button
+                                  type="button"
+                                  onClick={() => moveArrayItemUp(cmsFaqsList, setCmsFaqsList, idx)}
+                                  disabled={idx === 0}
+                                  className="p-1 text-gray-600 hover:text-gold-700 disabled:opacity-30 rounded hover:bg-gray-100 cursor-pointer"
+                                  title="Move Up"
+                                >
+                                  <ArrowUp size={13} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => moveArrayItemDown(cmsFaqsList, setCmsFaqsList, idx)}
+                                  disabled={idx === cmsFaqsList.length - 1}
+                                  className="p-1 text-gray-600 hover:text-gold-700 disabled:opacity-30 rounded hover:bg-gray-100 cursor-pointer"
+                                  title="Move Down"
+                                >
+                                  <ArrowDown size={13} />
+                                </button>
+                              </div>
+                            </div>
                             <button
                               onClick={() => setCmsFaqsList(cmsFaqsList.filter((_, i) => i !== idx))}
                               className="text-red-600 hover:bg-red-50 p-1 rounded-lg cursor-pointer"
