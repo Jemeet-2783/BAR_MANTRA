@@ -6,6 +6,7 @@
 import express from 'express';
 import path from 'path';
 import crypto from 'crypto';
+import helmet from 'helmet';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import { 
@@ -26,6 +27,7 @@ import {
   getSession,
   validateSession,
   destroySession,
+  refreshJwtSessionToken,
   validateUserCredentials,
   logAuditAction,
   calculatePricingEstimate,
@@ -39,8 +41,14 @@ import {
   purgeTrashItem,
   setUserDeactivated,
   forceUserPasswordReset,
+  updateBookingPaymentLink,
+  updateBookingPaymentSuccess,
+  logBookingWhatsAppMessage,
   DbActor
 } from './src/server/db.ts';
+import { sendWhatsAppNotification } from './src/server/whatsappService.ts';
+import { createPaymentOrder, verifyPaymentSignature } from './src/server/paymentService.ts';
+
 
 // In-Memory Rate Limiter Middleware Factory
 interface RateLimitOptions {
@@ -89,18 +97,30 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  // Security Headers Middleware (HSTS, X-Frame-Options, CSP, nosniff)
-  app.use((req, res, next) => {
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    res.setHeader(
-      'Content-Security-Policy',
-      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https:;"
-    );
-    next();
-  });
+  // Global Helmet Production Security Layer
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:", "blob:", "https://images.unsplash.com", "https://res.cloudinary.com"],
+        connectSrc: ["'self'", "https:"],
+      }
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true
+    },
+    frameguard: {
+      action: 'deny'
+    },
+    noSniff: true,
+    referrerPolicy: {
+      policy: 'strict-origin-when-cross-origin'
+    }
+  }));
 
   // Body parser
   app.use(express.json());
@@ -121,9 +141,9 @@ async function startServer() {
     next();
   });
 
-  // Admin session & CSRF authentication middleware
+  // Admin JWT & CSRF authentication middleware
   const adminAuthMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const sessionToken = (req as any).cookies.barmantra_session || req.headers.authorization?.split('Bearer ')[1];
+    const sessionToken = (req as any).cookies.barmantra_access_token || (req as any).cookies.barmantra_session || req.headers.authorization?.split('Bearer ')[1];
     const csrfHeaderToken = (req.headers['x-csrf-token'] || req.headers['x-xsrf-token']) as string | undefined;
     const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase());
 
@@ -238,6 +258,38 @@ async function startServer() {
 
       // Verify and lock price
       booking.pricingEstimate = serverCalculatedPrice;
+      booking.depositAmount = Math.round(serverCalculatedPrice * 0.30);
+
+      // Async WhatsApp notification dispatch (Client + Admin Alert)
+      sendWhatsAppNotification({
+        template: 'BOOKING_CONFIRMATION',
+        recipientPhone: phone,
+        data: {
+          name,
+          eventType,
+          eventDate,
+          guestCount: count,
+          pricingEstimate: serverCalculatedPrice,
+          depositAmount: booking.depositAmount
+        }
+      }).then(res => {
+        logBookingWhatsAppMessage(booking.id, 'BOOKING_CONFIRMATION', phone, res.simulated ? 'Simulated' : 'Sent', res.messageSnippet);
+      }).catch(err => {
+        logBookingWhatsAppMessage(booking.id, 'BOOKING_CONFIRMATION', phone, 'Failed', err.message);
+      });
+
+      const adminPhone = process.env.WHATSAPP_ADMIN_NUMBER || '+919829012345';
+      sendWhatsAppNotification({
+        template: 'ADMIN_NEW_BOOKING_ALERT',
+        recipientPhone: adminPhone,
+        data: {
+          name,
+          eventType,
+          eventDate,
+          guestCount: count,
+          pricingEstimate: serverCalculatedPrice
+        }
+      }).catch(() => {});
 
       res.status(201).json({ 
         success: true, 
@@ -249,6 +301,88 @@ async function startServer() {
       res.status(500).json({ error: 'Database record failed to compile.' });
     }
   });
+
+  // Public: Get booking pay info for client payment checkout view
+  app.get('/api/public/bookings/:id/pay-info', (req, res) => {
+    try {
+      const db = getDb();
+      const booking = db.bookings.find(b => b.id === req.params.id && !b.deletedAt);
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking proposal not found.' });
+      }
+
+      const depositAmount = booking.depositAmount || Math.round(booking.pricingEstimate * 0.30);
+
+      res.json({
+        id: booking.id,
+        name: booking.name,
+        phone: booking.phone,
+        email: booking.email,
+        eventType: booking.eventType,
+        eventDate: booking.eventDate,
+        guestCount: booking.guestCount,
+        pricingEstimate: booking.pricingEstimate,
+        depositAmount,
+        paymentStatus: booking.paymentStatus || 'Unpaid',
+        paymentLink: booking.paymentLink,
+        paidAt: booking.paidAt,
+        paymentTransactionId: booking.paymentTransactionId,
+        razorpayKeyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_barmantra_sandbox'
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: 'Failed to retrieve booking payment metadata.' });
+    }
+  });
+
+  // Public/Webhook: Verify & complete deposit payment
+  app.post('/api/payments/verify', async (req, res) => {
+    try {
+      const { bookingId, transactionId, orderId, signature, amount, gateway } = req.body;
+      if (!bookingId || !transactionId) {
+        return res.status(400).json({ error: 'Booking ID and transaction ID are required.' });
+      }
+
+      const isValid = verifyPaymentSignature(orderId || 'order_sb_', transactionId, signature || 'sig_sandbox_');
+      if (!isValid) {
+        return res.status(400).json({ error: 'Payment signature verification failed.' });
+      }
+
+      const db = getDb();
+      const booking = db.bookings.find(b => b.id === bookingId);
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking proposal not found.' });
+      }
+
+      const paidAmount = Number(amount) || booking.depositAmount || Math.round(booking.pricingEstimate * 0.30);
+      const updatedBooking = updateBookingPaymentSuccess(bookingId, transactionId, paidAmount, gateway || 'Sandbox');
+
+      if (updatedBooking) {
+        // Send WhatsApp Payment Receipt Confirmation
+        sendWhatsAppNotification({
+          template: 'PAYMENT_RECEIPT_CONFIRMATION',
+          recipientPhone: booking.phone,
+          data: {
+            name: booking.name,
+            paidAmount,
+            transactionId,
+            bookingId
+          }
+        }).then(waRes => {
+          logBookingWhatsAppMessage(bookingId, 'PAYMENT_RECEIPT_CONFIRMATION', booking.phone, waRes.simulated ? 'Simulated' : 'Sent', waRes.messageSnippet);
+        }).catch(() => {});
+      }
+
+      res.json({
+        success: true,
+        message: 'Payment successfully verified and recorded.',
+        booking: updatedBooking
+      });
+    } catch (err: any) {
+      console.error('Payment verification failure:', err);
+      res.status(500).json({ error: 'Payment processing error.' });
+    }
+  });
+
 
   // Public: Submit general contact inquiry (Rate Limited)
   app.post('/api/contacts', publicFormRateLimiter, (req, res) => {
@@ -449,6 +583,16 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
     }
   });
 
+  function setAuthCookies(res: express.Response, accessToken: string, refreshToken: string) {
+    const isProd = process.env.NODE_ENV === 'production';
+    const secureFlag = isProd ? '; Secure' : '';
+    res.setHeader('Set-Cookie', [
+      `barmantra_access_token=${accessToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=900${secureFlag}`,
+      `barmantra_refresh_token=${refreshToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800${secureFlag}`,
+      `barmantra_session=${accessToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800${secureFlag}`
+    ]);
+  }
+
   // Admin: Login endpoint (Rate Limited & Hashed Account Verification)
   app.post('/api/admin/login', adminLoginRateLimiter, (req, res) => {
     const { email, password } = req.body;
@@ -463,17 +607,19 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
     const user = validateUserCredentials(loginEmail, String(password));
 
     if (user) {
-      const { token, csrfToken, expiresAt } = createSession(user);
+      const { token, refreshToken, csrfToken, expiresAt } = createSession(user);
       const actor: DbActor = { id: user.id, email: user.email, name: user.name, role: user.role };
       logAuditAction('LOGIN', 'auth', actor, user.id, `Successful command studio login for ${user.email}`, undefined, undefined, { ip: clientIp, userAgent });
 
       const isDefaultPass = (password === 'barmantra123' || password === 'staff123');
 
-      // Set httpOnly secure session cookie
-      res.setHeader('Set-Cookie', `barmantra_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800`);
+      // Set httpOnly secure JWT cookies
+      setAuthCookies(res, token, refreshToken);
+
       res.json({ 
         success: true, 
         token,
+        refreshToken,
         csrfToken,
         requiresPasswordChange: isDefaultPass,
         user: { id: user.id, email: user.email, name: user.name, role: user.role },
@@ -484,6 +630,25 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
     } else {
       logAuditAction('LOGIN_FAILED', 'auth', null, undefined, `Failed login attempt for email: ${loginEmail}`, undefined, undefined, { ip: clientIp, userAgent });
       res.status(401).json({ error: 'Invalid admin credentials. Access denied.' });
+    }
+  });
+
+  // Admin: JWT Access Token Refresh Endpoint
+  app.post('/api/admin/refresh', (req, res) => {
+    const refreshToken = (req as any).cookies?.barmantra_refresh_token || req.body?.refreshToken;
+    const result = refreshJwtSessionToken(refreshToken);
+
+    if (result.success && result.accessToken && result.refreshToken) {
+      setAuthCookies(res, result.accessToken, result.refreshToken);
+      res.json({
+        success: true,
+        token: result.accessToken,
+        refreshToken: result.refreshToken,
+        csrfToken: result.csrfToken,
+        user: result.user
+      });
+    } else {
+      res.status(401).json({ error: result.error || 'Refresh token invalid or session expired.' });
     }
   });
 
@@ -526,17 +691,26 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
 
   // Admin: Logout endpoint
   app.post('/api/admin/logout', (req, res) => {
-    const sessionToken = (req as any).cookies.barmantra_session || req.headers.authorization?.split('Bearer ')[1];
+    const sessionToken = (req as any).cookies?.barmantra_access_token || (req as any).cookies?.barmantra_session || (req as any).cookies?.barmantra_refresh_token || req.headers.authorization?.split('Bearer ')[1];
     if (sessionToken) {
+      const session = getSession(sessionToken);
+      if (session) {
+        const actor: DbActor = { id: session.userId, email: session.email, name: session.name, role: session.role };
+        logAuditAction('LOGIN', 'auth', actor, session.userId, `Admin logged out: ${session.email}`);
+      }
       destroySession(sessionToken);
     }
-    res.setHeader('Set-Cookie', 'barmantra_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict');
+    res.setHeader('Set-Cookie', [
+      'barmantra_access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict',
+      'barmantra_refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict',
+      'barmantra_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict'
+    ]);
     res.json({ success: true, message: 'Logged out successfully.' });
   });
 
   // Admin: Check Auth Status
   app.get('/api/admin/check-auth', (req, res) => {
-    const sessionToken = (req as any).cookies.barmantra_session || req.headers.authorization?.split('Bearer ')[1];
+    const sessionToken = (req as any).cookies?.barmantra_access_token || (req as any).cookies?.barmantra_session || req.headers.authorization?.split('Bearer ')[1];
     const { session } = validateSession(sessionToken, undefined, false);
     if (session) {
       res.json({ 
@@ -545,6 +719,18 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
         user: { id: session.userId, email: session.email, name: session.name, role: session.role } 
       });
     } else {
+      const refreshToken = (req as any).cookies?.barmantra_refresh_token;
+      if (refreshToken) {
+        const refreshed = refreshJwtSessionToken(refreshToken);
+        if (refreshed.success && refreshed.accessToken && refreshed.refreshToken) {
+          setAuthCookies(res, refreshed.accessToken, refreshed.refreshToken);
+          return res.json({
+            authenticated: true,
+            csrfToken: refreshed.csrfToken,
+            user: refreshed.user
+          });
+        }
+      }
       res.json({ authenticated: false });
     }
   });
@@ -566,11 +752,152 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
 
     const updated = updateBookingStatus(id, status, actor);
     if (updated) {
+      // If status changed to Approved, automatically dispatch payment request if payment link exists or generate sandbox payment link
+      if (status === 'Approved') {
+        const originUrl = `${req.protocol}://${req.get('host')}`;
+        const depositAmount = updated.depositAmount || Math.round(updated.pricingEstimate * 0.30);
+        createPaymentOrder({
+          bookingId: updated.id,
+          amount: depositAmount,
+          customerName: updated.name,
+          customerEmail: updated.email,
+          customerPhone: updated.phone,
+          description: `Barmantra Royal Event Deposit (30%) - ${updated.eventType}`,
+          originUrl
+        }).then(payOrder => {
+          updateBookingPaymentLink(updated.id, payOrder.paymentLink, payOrder.gateway, actor);
+          sendWhatsAppNotification({
+            template: 'PROPOSAL_APPROVED_PAYMENT_REQUEST',
+            recipientPhone: updated.phone,
+            data: {
+              name: updated.name,
+              eventType: updated.eventType,
+              eventDate: updated.eventDate,
+              depositAmount,
+              paymentLink: payOrder.paymentLink
+            }
+          }).then(waRes => {
+            logBookingWhatsAppMessage(updated.id, 'PROPOSAL_APPROVED_PAYMENT_REQUEST', updated.phone, waRes.simulated ? 'Simulated' : 'Sent', waRes.messageSnippet, actor);
+          }).catch(() => {});
+        }).catch(() => {});
+      }
+
       res.json({ success: true, booking: updated });
     } else {
       res.status(404).json({ error: 'Booking proposal not found.' });
     }
   });
+
+  // Admin SECURED: Generate Payment Link
+  app.post('/api/admin/bookings/:id/payment-link', adminAuthMiddleware, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const actor = (req as any).user as DbActor;
+      const db = getDb();
+      const booking = db.bookings.find(b => b.id === id && !b.deletedAt);
+      
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking proposal not found.' });
+      }
+
+      const originUrl = `${req.protocol}://${req.get('host')}`;
+      const depositAmount = booking.depositAmount || Math.round(booking.pricingEstimate * 0.30);
+
+      const payOrder = await createPaymentOrder({
+        bookingId: booking.id,
+        amount: depositAmount,
+        customerName: booking.name,
+        customerEmail: booking.email,
+        customerPhone: booking.phone,
+        description: `Barmantra Royal Event Deposit - ${booking.eventType}`,
+        originUrl
+      });
+
+      const updated = updateBookingPaymentLink(booking.id, payOrder.paymentLink, payOrder.gateway, actor);
+
+      // Auto dispatch WhatsApp message with payment link
+      sendWhatsAppNotification({
+        template: 'PROPOSAL_APPROVED_PAYMENT_REQUEST',
+        recipientPhone: booking.phone,
+        data: {
+          name: booking.name,
+          eventType: booking.eventType,
+          eventDate: booking.eventDate,
+          depositAmount,
+          paymentLink: payOrder.paymentLink
+        }
+      }).then(waRes => {
+        logBookingWhatsAppMessage(booking.id, 'PROPOSAL_APPROVED_PAYMENT_REQUEST', booking.phone, waRes.simulated ? 'Simulated' : 'Sent', waRes.messageSnippet, actor);
+      }).catch(() => {});
+
+      res.json({
+        success: true,
+        message: 'Payment link generated and dispatched via WhatsApp.',
+        paymentOrder: payOrder,
+        booking: updated
+      });
+    } catch (err: any) {
+      console.error('Failed to generate payment link:', err);
+      res.status(500).json({ error: 'Payment link generation failed.' });
+    }
+  });
+
+  // Admin SECURED: Send Manual / Template WhatsApp Message
+  app.post('/api/admin/bookings/:id/send-whatsapp', adminAuthMiddleware, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { template, customMessage } = req.body;
+      const actor = (req as any).user as DbActor;
+      const db = getDb();
+      const booking = db.bookings.find(b => b.id === id && !b.deletedAt);
+
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking proposal not found.' });
+      }
+
+      const depositAmount = booking.depositAmount || Math.round(booking.pricingEstimate * 0.30);
+      const originUrl = `${req.protocol}://${req.get('host')}`;
+      const paymentLink = booking.paymentLink || `${originUrl}/#/pay/${booking.id}`;
+
+      const waRes = await sendWhatsAppNotification({
+        template: template || 'CUSTOM',
+        recipientPhone: booking.phone,
+        data: {
+          name: booking.name,
+          eventType: booking.eventType,
+          eventDate: booking.eventDate,
+          guestCount: booking.guestCount,
+          pricingEstimate: booking.pricingEstimate,
+          depositAmount,
+          paymentLink,
+          paidAmount: booking.paidAt ? depositAmount : undefined,
+          transactionId: booking.paymentTransactionId,
+          bookingId: booking.id,
+          customMessage
+        }
+      });
+
+      const updated = logBookingWhatsAppMessage(
+        booking.id, 
+        template || 'CUSTOM', 
+        booking.phone, 
+        waRes.simulated ? 'Simulated' : 'Sent', 
+        waRes.messageSnippet,
+        actor
+      );
+
+      res.json({
+        success: true,
+        message: `WhatsApp message dispatched (${waRes.simulated ? 'Simulated' : 'Live'}).`,
+        result: waRes,
+        booking: updated
+      });
+    } catch (err: any) {
+      console.error('WhatsApp send error:', err);
+      res.status(500).json({ error: 'WhatsApp dispatch failed.' });
+    }
+  });
+
 
   // Admin SECURED: Soft Delete booking (Move to Trash)
   app.delete('/api/admin/bookings/:id', adminAuthMiddleware, (req, res) => {
