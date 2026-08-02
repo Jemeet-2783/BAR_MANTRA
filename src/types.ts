@@ -57,4 +57,34 @@ export interface ProcessStep {
   iconName: string;
 }
 
-export type PageRoute = 'home' | 'about' | 'services' | 'gallery' | 'contact' | string;
+export type PaymentStatus = 'Unpaid' | 'Deposit_Paid' | 'Fully_Paid' | 'Refunded';
+export type PaymentGateway = 'Razorpay' | 'Stripe' | 'Sandbox';
+
+export interface WhatsAppLogEntry {
+  id: string;
+  timestamp: string;
+  template: 'BOOKING_CONFIRMATION' | 'ADMIN_NEW_BOOKING_ALERT' | 'PROPOSAL_APPROVED_PAYMENT_REQUEST' | 'PAYMENT_RECEIPT_CONFIRMATION' | 'CUSTOM';
+  recipient: string;
+  status: 'Sent' | 'Failed' | 'Simulated';
+  messageSnippet: string;
+}
+
+export interface PublicPayInfo {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  eventType: string;
+  eventDate: string;
+  guestCount: number;
+  pricingEstimate: number;
+  depositAmount: number;
+  paymentStatus: PaymentStatus;
+  paymentLink?: string;
+  paidAt?: string;
+  paymentTransactionId?: string;
+  razorpayKeyId?: string;
+}
+
+export type PageRoute = 'home' | 'about' | 'services' | 'gallery' | 'contact' | 'pay' | string;
+

@@ -6,6 +6,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 
 export type UserRole = 'superadmin' | 'admin' | 'staff';
 
@@ -31,11 +32,27 @@ export interface DbBooking {
   guestCount: number;
   message: string;
   pricingEstimate: number;
+  depositAmount?: number;
+  paymentStatus?: 'Unpaid' | 'Deposit_Paid' | 'Fully_Paid' | 'Refunded';
+  paymentGateway?: 'Razorpay' | 'Stripe' | 'Sandbox';
+  paymentLink?: string;
+  paymentTransactionId?: string;
+  paidAt?: string;
+  whatsappStatus?: 'Pending' | 'Sent' | 'Failed';
+  whatsappLogs?: {
+    id: string;
+    timestamp: string;
+    template: string;
+    recipient: string;
+    status: 'Sent' | 'Failed' | 'Simulated';
+    messageSnippet: string;
+  }[];
   status: 'Pending' | 'Approved' | 'Contacted' | 'Cancelled';
   createdAt: string;
   deletedAt?: string;
   deletedBy?: string;
 }
+
 
 export interface DbContact {
   id: string;
@@ -54,6 +71,7 @@ export interface DbContact {
 
 export interface DbSession {
   token: string;
+  refreshToken?: string;
   userId: string;
   email: string;
   role: UserRole;
@@ -103,7 +121,8 @@ export interface PricingRules {
 export interface DbAuditLogEntry {
   id: string;
   timestamp: string;
-  action: 'STATUS_UPDATE' | 'SOFT_DELETE' | 'RESTORE' | 'LOGIN' | 'LOGIN_FAILED' | 'CMS_UPDATE' | 'USER_CREATE' | 'CREDENTIALS_UPDATE' | 'PRICING_UPDATE' | 'PURGE' | 'USER_DEACTIVATE';
+  action: 'STATUS_UPDATE' | 'SOFT_DELETE' | 'RESTORE' | 'LOGIN' | 'LOGIN_FAILED' | 'CMS_UPDATE' | 'USER_CREATE' | 'CREDENTIALS_UPDATE' | 'PRICING_UPDATE' | 'PURGE' | 'USER_DEACTIVATE' | 'TOKEN_REFRESH' | 'PAYMENT_GENERATED' | 'PAYMENT_RECEIVED' | 'WHATSAPP_SENT' | 'WHATSAPP_FAILED';
+
   entityType: 'booking' | 'contact' | 'auth' | 'cms' | 'user' | 'pricing';
   entityId?: string;
   actor: DbActor | null;
@@ -450,21 +469,34 @@ export function validateUserCredentials(email: string, password: string): DbUser
   return user;
 }
 
-// Session management
-export function createSession(user: DbUser): { token: string; csrfToken: string; expiresAt: string; session: DbSession } {
+const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'barmantra_jwt_access_secret_key_2026_super_secure';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'barmantra_jwt_refresh_secret_key_2026_super_secure';
+
+// Session management (JWT + db.json lastActiveAt Idle Tracker)
+export function createSession(user: DbUser): { token: string; refreshToken: string; csrfToken: string; expiresAt: string; session: DbSession } {
   const db = getDb();
-  const token = `sess_${crypto.randomBytes(32).toString('hex')}`;
+  
+  const payload = {
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role
+  };
+
+  const token = jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: '15m' });
+  const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '8h' });
   const csrfToken = `csrf_${crypto.randomBytes(32).toString('hex')}`;
   
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString(); // 8 hours absolute lifetime
   const isoNow = now.toISOString();
 
-  // Purge expired sessions
-  db.sessions = db.sessions.filter(s => new Date(s.expiresAt) > now);
+  // Purge previous/expired sessions for this user
+  db.sessions = db.sessions.filter(s => s.userId !== user.id && new Date(s.expiresAt) > now);
 
   const sessionObj: DbSession = {
     token,
+    refreshToken,
     userId: user.id,
     email: user.email,
     role: user.role,
@@ -478,7 +510,7 @@ export function createSession(user: DbUser): { token: string; csrfToken: string;
   db.sessions.push(sessionObj);
   saveDb(db);
   
-  return { token, csrfToken, expiresAt, session: sessionObj };
+  return { token, refreshToken, csrfToken, expiresAt, session: sessionObj };
 }
 
 export function validateSession(
@@ -488,52 +520,133 @@ export function validateSession(
 ): { session: DbSession | null; error?: string } {
   if (!token) return { session: null, error: 'Session token missing' };
   
+  // 1. Verify JWT signature & 15m access token expiration
+  let decoded: any;
+  try {
+    decoded = jwt.verify(token, JWT_ACCESS_SECRET);
+  } catch (err: any) {
+    return { session: null, error: `Invalid or expired access token: ${err.message}` };
+  }
+
   const db = getDb();
-  const sessionIndex = db.sessions.findIndex(s => s.token === token);
-  if (sessionIndex === -1) return { session: null, error: 'Session not found' };
 
-  const session = db.sessions[sessionIndex];
-
-  // 1. Check if user is deactivated
-  const user = db.users.find(u => u.id === session.userId);
+  // 2. Check if user account is deactivated
+  const user = db.users.find(u => u.id === decoded.userId);
   if (!user || user.isDeactivated) {
-    db.sessions.splice(sessionIndex, 1);
+    db.sessions = db.sessions.filter(s => s.userId !== decoded.userId);
     saveDb(db);
     return { session: null, error: 'User account has been deactivated' };
+  }
+
+  // 3. Match active session in db.json for idle & CSRF tracking
+  const session = db.sessions.find(s => s.userId === decoded.userId || s.token === token);
+  if (!session) {
+    return { session: null, error: 'Session record not found' };
   }
 
   const nowMs = Date.now();
   const createdMs = new Date(session.createdAt || session.expiresAt).getTime();
   const lastActiveMs = new Date(session.lastActiveAt || session.createdAt || session.expiresAt).getTime();
 
-  // 2. Absolute lifetime check (8 hours)
+  // 4. Absolute lifetime check (8 hours)
   const MAX_ABSOLUTE_MS = 8 * 60 * 60 * 1000;
   if (nowMs - createdMs > MAX_ABSOLUTE_MS || new Date(session.expiresAt).getTime() < nowMs) {
-    db.sessions.splice(sessionIndex, 1);
+    db.sessions = db.sessions.filter(s => s.userId !== session.userId);
     saveDb(db);
     return { session: null, error: 'Session expired (absolute lifetime limit reached)' };
   }
 
-  // 3. Idle timeout check (30 minutes inactivity)
+  // 5. Idle timeout check (30 minutes inactivity - REQUIRED LOCKED DECISION)
   const MAX_IDLE_MS = 30 * 60 * 1000;
   if (nowMs - lastActiveMs > MAX_IDLE_MS) {
-    db.sessions.splice(sessionIndex, 1);
+    db.sessions = db.sessions.filter(s => s.userId !== session.userId);
     saveDb(db);
     return { session: null, error: 'Session timed out due to 30 minutes of inactivity' };
   }
 
-  // 4. CSRF Validation on state-changing requests (POST, PUT, PATCH, DELETE)
+  // 6. CSRF Validation on state-changing requests (POST, PUT, PATCH, DELETE)
   if (isStateChanging) {
     if (!csrfHeaderToken || !session.csrfToken || csrfHeaderToken !== session.csrfToken) {
       return { session: null, error: 'CSRF token validation failed' };
     }
   }
 
-  // Update last active timestamp
+  // Update last active timestamp on every successful request
   session.lastActiveAt = new Date().toISOString();
   saveDb(db);
 
   return { session };
+}
+
+export function refreshJwtSessionToken(refreshToken: string | undefined): {
+  success: boolean;
+  accessToken?: string;
+  refreshToken?: string;
+  csrfToken?: string;
+  user?: DbActor;
+  error?: string;
+} {
+  if (!refreshToken) {
+    return { success: false, error: 'Refresh token missing' };
+  }
+
+  let decoded: any;
+  try {
+    decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+  } catch (err: any) {
+    return { success: false, error: `Invalid or expired refresh token: ${err.message}` };
+  }
+
+  const db = getDb();
+  const user = db.users.find(u => u.id === decoded.userId);
+  if (!user || user.isDeactivated) {
+    db.sessions = db.sessions.filter(s => s.userId !== decoded.userId);
+    saveDb(db);
+    return { success: false, error: 'User account has been deactivated' };
+  }
+
+  const session = db.sessions.find(s => s.userId === decoded.userId || s.refreshToken === refreshToken);
+  if (!session) {
+    return { success: false, error: 'Session record not found' };
+  }
+
+  const nowMs = Date.now();
+  const lastActiveMs = new Date(session.lastActiveAt || session.createdAt).getTime();
+
+  // Check 30-min idle timeout
+  const MAX_IDLE_MS = 30 * 60 * 1000;
+  if (nowMs - lastActiveMs > MAX_IDLE_MS) {
+    db.sessions = db.sessions.filter(s => s.userId !== session.userId);
+    saveDb(db);
+    return { success: false, error: 'Session timed out due to 30 minutes of inactivity' };
+  }
+
+  // Generate fresh JWT token pair
+  const payload = {
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role
+  };
+
+  const newAccessToken = jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: '15m' });
+  const newRefreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '8h' });
+
+  session.token = newAccessToken;
+  session.refreshToken = newRefreshToken;
+  session.lastActiveAt = new Date().toISOString();
+  saveDb(db);
+
+  const actor: DbActor = { id: user.id, email: user.email, name: user.name, role: user.role };
+  logAuditAction('TOKEN_REFRESH', 'auth', actor, user.id, `JWT access token refreshed for ${user.email}`);
+
+  return {
+    success: true,
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+    csrfToken: session.csrfToken,
+    user: actor
+  };
 }
 
 export function getSession(token: string | undefined): DbSession | null {
@@ -541,9 +654,9 @@ export function getSession(token: string | undefined): DbSession | null {
   return result.session;
 }
 
-export function destroySession(token: string): void {
+export function destroySession(tokenOrUserId: string): void {
   const db = getDb();
-  db.sessions = db.sessions.filter(s => s.token !== token);
+  db.sessions = db.sessions.filter(s => s.token !== tokenOrUserId && s.userId !== tokenOrUserId && s.refreshToken !== tokenOrUserId);
   saveDb(db);
 }
 
@@ -561,10 +674,16 @@ export function getDeletedBookings(): DbBooking[] {
 export function addBooking(booking: Omit<DbBooking, 'id' | 'pricingEstimate' | 'status' | 'createdAt'>): DbBooking {
   const db = getDb();
   const estimate = calculatePricingEstimate(booking.eventType, booking.guestCount);
+  const depositAmount = Math.round(estimate * 0.30); // 30% retainer deposit
   const newBooking: DbBooking = {
     ...booking,
     id: `b-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     pricingEstimate: estimate,
+    depositAmount,
+    paymentStatus: 'Unpaid',
+    paymentGateway: 'Sandbox',
+    whatsappStatus: 'Pending',
+    whatsappLogs: [],
     status: 'Pending',
     createdAt: new Date().toISOString()
   };
@@ -573,6 +692,72 @@ export function addBooking(booking: Omit<DbBooking, 'id' | 'pricingEstimate' | '
   saveDb(db);
   return newBooking;
 }
+
+export function updateBookingPaymentLink(id: string, paymentLink: string, gateway: 'Razorpay' | 'Stripe' | 'Sandbox', actor?: DbActor): DbBooking | null {
+  const db = getDb();
+  const booking = db.bookings.find(b => b.id === id);
+  if (booking) {
+    booking.paymentLink = paymentLink;
+    booking.paymentGateway = gateway;
+    saveDb(db);
+    if (actor) {
+      logAuditAction('PAYMENT_GENERATED', 'booking', actor, id, `Payment link generated (${gateway}): ${paymentLink}`);
+    }
+    return booking;
+  }
+  return null;
+}
+
+export function updateBookingPaymentSuccess(id: string, transactionId: string, paidAmount: number, gateway: string, actor?: DbActor): DbBooking | null {
+  const db = getDb();
+  const booking = db.bookings.find(b => b.id === id);
+  if (booking) {
+    booking.paymentStatus = paidAmount >= booking.pricingEstimate ? 'Fully_Paid' : 'Deposit_Paid';
+    booking.paymentTransactionId = transactionId;
+    booking.paidAt = new Date().toISOString();
+    booking.status = 'Approved';
+    saveDb(db);
+    logAuditAction('PAYMENT_RECEIVED', 'booking', actor || null, id, `Payment received via ${gateway}. Transaction ID: ${transactionId}, Amount: ₹${paidAmount.toLocaleString('en-IN')}`);
+    return booking;
+  }
+  return null;
+}
+
+export function logBookingWhatsAppMessage(
+  id: string, 
+  template: string, 
+  recipient: string, 
+  status: 'Sent' | 'Failed' | 'Simulated', 
+  messageSnippet: string,
+  actor?: DbActor
+): DbBooking | null {
+  const db = getDb();
+  const booking = db.bookings.find(b => b.id === id);
+  if (booking) {
+    if (!booking.whatsappLogs) booking.whatsappLogs = [];
+    const entry = {
+      id: `wa-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      timestamp: new Date().toISOString(),
+      template,
+      recipient,
+      status,
+      messageSnippet
+    };
+    booking.whatsappLogs.unshift(entry);
+    booking.whatsappStatus = status === 'Failed' ? 'Failed' : 'Sent';
+    saveDb(db);
+    logAuditAction(
+      status === 'Failed' ? 'WHATSAPP_FAILED' : 'WHATSAPP_SENT', 
+      'booking', 
+      actor || null, 
+      id, 
+      `WhatsApp message dispatched (${template}) to ${recipient}: status ${status}`
+    );
+    return booking;
+  }
+  return null;
+}
+
 
 export function updateBookingStatus(id: string, status: DbBooking['status'], actor: DbActor): DbBooking | null {
   const db = getDb();
