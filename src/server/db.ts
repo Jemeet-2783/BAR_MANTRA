@@ -7,6 +7,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from './config.ts';
+
 
 export type UserRole = 'superadmin' | 'admin' | 'staff';
 
@@ -469,10 +471,8 @@ export function validateUserCredentials(email: string, password: string): DbUser
   return user;
 }
 
-const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'barmantra_jwt_access_secret_key_2026_super_secure';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'barmantra_jwt_refresh_secret_key_2026_super_secure';
-
 // Session management (JWT + db.json lastActiveAt Idle Tracker)
+
 export function createSession(user: DbUser): { token: string; refreshToken: string; csrfToken: string; expiresAt: string; session: DbSession } {
   const db = getDb();
   

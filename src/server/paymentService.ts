@@ -4,6 +4,7 @@
 
 
 import crypto from 'crypto';
+import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, STRIPE_SECRET_KEY } from './config.ts';
 
 export interface CreatePaymentOrderOptions {
   bookingId: string;
@@ -26,10 +27,11 @@ export interface PaymentOrderResult {
 }
 
 export async function createPaymentOrder(options: CreatePaymentOrderOptions): Promise<PaymentOrderResult> {
-  const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
-  const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const razorpayKeyId = RAZORPAY_KEY_ID;
+  const razorpayKeySecret = RAZORPAY_KEY_SECRET;
+  const stripeSecretKey = STRIPE_SECRET_KEY;
   const baseUrl = options.originUrl || 'http://localhost:3000';
+
 
   // 1. Live Razorpay Integration if API keys are present
   if (razorpayKeyId && razorpayKeySecret) {
@@ -119,7 +121,8 @@ export function verifyPaymentSignature(
   paymentId: string, 
   signature: string
 ): boolean {
-  const secret = process.env.RAZORPAY_KEY_SECRET;
+  const secret = RAZORPAY_KEY_SECRET;
+
   
   // If sandbox order, accept sandbox transaction signature format
   if (orderId.startsWith('order_sb_') || signature.startsWith('sig_sandbox_')) {

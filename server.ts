@@ -3,11 +3,13 @@
  */
 
 
+import { WHATSAPP_ADMIN_NUMBER, RAZORPAY_KEY_ID, GEMINI_API_KEY } from './src/server/config.ts';
 import express from 'express';
 import path from 'path';
 import crypto from 'crypto';
 import helmet from 'helmet';
 import { createServer as createViteServer } from 'vite';
+
 import { GoogleGenAI, Type } from '@google/genai';
 import { 
   addBooking, 
@@ -278,7 +280,8 @@ async function startServer() {
         logBookingWhatsAppMessage(booking.id, 'BOOKING_CONFIRMATION', phone, 'Failed', err.message);
       });
 
-      const adminPhone = process.env.WHATSAPP_ADMIN_NUMBER || '+919829012345';
+      const adminPhone = WHATSAPP_ADMIN_NUMBER;
+
       sendWhatsAppNotification({
         template: 'ADMIN_NEW_BOOKING_ALERT',
         recipientPhone: adminPhone,
@@ -327,7 +330,8 @@ async function startServer() {
         paymentLink: booking.paymentLink,
         paidAt: booking.paidAt,
         paymentTransactionId: booking.paymentTransactionId,
-        razorpayKeyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_barmantra_sandbox'
+        razorpayKeyId: RAZORPAY_KEY_ID || 'rzp_test_barmantra_sandbox'
+
       });
     } catch (err: any) {
       res.status(500).json({ error: 'Failed to retrieve booking payment metadata.' });
@@ -425,7 +429,8 @@ async function startServer() {
       }
 
       // Check if GEMINI_API_KEY exists. If not, use high-fidelity royal fallback mock
-      if (!process.env.GEMINI_API_KEY) {
+      if (!GEMINI_API_KEY) {
+
         console.log('GEMINI_API_KEY is not defined, utilizing luxury backup formulas...');
         const fallbacks: Record<string, any> = {
           'gin': {
@@ -525,7 +530,8 @@ async function startServer() {
 
       // Initialize Gemini Client
       const ai = new GoogleGenAI({
-        apiKey: process.env.GEMINI_API_KEY,
+        apiKey: GEMINI_API_KEY,
+
         httpOptions: {
           headers: {
             'User-Agent': 'aistudio-build',

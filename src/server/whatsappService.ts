@@ -1,9 +1,7 @@
-/**
- * Barmantra — WhatsApp Business Notification Dispatcher
- */
-
+import { WHATSAPP_ACCESS_TOKEN, WHATSAPP_PHONE_NUMBER_ID } from './config.ts';
 
 export interface SendWhatsAppOptions {
+
   template: 'BOOKING_CONFIRMATION' | 'ADMIN_NEW_BOOKING_ALERT' | 'PROPOSAL_APPROVED_PAYMENT_REQUEST' | 'PAYMENT_RECEIPT_CONFIRMATION' | 'CUSTOM';
   recipientPhone: string;
   data: {
@@ -58,8 +56,10 @@ export function formatWhatsAppMessage(options: SendWhatsAppOptions): string {
 }
 
 export async function sendWhatsAppNotification(options: SendWhatsAppOptions): Promise<WhatsAppResult> {
-  const phoneToken = process.env.WHATSAPP_ACCESS_TOKEN;
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+  const phoneToken = WHATSAPP_ACCESS_TOKEN;
+  const phoneNumberId = WHATSAPP_PHONE_NUMBER_ID;
+
   const messageText = formatWhatsAppMessage(options);
   const snippet = messageText.substring(0, 100).replace(/\n/g, ' ') + (messageText.length > 100 ? '...' : '');
 
