@@ -343,9 +343,10 @@ const DEFAULT_SITE_SETTINGS: SiteSettings = {
 const DEFAULT_HERO_SLIDES: HeroSlide[] = [
   {
     id: 'hs-1',
-    image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1920&q=80',
+    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80',
     title: 'Royal Wedding Bar Curation',
   },
+
   {
     id: 'hs-2',
     image: 'https://images.unsplash.com/photo-1575444758702-4a6b9222336e?auto=format&fit=crop&w=1920&q=80',
