@@ -39,8 +39,15 @@ import {
   Globe,
   Save,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Download,
+  Printer,
+  CreditCard,
+  Send,
+  MessageCircle,
+  CheckCircle2
 } from 'lucide-react';
+
 import { useHashRoute } from '../../useHashRoute';
 import { DbBooking, DbContact } from '../../server/db';
 import { useSiteContent } from '../../useSiteContent';
@@ -70,7 +77,7 @@ export function AdminView() {
   const [confirmCustomPassword, setConfirmCustomPassword] = useState('');
   const [passwordChangeError, setPasswordChangeError] = useState('');
   
-  // Dashboard states - 12 Persistent Sidebar Sections
+  // Dashboard states - Persistent Sidebar Sections
   const [activeTab, setActiveTab] = useState<
     | 'dashboard'
     | 'proposals'
@@ -100,7 +107,7 @@ export function AdminView() {
     ]
   });
 
-  // Confirmation Modal State (Safety & UX Detail 16)
+  // Confirmation Modal State
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -127,6 +134,9 @@ export function AdminView() {
     newPassword: ''
   });
 
+  // Digital Proposal Voucher / Invoice Generator Modal state
+  const [invoiceModalBooking, setInvoiceModalBooking] = useState<DbBooking | null>(null);
+
   // CMS Editor States
   const [cmsBranding, setCmsBranding] = useState<any>(siteSettings);
   const [cmsSlides, setCmsSlides] = useState<any[]>(heroSlides);
@@ -136,7 +146,7 @@ export function AdminView() {
   const [cmsTestimonialsList, setCmsTestimonialsList] = useState<any[]>(testimonials);
   const [cmsFaqsList, setCmsFaqsList] = useState<any[]>(faqs);
 
-  // Sync CMS state when useSiteContent context finishes fetching
+  // Sync CMS state when useSiteContent context updates
   useEffect(() => {
     if (siteSettings) setCmsBranding(siteSettings);
     if (heroSlides) setCmsSlides(heroSlides);
@@ -169,9 +179,68 @@ export function AdminView() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isLoadingData, setIsLoadingData] = useState(false);
-  const [messageNotification, setMessageNotification] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  // WhatsApp Dispatcher Modal State
+  const [waModal, setWaModal] = useState<{
+    isOpen: boolean;
+    bookingId: string;
+    clientName: string;
+    phone: string;
+    template: 'BOOKING_CONFIRMATION' | 'PROPOSAL_APPROVED_PAYMENT_REQUEST' | 'PAYMENT_RECEIPT_CONFIRMATION' | 'CUSTOM';
+    customMessage: string;
+  }>({
+    isOpen: false,
+    bookingId: '',
+    clientName: '',
+    phone: '',
+    template: 'PROPOSAL_APPROVED_PAYMENT_REQUEST',
+    customMessage: ''
+  });
 
   const [csrfToken, setCsrfToken] = useState('');
+
+  const handleGeneratePaymentLink = async (bookingId: string) => {
+    try {
+      const res = await fetch(`/api/admin/bookings/${bookingId}/payment-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showNotification('Payment link generated & dispatched via WhatsApp!', 'success');
+        fetchDashboardData();
+      } else {
+        showNotification(data.error || 'Failed to generate payment link', 'error');
+      }
+    } catch (err) {
+      showNotification('Network error generating payment link', 'error');
+    }
+  };
+
+  const handleSendWhatsAppSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waModal.bookingId) return;
+    try {
+      const res = await fetch(`/api/admin/bookings/${waModal.bookingId}/send-whatsapp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+        body: JSON.stringify({
+          template: waModal.template,
+          customMessage: waModal.customMessage
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showNotification(`WhatsApp alert dispatched to ${waModal.phone}!`, 'success');
+        setWaModal(prev => ({ ...prev, isOpen: false }));
+        fetchDashboardData();
+      } else {
+        showNotification(data.error || 'Failed to dispatch WhatsApp message', 'error');
+      }
+    } catch (err) {
+      showNotification('Network error sending WhatsApp message', 'error');
+    }
+  };
+
 
   // Check auth on load
   useEffect(() => {
@@ -235,7 +304,7 @@ export function AdminView() {
       });
       const result = await res.json();
       if (res.ok) {
-        showNotification(`Dynamic section '${section}' updated & published live!`, 'success');
+        showNotification(`Dynamic section '${section}' published live!`, 'success');
         await refreshContent();
       } else {
         showNotification(result.error || 'Failed to save section', 'error');
@@ -660,6 +729,66 @@ export function AdminView() {
     }
   };
 
+  // Export CSV functions
+  const exportBookingsCsv = () => {
+    if (filteredBookings.length === 0) {
+      showNotification('No proposal data available to export.', 'error');
+      return;
+    }
+    const headers = ['ID', 'Name', 'Phone', 'Email', 'Event Type', 'Event Date', 'Guest Count', 'Price Estimate (INR)', 'Status', 'Submitted At', 'Special Instructions'];
+    const rows = filteredBookings.map(b => [
+      b.id,
+      `"${b.name.replace(/"/g, '""')}"`,
+      `"${b.phone}"`,
+      `"${b.email}"`,
+      `"${b.eventType}"`,
+      `"${b.eventDate}"`,
+      b.guestCount,
+      b.pricingEstimate,
+      b.status,
+      `"${new Date(b.createdAt).toLocaleString('en-IN')}"`,
+      `"${(b.message || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `barmantra_proposals_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showNotification('Proposals CSV exported successfully.', 'success');
+  };
+
+  const exportContactsCsv = () => {
+    if (filteredContacts.length === 0) {
+      showNotification('No inquiry data available to export.', 'error');
+      return;
+    }
+    const headers = ['ID', 'Name', 'Phone', 'Email', 'Category', 'Status', 'Submitted At', 'Message'];
+    const rows = filteredContacts.map(c => [
+      c.id,
+      `"${c.name.replace(/"/g, '""')}"`,
+      `"${c.phone}"`,
+      `"${c.email}"`,
+      `"${c.eventType || 'General'}"`,
+      c.status,
+      `"${new Date(c.createdAt).toLocaleString('en-IN')}"`,
+      `"${(c.message || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `barmantra_general_inquiries_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showNotification('Inquiries CSV exported successfully.', 'success');
+  };
+
   const showNotification = (text: string, type: 'success' | 'error') => {
     setMessageNotification({ text, type });
     setTimeout(() => setMessageNotification(null), 4000);
@@ -693,6 +822,12 @@ export function AdminView() {
     const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // Helper to trigger CMS tab navigation
+  const openCmsSubTab = (sub: 'branding' | 'services' | 'portfolio' | 'team' | 'testimonials' | 'faqs') => {
+    setActiveCmsSubTab(sub);
+    setActiveTab('content');
+  };
 
   // Loading state
   if (isAuthenticated === null) {
@@ -756,46 +891,46 @@ export function AdminView() {
 
           {reqSuccessMsg && (
             <div className="mb-6 p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex items-start space-x-2.5 text-emerald-800 text-xs font-sans">
-              <Check size={16} className="flex-shrink-0 mt-0.5 text-emerald-600" />
+              <Check size={16} className="flex-shrink-0 mt-0.5" />
               <span>{reqSuccessMsg}</span>
             </div>
           )}
 
           {!isAccessRequestMode ? (
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-4 text-xs font-sans">
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
-                  Admin Email Account *
+                <label className="block font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
+                  Admin Email Account
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@barmantra.com"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 focus:ring-1 focus:ring-gold-500 bg-ivory-50/50 outline-none text-sm transition-all font-mono"
+                  placeholder="admin@barmantra.com"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 outline-none font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
-                  Password Key *
+                <label className="block font-mono uppercase tracking-wider text-maroon-950 mb-1 font-bold">
+                  Master Password
                 </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password..."
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 focus:ring-1 focus:ring-gold-500 bg-ivory-50/50 outline-none text-sm transition-all font-mono"
+                  placeholder="••••••••••••"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 outline-none font-mono"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isLoggingIn}
-                className="w-full py-3.5 rounded-xl bg-maroon-950 text-gold-400 hover:bg-maroon-900 font-sans font-bold text-sm shadow-md transition-all cursor-pointer flex items-center justify-center space-x-2 border border-gold-500/20 mt-2"
+                className="w-full py-3.5 rounded-xl bg-maroon-950 hover:bg-maroon-900 text-gold-400 font-sans font-bold text-sm shadow-md transition-all cursor-pointer flex items-center justify-center space-x-2 border border-gold-500/20 mt-2"
               >
                 {isLoggingIn ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <RefreshCw size={16} className="animate-spin text-gold-400" />
                 ) : (
                   <>
                     <ShieldCheck size={16} />
@@ -1079,7 +1214,7 @@ export function AdminView() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* PERSISTENT SIDEBAR NAVIGATION (4 Cols) */}
+          {/* PERSISTENT SIDEBAR NAVIGATION (3 Cols) */}
           <aside className="lg:col-span-3 space-y-6">
             
             {/* CORE OPERATIONS */}
@@ -1172,9 +1307,9 @@ export function AdminView() {
               </span>
               <nav className="space-y-1">
                 <button
-                  onClick={() => { setActiveTab('services'); setStatusFilter('all'); }}
+                  onClick={() => openCmsSubTab('services')}
                   className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
-                    activeTab === 'services'
+                    activeTab === 'services' || (activeTab === 'content' && activeCmsSubTab === 'services')
                       ? 'bg-maroon-950 text-gold-400 shadow-md'
                       : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
                   }`}
@@ -1184,9 +1319,9 @@ export function AdminView() {
                 </button>
 
                 <button
-                  onClick={() => { setActiveTab('portfolio'); setStatusFilter('all'); }}
+                  onClick={() => openCmsSubTab('portfolio')}
                   className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
-                    activeTab === 'portfolio'
+                    activeTab === 'portfolio' || (activeTab === 'content' && activeCmsSubTab === 'portfolio')
                       ? 'bg-maroon-950 text-gold-400 shadow-md'
                       : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
                   }`}
@@ -1196,9 +1331,9 @@ export function AdminView() {
                 </button>
 
                 <button
-                  onClick={() => { setActiveTab('testimonials'); setStatusFilter('all'); }}
+                  onClick={() => openCmsSubTab('testimonials')}
                   className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
-                    activeTab === 'testimonials'
+                    activeTab === 'testimonials' || (activeTab === 'content' && activeCmsSubTab === 'testimonials')
                       ? 'bg-maroon-950 text-gold-400 shadow-md'
                       : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
                   }`}
@@ -1208,9 +1343,9 @@ export function AdminView() {
                 </button>
 
                 <button
-                  onClick={() => { setActiveTab('faqs'); setStatusFilter('all'); }}
+                  onClick={() => openCmsSubTab('faqs')}
                   className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
-                    activeTab === 'faqs'
+                    activeTab === 'faqs' || (activeTab === 'content' && activeCmsSubTab === 'faqs')
                       ? 'bg-maroon-950 text-gold-400 shadow-md'
                       : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
                   }`}
@@ -1220,15 +1355,15 @@ export function AdminView() {
                 </button>
 
                 <button
-                  onClick={() => { setActiveTab('content'); setStatusFilter('all'); }}
+                  onClick={() => openCmsSubTab('branding')}
                   className={`w-full px-3.5 py-2.5 rounded-xl font-sans text-xs font-bold transition-all flex items-center space-x-2.5 cursor-pointer ${
-                    activeTab === 'content'
+                    activeTab === 'content' && activeCmsSubTab === 'branding'
                       ? 'bg-maroon-950 text-gold-400 shadow-md'
                       : 'text-gray-600 hover:bg-ivory-100 hover:text-maroon-950'
                   }`}
                 >
                   <Globe size={15} />
-                  <span>About Page & Team</span>
+                  <span>Branding & Team</span>
                 </button>
               </nav>
             </div>
@@ -1275,270 +1410,428 @@ export function AdminView() {
           {/* MAIN STUDIO WORKSPACE AREA (9 Cols) */}
           <main className="lg:col-span-9 bg-white rounded-3xl border border-gold-600/10 shadow-md p-6 overflow-hidden">
 
-            {/* Filter and Search Box */}
-            {(activeTab === 'bookings' || activeTab === 'contacts') && (
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                
-                {/* Search input */}
-                <div className="relative">
-                  <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 transform -translate-y-1/2" />
-                  <input
-                    type="text"
-                    placeholder="Filter by name/detail..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 focus:border-gold-600 focus:outline-none bg-ivory-50/30 w-full sm:w-60 transition-all"
-                  />
+            {/* DASHBOARD OVERVIEW TAB */}
+            {activeTab === 'dashboard' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                  <div>
+                    <h3 className="font-serif text-xl font-medium text-maroon-950">System Operations & Quick Actions</h3>
+                    <p className="text-xs text-gray-500 font-sans mt-0.5">Welcome to Barmantra Royal Command Studio. Select a module from the left menu to manage client inquiries, site content, or pricing rules.</p>
+                  </div>
                 </div>
 
-                {/* Status Filter */}
-                <div className="flex items-center space-x-1.5">
-                  <Filter className="w-3.5 h-3.5 text-gray-400" />
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 text-xs rounded-xl border border-gray-200 focus:border-gold-600 focus:outline-none bg-ivory-50/30 cursor-pointer"
-                  >
-                    <option value="all">All Statuses</option>
-                    {activeTab === 'bookings' ? (
-                      <>
-                        <option value="Pending">Pending</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Contacted">Contacted</option>
-                        <option value="Cancelled">Cancelled</option>
-                      </>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Recent Proposals Card */}
+                  <div className="bg-ivory-50/60 p-5 rounded-2xl border border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-serif font-bold text-maroon-950 text-sm flex items-center gap-2">
+                        <FileText size={16} className="text-gold-600" />
+                        <span>Recent Proposals ({bookings.length})</span>
+                      </h4>
+                      <button onClick={() => setActiveTab('proposals')} className="text-xs font-mono font-bold text-gold-700 hover:underline cursor-pointer">View All →</button>
+                    </div>
+                    {bookings.length === 0 ? (
+                      <p className="text-xs text-gray-400 py-4 font-mono">No proposals recorded.</p>
                     ) : (
-                      <>
-                        <option value="Unread">Unread</option>
-                        <option value="Contacted">Contacted</option>
-                        <option value="Resolved">Resolved</option>
-                      </>
+                      <div className="space-y-2.5 text-xs">
+                        {bookings.slice(0, 4).map(b => (
+                          <div key={b.id} className="p-3 bg-white rounded-xl border border-gray-100 flex items-center justify-between">
+                            <div>
+                              <span className="font-bold text-gray-900">{b.name}</span>
+                              <span className="text-[10px] text-gray-500 block font-mono">{b.eventType.replace('-', ' ')} • {b.guestCount} Pax</span>
+                            </div>
+                            <span className="font-mono font-bold text-maroon-950 text-xs">{formatRupee(b.pricingEstimate)}</span>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                  </select>
-                </div>
+                  </div>
 
+                  {/* Recent Inquiries Card */}
+                  <div className="bg-ivory-50/60 p-5 rounded-2xl border border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-serif font-bold text-maroon-950 text-sm flex items-center gap-2">
+                        <MessageSquare size={16} className="text-blue-600" />
+                        <span>Recent Callback Requests ({contacts.length})</span>
+                      </h4>
+                      <button onClick={() => setActiveTab('inquiries')} className="text-xs font-mono font-bold text-gold-700 hover:underline cursor-pointer">View All →</button>
+                    </div>
+                    {contacts.length === 0 ? (
+                      <p className="text-xs text-gray-400 py-4 font-mono">No inquiries recorded.</p>
+                    ) : (
+                      <div className="space-y-2.5 text-xs">
+                        {contacts.slice(0, 4).map(c => (
+                          <div key={c.id} className="p-3 bg-white rounded-xl border border-gray-100 flex items-center justify-between">
+                            <div>
+                              <span className="font-bold text-gray-900">{c.name}</span>
+                              <span className="text-[10px] text-gray-500 block font-mono">{c.email}</span>
+                            </div>
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-mono uppercase font-bold ${c.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                              {c.status}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 
-          {/* Table Area */}
-          <div className="overflow-x-auto">
-            {activeTab === 'bookings' ? (
-              // --- BOOKINGS TABLE ---
-              filteredBookings.length === 0 ? (
-                <div className="text-center py-16">
-                  <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm font-sans text-gray-500 font-light">No matching event proposals found.</p>
+            {/* EVENT PROPOSALS TAB */}
+            {activeTab === 'proposals' && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+                  <div>
+                    <h3 className="font-serif text-xl font-medium text-maroon-950 flex items-center gap-2">
+                      <FileText className="text-gold-600" size={20} />
+                      <span>Event Proposals Ledger ({filteredBookings.length})</span>
+                    </h3>
+                    <p className="text-xs text-gray-500 font-sans mt-0.5">Manage luxury mobile bar quote submissions, change curation statuses, and issue client quotation vouchers.</p>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={exportBookingsCsv}
+                      className="px-3.5 py-2 rounded-xl bg-gold-600 hover:bg-gold-700 text-white font-mono text-xs font-bold flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer"
+                    >
+                      <Download size={14} />
+                      <span>Export CSV</span>
+                    </button>
+                  </div>
                 </div>
-              ) : (
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-ivory-50/80 border-b border-gray-100 text-maroon-950 font-mono text-[10px] uppercase tracking-wider font-bold">
-                      <th className="py-4 px-6">Client Profile</th>
-                      <th className="py-4 px-6">Event Details</th>
-                      <th className="py-4 px-6">pricing Formula</th>
-                      <th className="py-4 px-6">Curation Status</th>
-                      <th className="py-4 px-6 text-right">Ledger Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 text-sm font-sans">
-                    {filteredBookings.map((b) => (
-                      <tr key={b.id} className="hover:bg-ivory-50/30 transition-colors">
-                        {/* Profile Info */}
-                        <td className="py-5 px-6">
-                          <div>
-                            <span className="font-semibold text-gray-900 block">{b.name}</span>
-                            <div className="flex flex-col space-y-1 mt-1.5 text-xs text-gray-500 font-light">
-                              <a href={`tel:${b.phone}`} className="flex items-center space-x-1 hover:text-maroon-900">
-                                <Phone size={11} />
-                                <span>{b.phone}</span>
-                              </a>
-                              <a href={`mailto:${b.email}`} className="flex items-center space-x-1 hover:text-maroon-900">
-                                <Mail size={11} />
-                                <span>{b.email}</span>
-                              </a>
-                            </div>
-                          </div>
-                        </td>
 
-                        {/* Event details */}
-                        <td className="py-5 px-6 max-w-sm">
-                          <div>
-                            <span className="inline-block px-2 py-0.5 rounded-md bg-gold-100 text-gold-900 text-[10px] font-mono uppercase tracking-wider mb-1 font-bold">
-                              {b.eventType.replace('-', ' ')}
-                            </span>
-                            <div className="flex items-center space-x-3.5 text-xs text-gray-600 mb-1.5 mt-0.5">
-                              <span className="flex items-center space-x-1 font-mono font-medium">
-                                <Calendar size={12} className="text-gold-600" />
-                                <span>{b.eventDate}</span>
-                              </span>
-                              <span className="flex items-center space-x-1 font-mono font-medium">
-                                <Users size={12} className="text-gold-600" />
-                                <span>{b.guestCount} Pax</span>
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-600 leading-relaxed font-light line-clamp-3">
-                              "{b.message}"
-                            </p>
-                          </div>
-                        </td>
+                {/* Filter and Search Box */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <div className="relative flex-grow">
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 transform -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search proposals by name, email, phone, date..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 focus:border-gold-600 focus:outline-none bg-ivory-50/30 w-full transition-all"
+                    />
+                  </div>
 
-                        {/* Pricing */}
-                        <td className="py-5 px-6 font-mono text-xs font-bold text-maroon-950">
-                          {formatRupee(b.pricingEstimate)}
-                        </td>
-
-                        {/* Status */}
-                        <td className="py-5 px-6">
-                          <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold ${
-                            b.status === 'Approved' 
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                              : b.status === 'Contacted'
-                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                              : b.status === 'Cancelled'
-                              ? 'bg-gray-100 text-gray-600 border border-gray-200'
-                              : 'bg-amber-50 text-amber-700 border border-amber-200 animate-pulse'
-                          }`}>
-                            {b.status}
-                          </span>
-                        </td>
-
-                        {/* Actions */}
-                        <td className="py-5 px-6 text-right">
-                          <div className="flex items-center justify-end space-x-2">
-                            {/* Update dropdown */}
-                            <select
-                              value={b.status}
-                              onChange={(e) => updateBookingStatus(b.id, e.target.value)}
-                              className="px-2 py-1.5 text-[10px] font-mono border border-gray-200 rounded-lg focus:outline-none focus:border-gold-600 bg-white cursor-pointer"
-                            >
-                              <option value="Pending">Set Pending</option>
-                              <option value="Approved">Set Approved</option>
-                              <option value="Contacted">Set Contacted</option>
-                              <option value="Cancelled">Set Cancelled</option>
-                            </select>
-
-                            {/* Delete button */}
-                            <button
-                              onClick={() => handleDeleteBooking(b.id)}
-                              className="p-1.5 rounded-lg border border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors cursor-pointer"
-                              title="Delete proposal"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          </div>
-                        </td>
-
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )
-            ) : (
-              // --- GENERAL CONTACTS TABLE ---
-              filteredContacts.length === 0 ? (
-                <div className="text-center py-16">
-                  <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm font-sans text-gray-500 font-light">No general inquiries found.</p>
+                  <div className="flex items-center space-x-1.5">
+                    <Filter className="w-3.5 h-3.5 text-gray-400" />
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="px-3 py-2 text-xs rounded-xl border border-gray-200 focus:border-gold-600 focus:outline-none bg-ivory-50/30 cursor-pointer"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Contacted">Contacted</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
                 </div>
-              ) : (
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-ivory-50/80 border-b border-gray-100 text-maroon-950 font-mono text-[10px] uppercase tracking-wider font-bold">
-                      <th className="py-4 px-6">Inquirer</th>
-                      <th className="py-4 px-6">Message / Specifications</th>
-                      <th className="py-4 px-6">Ledger Date</th>
-                      <th className="py-4 px-6">Status</th>
-                      <th className="py-4 px-6 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 text-sm font-sans">
-                    {filteredContacts.map((c) => (
-                      <tr key={c.id} className="hover:bg-ivory-50/30 transition-colors">
-                        {/* Profile Info */}
-                        <td className="py-5 px-6">
-                          <div>
-                            <span className="font-semibold text-gray-900 block">{c.name}</span>
-                            <div className="flex flex-col space-y-1 mt-1.5 text-xs text-gray-500 font-light">
-                              <a href={`tel:${c.phone}`} className="flex items-center space-x-1 hover:text-maroon-900">
-                                <Phone size={11} />
-                                <span>{c.phone}</span>
-                              </a>
-                              <a href={`mailto:${c.email}`} className="flex items-center space-x-1 hover:text-maroon-900">
-                                <Mail size={11} />
-                                <span>{c.email}</span>
-                              </a>
-                            </div>
-                          </div>
-                        </td>
 
-                        {/* message content */}
-                        <td className="py-5 px-6 max-w-sm">
-                          <div>
-                            {c.eventType && (
-                              <span className="inline-block px-2 py-0.5 rounded bg-gray-100 text-gray-800 text-[9px] font-mono mb-1 font-bold">
-                                Category: {c.eventType.replace('-', ' ')}
+                {/* Proposals Table */}
+                <div className="overflow-x-auto">
+                  {filteredBookings.length === 0 ? (
+                    <div className="text-center py-16">
+                      <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-sm font-sans text-gray-500 font-light">No matching event proposals found.</p>
+                    </div>
+                  ) : (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-ivory-50/80 border-b border-gray-100 text-maroon-950 font-mono text-[10px] uppercase tracking-wider font-bold">
+                          <th className="py-4 px-6">Client Profile</th>
+                          <th className="py-4 px-6">Event Details</th>
+                          <th className="py-4 px-6">Pricing Estimate</th>
+                          <th className="py-4 px-6">Curation Status</th>
+                          <th className="py-4 px-6 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 text-sm font-sans">
+                        {filteredBookings.map((b) => (
+                          <tr key={b.id} className="hover:bg-ivory-50/30 transition-colors">
+                            <td className="py-5 px-6">
+                              <div>
+                                <span className="font-semibold text-gray-900 block">{b.name}</span>
+                                <div className="flex flex-col space-y-1 mt-1.5 text-xs text-gray-500 font-light">
+                                  <a href={`tel:${b.phone}`} className="flex items-center space-x-1 hover:text-maroon-900">
+                                    <Phone size={11} />
+                                    <span>{b.phone}</span>
+                                  </a>
+                                  <a href={`mailto:${b.email}`} className="flex items-center space-x-1 hover:text-maroon-900">
+                                    <Mail size={11} />
+                                    <span>{b.email}</span>
+                                  </a>
+                                </div>
+                              </div>
+                            </td>
+
+                            <td className="py-5 px-6 max-w-sm">
+                              <div>
+                                <span className="inline-block px-2 py-0.5 rounded-md bg-gold-100 text-gold-900 text-[10px] font-mono uppercase tracking-wider mb-1 font-bold">
+                                  {b.eventType.replace('-', ' ')}
+                                </span>
+                                <div className="flex items-center space-x-3.5 text-xs text-gray-600 mb-1.5 mt-0.5">
+                                  <span className="flex items-center space-x-1 font-mono font-medium">
+                                    <Calendar size={12} className="text-gold-600" />
+                                    <span>{b.eventDate}</span>
+                                  </span>
+                                  <span className="flex items-center space-x-1 font-mono font-medium">
+                                    <Users size={12} className="text-gold-600" />
+                                    <span>{b.guestCount} Pax</span>
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed font-light line-clamp-2">
+                                  "{b.message}"
+                                </p>
+                              </div>
+                            </td>
+
+                             <td className="py-5 px-6 font-mono text-xs font-bold text-maroon-950">
+                              <div>
+                                <span>{formatRupee(b.pricingEstimate)}</span>
+                                <span className="block text-[10px] text-gray-500 font-normal mt-0.5">
+                                  30% Deposit: {formatRupee(b.depositAmount || Math.round(b.pricingEstimate * 0.30))}
+                                </span>
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase mt-1 ${
+                                  b.paymentStatus === 'Deposit_Paid' || b.paymentStatus === 'Fully_Paid'
+                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                    : 'bg-amber-100 text-amber-800 border border-amber-300'
+                                }`}>
+                                  <CheckCircle2 size={10} />
+                                  {b.paymentStatus === 'Deposit_Paid' ? 'Deposit Paid' : b.paymentStatus === 'Fully_Paid' ? 'Fully Paid' : 'Unpaid'}
+                                </span>
+                              </div>
+                             </td>
+
+                             <td className="py-5 px-6">
+                              <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold ${
+                                b.status === 'Approved' 
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                                  : b.status === 'Contacted'
+                                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                  : b.status === 'Cancelled'
+                                  ? 'bg-gray-100 text-gray-600 border border-gray-200'
+                                  : 'bg-amber-50 text-amber-700 border border-amber-200 animate-pulse'
+                              }`}>
+                                {b.status}
                               </span>
-                            )}
-                            <p className="text-xs text-gray-600 leading-relaxed font-light">
-                              "{c.message}"
-                            </p>
-                          </div>
-                        </td>
+                             </td>
 
-                        {/* timestamp */}
-                        <td className="py-5 px-6 font-mono text-xs text-gray-500">
-                          {new Date(c.createdAt).toLocaleDateString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                          })}
-                        </td>
+                             <td className="py-5 px-6 text-right">
+                              <div className="flex items-center justify-end space-x-1.5">
+                                <button
+                                  onClick={() => handleGeneratePaymentLink(b.id)}
+                                  className="p-1.5 rounded-lg border border-amber-300 text-amber-800 hover:bg-amber-50 transition-colors cursor-pointer"
+                                  title="Generate Payment Link & Send WhatsApp"
+                                >
+                                  <CreditCard size={13} />
+                                </button>
 
-                        {/* Status */}
-                        <td className="py-5 px-6">
-                          <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold ${
-                            c.status === 'Resolved' 
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                              : c.status === 'Contacted'
-                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                              : 'bg-rose-50 text-rose-700 border border-rose-200 animate-pulse'
-                          }`}>
-                            {c.status}
-                          </span>
-                        </td>
+                                <button
+                                  onClick={() => setWaModal({
+                                    isOpen: true,
+                                    bookingId: b.id,
+                                    clientName: b.name,
+                                    phone: b.phone,
+                                    template: 'PROPOSAL_APPROVED_PAYMENT_REQUEST',
+                                    customMessage: ''
+                                  })}
+                                  className="p-1.5 rounded-lg border border-emerald-300 text-emerald-800 hover:bg-emerald-50 transition-colors cursor-pointer"
+                                  title="Send WhatsApp Alert to Client"
+                                >
+                                  <MessageCircle size={13} />
+                                </button>
 
-                        {/* Actions */}
-                        <td className="py-5 px-6 text-right">
-                          <div className="flex items-center justify-end space-x-2">
-                            {/* Update status select */}
-                            <select
-                              value={c.status}
-                              onChange={(e) => updateContactStatus(c.id, e.target.value)}
-                              className="px-2 py-1.5 text-[10px] font-mono border border-gray-200 rounded-lg focus:outline-none focus:border-gold-600 bg-white cursor-pointer"
-                            >
-                              <option value="Unread">Set Unread</option>
-                              <option value="Contacted">Set Contacted</option>
-                              <option value="Resolved">Set Resolved</option>
-                            </select>
+                                <button
+                                  onClick={() => setInvoiceModalBooking(b)}
+                                  className="p-1.5 rounded-lg border border-gold-300 text-gold-800 hover:bg-gold-50 transition-colors cursor-pointer"
+                                  title="Generate Digital Invoice / Voucher"
+                                >
+                                  <Printer size={13} />
+                                </button>
 
-                            {/* Delete button */}
-                            <button
-                              onClick={() => handleDeleteContact(c.id)}
-                              className="p-1.5 rounded-lg border border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors cursor-pointer"
-                              title="Delete inquiry"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          </div>
-                        </td>
+                                <select
+                                  value={b.status}
+                                  onChange={(e) => updateBookingStatus(b.id, e.target.value)}
+                                  className="px-2 py-1.5 text-[10px] font-mono border border-gray-200 rounded-lg focus:outline-none focus:border-gold-600 bg-white cursor-pointer"
+                                >
+                                  <option value="Pending">Set Pending</option>
+                                  <option value="Approved">Set Approved</option>
+                                  <option value="Contacted">Set Contacted</option>
+                                  <option value="Cancelled">Set Cancelled</option>
+                                </select>
 
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )
+                                <button
+                                  onClick={() => handleDeleteBooking(b.id)}
+                                  className="p-1.5 rounded-lg border border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors cursor-pointer"
+                                  title="Delete proposal"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                             </td>
+
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
             )}
-          </div>
+
+            {/* GENERAL INQUIRIES TAB */}
+            {activeTab === 'inquiries' && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+                  <div>
+                    <h3 className="font-serif text-xl font-medium text-maroon-950 flex items-center gap-2">
+                      <MessageSquare className="text-blue-600" size={20} />
+                      <span>General Callback Inquiries ({filteredContacts.length})</span>
+                    </h3>
+                    <p className="text-xs text-gray-500 font-sans mt-0.5">Review general contact submissions, callback requests, and track resolution statuses.</p>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={exportContactsCsv}
+                      className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-mono text-xs font-bold flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer"
+                    >
+                      <Download size={14} />
+                      <span>Export CSV</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter and Search Box */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <div className="relative flex-grow">
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 transform -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search inquiries by name, email, phone, message..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 focus:border-gold-600 focus:outline-none bg-ivory-50/30 w-full transition-all"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-1.5">
+                    <Filter className="w-3.5 h-3.5 text-gray-400" />
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="px-3 py-2 text-xs rounded-xl border border-gray-200 focus:border-gold-600 focus:outline-none bg-ivory-50/30 cursor-pointer"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Unread">Unread</option>
+                      <option value="Contacted">Contacted</option>
+                      <option value="Resolved">Resolved</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Contacts Table */}
+                <div className="overflow-x-auto">
+                  {filteredContacts.length === 0 ? (
+                    <div className="text-center py-16">
+                      <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-sm font-sans text-gray-500 font-light">No general inquiries found.</p>
+                    </div>
+                  ) : (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-ivory-50/80 border-b border-gray-100 text-maroon-950 font-mono text-[10px] uppercase tracking-wider font-bold">
+                          <th className="py-4 px-6">Inquirer</th>
+                          <th className="py-4 px-6">Message / Specifications</th>
+                          <th className="py-4 px-6">Ledger Date</th>
+                          <th className="py-4 px-6">Status</th>
+                          <th className="py-4 px-6 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 text-sm font-sans">
+                        {filteredContacts.map((c) => (
+                          <tr key={c.id} className="hover:bg-ivory-50/30 transition-colors">
+                            <td className="py-5 px-6">
+                              <div>
+                                <span className="font-semibold text-gray-900 block">{c.name}</span>
+                                <div className="flex flex-col space-y-1 mt-1.5 text-xs text-gray-500 font-light">
+                                  <a href={`tel:${c.phone}`} className="flex items-center space-x-1 hover:text-maroon-900">
+                                    <Phone size={11} />
+                                    <span>{c.phone}</span>
+                                  </a>
+                                  <a href={`mailto:${c.email}`} className="flex items-center space-x-1 hover:text-maroon-900">
+                                    <Mail size={11} />
+                                    <span>{c.email}</span>
+                                  </a>
+                                </div>
+                              </div>
+                            </td>
+
+                            <td className="py-5 px-6 max-w-sm">
+                              <div>
+                                {c.eventType && (
+                                  <span className="inline-block px-2 py-0.5 rounded bg-gray-100 text-gray-800 text-[9px] font-mono mb-1 font-bold">
+                                    Category: {c.eventType.replace('-', ' ')}
+                                  </span>
+                                )}
+                                <p className="text-xs text-gray-600 leading-relaxed font-light">
+                                  "{c.message}"
+                                </p>
+                              </div>
+                            </td>
+
+                            <td className="py-5 px-6 font-mono text-xs text-gray-500">
+                              {new Date(c.createdAt).toLocaleDateString('en-IN', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                              })}
+                            </td>
+
+                            <td className="py-5 px-6">
+                              <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold ${
+                                c.status === 'Resolved' 
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                                  : c.status === 'Contacted'
+                                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                  : 'bg-rose-50 text-rose-700 border border-rose-200 animate-pulse'
+                              }`}>
+                                {c.status}
+                              </span>
+                            </td>
+
+                            <td className="py-5 px-6 text-right">
+                              <div className="flex items-center justify-end space-x-2">
+                                <select
+                                  value={c.status}
+                                  onChange={(e) => updateContactStatus(c.id, e.target.value)}
+                                  className="px-2 py-1.5 text-[10px] font-mono border border-gray-200 rounded-lg focus:outline-none focus:border-gold-600 bg-white cursor-pointer"
+                                >
+                                  <option value="Unread">Set Unread</option>
+                                  <option value="Contacted">Set Contacted</option>
+                                  <option value="Resolved">Set Resolved</option>
+                                </select>
+
+                                <button
+                                  onClick={() => handleDeleteContact(c.id)}
+                                  className="p-1.5 rounded-lg border border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors cursor-pointer"
+                                  title="Delete inquiry"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* TRASH VIEW */}
             {activeTab === 'trash' && (
@@ -1669,7 +1962,7 @@ export function AdminView() {
             )}
 
             {/* DYNAMIC CMS PAGE EDITOR VIEW */}
-            {activeTab === 'cms' && (
+            {(activeTab === 'content' || activeTab === 'services' || activeTab === 'portfolio' || activeTab === 'testimonials' || activeTab === 'faqs') && (
               <div className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
                   <div>
@@ -2548,7 +2841,7 @@ export function AdminView() {
                             onChange={(e) => setRegRole(e.target.value as any)}
                             className="w-full p-3 rounded-xl border border-gray-300 font-mono outline-none focus:border-gold-600 bg-white"
                           >
-                            <option value="staff">Staff (Bookings & Contacts)</option>
+                            <option value="staff">Staff (Proposals & Content Editor)</option>
                             <option value="admin">Admin (Full Operations)</option>
                             <option value="superadmin">Superadmin (All Privileges + Trash Restore)</option>
                           </select>
@@ -2635,7 +2928,7 @@ export function AdminView() {
                   </div>
                 )}
 
-                {/* CONFIRMATION MODAL DIALOG (SAFETY UX DETAIL 16) */}
+                {/* CONFIRMATION MODAL DIALOG */}
                 {confirmModal.isOpen && (
                   <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
                     <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-gold-500/20 shadow-2xl space-y-5 animate-scale-in">
@@ -2742,6 +3035,191 @@ export function AdminView() {
         </div>
       </section>
 
+      {/* DIGITAL PROPOSAL INVOICE / VOUCHER PREVIEW MODAL */}
+      {invoiceModalBooking && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full border border-gold-500/30 shadow-2xl overflow-hidden animate-scale-in my-8">
+            
+            {/* Voucher Header Bar */}
+            <div className="bg-maroon-950 p-6 text-white flex items-center justify-between border-b border-gold-500/20">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center border border-gold-500/30">
+                  <FileText size={22} />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg font-bold text-white tracking-wide">BARMANTRA ROYAL INVOICE VOUCHER</h3>
+                  <span className="font-mono text-[10px] text-gold-400 tracking-widest uppercase block">Ref ID: #{invoiceModalBooking.id}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => window.print()}
+                  className="px-3 py-1.5 bg-gold-600 hover:bg-gold-700 text-white rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
+                >
+                  <Printer size={13} />
+                  <span>Print Voucher</span>
+                </button>
+                <button
+                  onClick={() => setInvoiceModalBooking(null)}
+                  className="p-1.5 text-gray-400 hover:text-white rounded-lg font-mono text-sm cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Printable Voucher Content Area */}
+            <div className="p-8 space-y-6 font-sans text-xs">
+              
+              {/* Top Details Grid */}
+              <div className="grid grid-cols-2 gap-6 pb-6 border-b border-gray-100">
+                <div>
+                  <span className="font-mono text-[10px] uppercase text-gray-400 font-bold block mb-1">Prepared For</span>
+                  <h4 className="font-bold text-maroon-950 text-base">{invoiceModalBooking.name}</h4>
+                  <p className="text-gray-600 font-mono mt-0.5">{invoiceModalBooking.phone}</p>
+                  <p className="text-gray-600 font-mono">{invoiceModalBooking.email}</p>
+                </div>
+
+                <div className="text-right">
+                  <span className="font-mono text-[10px] uppercase text-gray-400 font-bold block mb-1">Event Specifications</span>
+                  <span className="inline-block px-2.5 py-0.5 rounded bg-gold-100 text-gold-900 font-mono font-bold text-[10px] uppercase mb-1">
+                    {invoiceModalBooking.eventType.replace('-', ' ')}
+                  </span>
+                  <p className="text-gray-700 font-bold">Event Date: {invoiceModalBooking.eventDate}</p>
+                  <p className="text-gray-700 font-bold">Guest Count: {invoiceModalBooking.guestCount} Pax</p>
+                </div>
+              </div>
+
+              {/* Special Instructions */}
+              {invoiceModalBooking.message && (
+                <div className="p-4 bg-ivory-50 rounded-xl border border-gray-200">
+                  <span className="font-mono text-[10px] uppercase text-maroon-900 font-bold block mb-1">Client Curation Notes</span>
+                  <p className="italic text-gray-700">"{invoiceModalBooking.message}"</p>
+                </div>
+              )}
+
+              {/* Financial Calculation Itemization */}
+              <div className="border border-gray-200 rounded-2xl overflow-hidden">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-ivory-100 text-maroon-950 font-mono text-[10px] uppercase font-bold border-b border-gray-200">
+                      <th className="py-3 px-4">Service Description</th>
+                      <th className="py-3 px-4 text-right">Calculation</th>
+                      <th className="py-3 px-4 text-right">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 font-mono">
+                    <tr>
+                      <td className="py-3.5 px-4 font-sans font-semibold text-gray-800">
+                        Luxury Mobile Bar Setup & Logistics Fee
+                      </td>
+                      <td className="py-3.5 px-4 text-right text-gray-500">Fixed Tier Base</td>
+                      <td className="py-3.5 px-4 text-right font-bold text-gray-900">₹25,000</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3.5 px-4 font-sans font-semibold text-gray-800">
+                        Signature Artisanal Mixology & Bartending Curation
+                      </td>
+                      <td className="py-3.5 px-4 text-right text-gray-500">{invoiceModalBooking.guestCount} Pax x Dynamic Rate</td>
+                      <td className="py-3.5 px-4 text-right font-bold text-gray-900">
+                        {formatRupee(Math.max(0, invoiceModalBooking.pricingEstimate - 25000))}
+                      </td>
+                    </tr>
+                    <tr className="bg-gold-50/50 font-bold text-maroon-950 text-sm">
+                      <td colSpan={2} className="py-4 px-4 font-serif">TOTAL ESTIMATED INVOICE QUOTE</td>
+                      <td className="py-4 px-4 text-right font-mono text-base text-maroon-950">
+                        {formatRupee(invoiceModalBooking.pricingEstimate)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Footer Terms */}
+              <div className="pt-4 border-t border-gray-100 text-[10px] text-gray-400 font-mono flex items-center justify-between">
+                <span>Barmantra Royal Studio • Raja Park, Jaipur, Rajasthan</span>
+                <span>Status: {invoiceModalBooking.status.toUpperCase()}</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* WHATSAPP NOTIFICATION DISPATCH MODAL */}
+      {waModal.isOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full border border-emerald-500/30 shadow-2xl overflow-hidden animate-scale-in">
+            <div className="bg-emerald-950 p-6 text-white flex items-center justify-between border-b border-emerald-500/20">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                  <Send size={20} />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg font-bold text-white">WHATSAPP DISPATCH STUDIO</h3>
+                  <span className="font-mono text-[10px] text-emerald-400 block">Recipient: {waModal.clientName} ({waModal.phone})</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setWaModal(prev => ({ ...prev, isOpen: false }))}
+                className="p-1.5 text-gray-400 hover:text-white rounded-lg font-mono text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSendWhatsAppSubmit} className="p-6 space-y-4 text-xs font-sans">
+              <div>
+                <label className="block font-mono font-bold text-gray-700 uppercase mb-1">Select Message Template</label>
+                <select
+                  value={waModal.template}
+                  onChange={(e) => setWaModal(prev => ({ ...prev, template: e.target.value as any }))}
+                  className="w-full p-3 rounded-xl border border-gray-300 font-sans outline-none focus:border-emerald-600 cursor-pointer"
+                >
+                  <option value="PROPOSAL_APPROVED_PAYMENT_REQUEST">Proposal Approved & Deposit Payment Link Request</option>
+                  <option value="BOOKING_CONFIRMATION">Booking Inquiry Confirmation</option>
+                  <option value="PAYMENT_RECEIPT_CONFIRMATION">Payment Receipt & Booking Lock Confirmation</option>
+                  <option value="CUSTOM">Custom Message Text</option>
+                </select>
+              </div>
+
+              {waModal.template === 'CUSTOM' && (
+                <div>
+                  <label className="block font-mono font-bold text-gray-700 uppercase mb-1">Custom Message Body *</label>
+                  <textarea
+                    value={waModal.customMessage}
+                    onChange={(e) => setWaModal(prev => ({ ...prev, customMessage: e.target.value }))}
+                    rows={4}
+                    placeholder="Enter custom WhatsApp text message..."
+                    className="w-full p-3 rounded-xl border border-gray-300 font-sans outline-none focus:border-emerald-600"
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="pt-2 flex items-center justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setWaModal(prev => ({ ...prev, isOpen: false }))}
+                  className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 font-mono text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-950 text-emerald-400 hover:bg-emerald-900 font-mono font-bold text-xs uppercase cursor-pointer shadow-md flex items-center gap-2"
+                >
+                  <Send size={14} />
+                  <span>Dispatch WhatsApp</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+
