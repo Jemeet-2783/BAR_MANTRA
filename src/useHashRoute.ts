@@ -30,6 +30,7 @@ export function useHashRoute() {
     };
   }, []);
 
+
   const navigateTo = (path: string) => {
     window.location.hash = path;
   };
@@ -42,10 +43,11 @@ export function useHashRoute() {
   // #/services/wedding-planning -> service slug
   let currentRoute: PageRoute = 'home';
   let serviceSlug: string | null = null;
+  let bookingId: string | null = null;
 
   const cleanHash = hash.replace(/^#/, '');
 
-  if (cleanHash === '/' || cleanHash === '') {
+  if (cleanHash === '/' || cleanHash === '') {  
     currentRoute = 'home';
   } else if (cleanHash === '/about') {
     currentRoute = 'about';
@@ -60,12 +62,18 @@ export function useHashRoute() {
   } else if (cleanHash.startsWith('/services/')) {
     currentRoute = 'services/detail';
     serviceSlug = cleanHash.replace('/services/', '');
+  } else if (cleanHash.startsWith('/pay/')) {
+    currentRoute = 'pay';
+    const pathParts = cleanHash.replace('/pay/', '').split('?');
+    bookingId = pathParts[0];
   }
 
   return {
     hash,
     currentRoute,
     serviceSlug,
+    bookingId,
     navigateTo,
   };
+
 }

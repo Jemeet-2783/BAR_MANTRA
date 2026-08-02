@@ -17,9 +17,10 @@ const ServicesDetailView = lazy(() => import('./components/views/ServicesDetailV
 const ContactView = lazy(() => import('./components/views/ContactView').then(m => ({ default: m.ContactView })));
 const AdminView = lazy(() => import('./components/views/AdminView').then(m => ({ default: m.AdminView })));
 const ServicesView = lazy(() => import('./components/views/ServicesView').then(m => ({ default: m.ServicesView })));
+const PaymentView = lazy(() => import('./components/views/PaymentView').then(m => ({ default: m.PaymentView })));
 
 export default function App() {
-  const { currentRoute, serviceSlug, navigateTo } = useHashRoute();
+  const { currentRoute, serviceSlug, bookingId, navigateTo } = useHashRoute();
 
   // Route selector to render proper page
   const renderCurrentView = () => {
@@ -36,8 +37,11 @@ export default function App() {
         return <ContactView />;
       case 'admin':
         return <AdminView />;
+      case 'pay':
+        return <PaymentView bookingId={bookingId || ''} onNavigate={navigateTo} />;
       case 'services/detail':
         return <ServicesDetailView slug={serviceSlug || ''} />;
+
       
       // Fallback for Privacy Policy and Terms of Service hash routes
       case 'privacy':
