@@ -1240,6 +1240,206 @@
   ],
   "auditLogs": [
     {
+      "id": "log-1785678448061-914",
+      "timestamp": "2026-08-02T13:47:28.061Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Super Admin",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Approved",
+      "beforeState": {
+        "status": "Contacted"
+      },
+      "afterState": {
+        "status": "Approved"
+      }
+    },
+    {
+      "id": "log-1785678448049-923",
+      "timestamp": "2026-08-02T13:47:28.049Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Super Admin",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Contacted",
+      "beforeState": {
+        "status": "Approved"
+      },
+      "afterState": {
+        "status": "Contacted"
+      }
+    },
+    {
+      "id": "log-1785678448036-546",
+      "timestamp": "2026-08-02T13:47:28.036Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Super Admin",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Approved",
+      "beforeState": {
+        "status": "Pending"
+      },
+      "afterState": {
+        "status": "Approved"
+      }
+    },
+    {
+      "id": "log-1785678448025-877",
+      "timestamp": "2026-08-02T13:47:28.025Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Super Admin",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Pending",
+      "beforeState": {
+        "status": "Contacted"
+      },
+      "afterState": {
+        "status": "Pending"
+      }
+    },
+    {
+      "id": "log-1785678448013-197",
+      "timestamp": "2026-08-02T13:47:28.013Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Super Admin",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Contacted",
+      "beforeState": {
+        "status": "Approved"
+      },
+      "afterState": {
+        "status": "Contacted"
+      }
+    },
+    {
+      "id": "log-1785678448001-773",
+      "timestamp": "2026-08-02T13:47:28.001Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Super Admin",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Approved",
+      "beforeState": {
+        "status": "Cancelled"
+      },
+      "afterState": {
+        "status": "Approved"
+      }
+    },
+    {
+      "id": "log-1785678447988-412",
+      "timestamp": "2026-08-02T13:47:27.988Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Super Admin",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Cancelled",
+      "beforeState": {
+        "status": "Pending"
+      },
+      "afterState": {
+        "status": "Cancelled"
+      }
+    },
+    {
+      "id": "log-1785678447977-164",
+      "timestamp": "2026-08-02T13:47:27.977Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Super Admin",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Pending",
+      "beforeState": {
+        "status": "Approved"
+      },
+      "afterState": {
+        "status": "Pending"
+      }
+    },
+    {
+      "id": "log-1785678447963-553",
+      "timestamp": "2026-08-02T13:47:27.963Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Super Admin",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Approved",
+      "beforeState": {
+        "status": "Contacted"
+      },
+      "afterState": {
+        "status": "Approved"
+      }
+    },
+    {
+      "id": "log-1785678447947-487",
+      "timestamp": "2026-08-02T13:47:27.947Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Super Admin",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Contacted",
+      "beforeState": {
+        "status": "Approved"
+      },
+      "afterState": {
+        "status": "Contacted"
+      }
+    },
+    {
       "id": "log-1785678235871-340",
       "timestamp": "2026-08-02T13:43:55.871Z",
       "action": "WHATSAPP_SENT",
