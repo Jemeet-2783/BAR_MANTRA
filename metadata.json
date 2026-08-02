@@ -1,8 +1,4 @@
 {
   "name": "Barmantra",
-  "description": "Boutique, high-end bartending service in Jaipur blending traditional Rajasthani royal aesthetics with modern mixology and luxury bar experiences.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
+  "description": "Boutique, high-end bartending service in Jaipur blending traditional Rajasthani royal aesthetics with modern mixology and luxury bar experiences."
 }

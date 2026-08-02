@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — WhatsApp Business Notification Dispatcher
  */
+
 
 export interface SendWhatsAppOptions {
   template: 'BOOKING_CONFIRMATION' | 'ADMIN_NEW_BOOKING_ALERT' | 'PROPOSAL_APPROVED_PAYMENT_REQUEST' | 'PAYMENT_RECEIPT_CONFIRMATION' | 'CUSTOM';

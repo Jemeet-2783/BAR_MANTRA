@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — System Monitoring & Error Reporter
  */
+
 
 export interface ErrorAlertPayload {
   source: 'public_form' | 'admin_panel' | 'api_backend';

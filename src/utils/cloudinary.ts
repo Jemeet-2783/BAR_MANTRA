@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — Responsive Media Transformer
  */
+
 
 /**
  * Cloudinary & Dynamic Responsive Image Utility

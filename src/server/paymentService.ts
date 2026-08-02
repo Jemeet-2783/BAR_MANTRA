@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — Payment Gateway Service (Razorpay / Stripe / Sandbox)
  */
+
 
 import crypto from 'crypto';
 

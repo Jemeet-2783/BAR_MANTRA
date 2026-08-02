@@ -30,7 +30,7 @@ export function ServicesGrid() {
           <p className="font-sans text-sm sm:text-base text-gray-600 leading-relaxed font-light">
             Barmantra designs and manages every aspect of your luxury beverage experience. Explore our specialized bar concepts, all custom-tailored to the theme of your celebration.
           </p>
-        </div>
+        </div> 
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -48,7 +48,7 @@ export function ServicesGrid() {
                 <div className="w-12 h-12 rounded-xl bg-maroon-900 flex items-center justify-center text-gold-400 mb-6 shadow-sm group-hover:scale-110 transition-transform">
                   <DynamicIcon name={service.iconName} className="w-6 h-6" />
                 </div>
-
+        
                 {/* Title */}
                 <h3 className="font-serif text-xl sm:text-2xl text-maroon-950 font-medium group-hover:text-maroon-700 transition-colors mb-3">
                   {service.title}

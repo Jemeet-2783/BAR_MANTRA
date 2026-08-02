@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — Luxury Bartending & Mixology Platform API Server
  */
+
 
 import express from 'express';
 import path from 'path';

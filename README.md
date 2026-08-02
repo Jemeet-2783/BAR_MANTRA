@@ -1,29 +1,50 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# 🍸 Barmantra — Luxury Mobile Bar & Mixology Platform
 
-# Run and deploy your AI Studio app
+Barmantra is a boutique, high-end bartending and luxury mixology platform based in Jaipur, Rajasthan. It weaves traditional Rajasthani royal heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations, destination weddings, and corporate galas.
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/f002908f-3b6c-4d19-b0c5-1a0734fdf493
+## 🌟 Key Capabilities & Architecture
 
-## Run Locally
+- **Public Client Showcase**: Interactive landing page, multi-tier service catalog, 16+ portfolio case studies gallery, and instant pricing estimator.
+- **Custom AI Royal Mixologist**: Integrated Google Gemini API for formulation of custom Rajasthani luxury cocktail recipes.
+- **Quote Lock Verification**: Server-side locked pricing calculator preventing front-end quote tampering.
+- **Online Payment Gateway**: Integrated Razorpay & Stripe deposit retainer collection (`30%`) with interactive sandbox checkout portal (`#/pay/:id`).
+- **Automated WhatsApp Business Notifications**: Automated delivery of booking confirmations, quote approval alerts, and deposit payment receipts.
+- **Royal Command Studio (`#/admin`)**: Admin management panel with OWASP 600,000-iteration PBKDF2 authentication, RBAC access control, proposal management, soft-delete trash archive, live content CMS, dynamic pricing rules manager, and immutable audit logs.
 
-**Prerequisites:**  Node.js
+---
 
+## 🚀 Getting Started
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Prerequisites
+- Node.js (v18 or higher)
+- npm / bun
 
-## Automated Testing (Playwright E2E)
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-Run the full end-to-end test suite (covering public booking submission, pricing lock verification, admin login rate-limiting, and soft-delete/restore archive lifecycle):
+### 2. Environment Configuration
+Create a `.env` file from `.env.example`:
+```bash
+cp .env.example .env
+```
+
+### 3. Run Development Server
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:3000`.
+
+---
+
+## 🧪 Automated Testing (Playwright E2E)
+
+Run the full end-to-end test suite covering booking submission, server price locking, OWASP authentication, soft-delete archive, payment checkout, and WhatsApp notifications:
 
 ```bash
 npm run test:e2e
 ```
-

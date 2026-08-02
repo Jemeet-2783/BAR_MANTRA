@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — Root Application View Component
  */
+
 
 import React, { Suspense, lazy } from 'react';
 import { useHashRoute } from './useHashRoute';

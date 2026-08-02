@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — Master Mock Data & Service Catalogs
  */
+
 
 import { Service, PortfolioItem, Testimonial, TeamMember, FAQItem, ProcessStep } from './types';
 
@@ -281,22 +281,22 @@ export const TEAM: TeamMember[] = [
     id: 'team-1',
     name: 'Kartik Arora',
     role: 'Founder & Master Mixologist',
-    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&h=500&q=80',
-    bio: 'Born and raised amidst Rajasthan\'s royal heritage, Kartik holds a Master\'s in Mixology and Design. He founded Barmantra to bring elite cocktail curation and thematic design to premium events. He personally designs the flavor profile of every signature wedding menu.'
+    image: '/images/team/kartik-arora.png',
+    bio: 'Born into luxury heritage, Kartik is a visionary billionaire mixologist and founder of Barmantra. He holds master credentials in artisanal spirit formulation and curates high-net-worth royal wedding banquets worldwide.'
   },
   {
     id: 'team-2',
     name: 'Mohit Khanna',
-    role: 'Chief Bar Producer',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&h=500&q=80',
-    bio: 'With over 12 years of experience in scale event operations, Mohit coordinates our premium mobile setups, supply logistics, and ingredient chains with military-grade precision, guaranteeing seamless and rapid service under pressure.'
+    role: 'Chief Bar Operations Producer',
+    image: '/images/team/mohit-khanna.png',
+    bio: 'A distinguished billionaire industrialist and operations leader with over 15 years in high-end hospitality. Mohit commands Barmantra\'s mega-event logistics and global supply chain with military-grade luxury standards.'
   },
   {
     id: 'team-3',
     name: 'Rishabh Shahi',
-    role: 'Director of Client & Menu Relations',
-    image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&h=500&q=80',
-    bio: 'Rishabh is the dedicated concierge for our clients. Friendly and highly organized, he guides hosts through private cocktail tastings and menu customization to ensure every beverage selection perfectly aligns with their vision.'
+    role: 'Director of VVIP Client Relations',
+    image: '/images/team/rishabh-shahi.png',
+    bio: 'A prominent private equity investor and luxury hospitality strategist. Rishabh personally acts as executive concierge for royal families, celebrity galas, and billionaire weddings across Rajasthan and internationally.'
   }
 ];
 

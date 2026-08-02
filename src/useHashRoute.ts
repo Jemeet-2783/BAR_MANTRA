@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — SPA Client Hash Routing Hook
  */
+
 
 import { useState, useEffect } from 'react';
 import { PageRoute } from './types';

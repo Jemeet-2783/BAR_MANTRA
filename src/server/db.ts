@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — Database Ledger & OWASP Auth Engine
  */
+
 
 import * as fs from 'fs';
 import * as path from 'path';

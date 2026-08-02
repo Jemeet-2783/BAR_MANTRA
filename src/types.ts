@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — TypeScript Type Definitions
  */
+
 
 export interface Service {
   slug: string;

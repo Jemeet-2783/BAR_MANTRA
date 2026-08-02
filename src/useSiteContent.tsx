@@ -1,7 +1,7 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — Site Content Context Hook
  */
+
 
 import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { SERVICES, PORTFOLIO_ITEMS, TEAM, TESTIMONIALS, FAQS } from './data';
