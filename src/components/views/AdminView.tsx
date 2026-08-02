@@ -199,10 +199,6 @@ export function AdminView() {
   const [messageNotification, setMessageNotification] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [csrfToken, setCsrfToken] = useState('');
 
-  const showNotification = (text: string, type: 'success' | 'error' = 'success') => {
-    setMessageNotification({ text, type });
-    setTimeout(() => setMessageNotification(null), 4000);
-  };
 
 
   const handleGeneratePaymentLink = async (bookingId: string) => {
