@@ -3,8 +3,8 @@
     {
       "id": "usr-superadmin",
       "email": "admin@barmantra.com",
-      "passwordHash": "$pbkdf2$v2$600000$sha256$860d2b71f24c7acb5951a88a6b9f1a3184f6e76bfdd2144630ae27f481009a536f1b9686256d7a3d62642ad1b342ec052d7f2b0984b394657257a57358ddc88b",
-      "salt": "90fb893235e724472470035e3ec40e89",
+      "passwordHash": "$pbkdf2$v2$600000$sha256$48a9e96c1a65e13dad34123ff57516c6dd21aaf5ae63b223043904f40612dc385ebdec94f78435f529298282ba8cedcb69b974fdd3595507f1f65fc20657005e",
+      "salt": "e5c1cb055b0be7d845d5299b5adc7c3d",
       "name": "Kartik Arora (Master Mixologist)",
       "role": "superadmin",
       "createdAt": "2026-01-01T00:00:00.000Z"
@@ -26,7 +26,8 @@
       "salt": "3f45d18898220c69a3204b7b64976fe2",
       "name": "E2E Admin User",
       "role": "staff",
-      "createdAt": "2026-07-23T06:08:30.143Z"
+      "createdAt": "2026-07-23T06:08:30.143Z",
+      "isDeactivated": true
     },
     {
       "id": "usr-1784788461282-699",
@@ -99,9 +100,663 @@
       "name": "E2E Admin User",
       "role": "staff",
       "createdAt": "2026-07-25T17:08:55.607Z"
+    },
+    {
+      "id": "usr-1785388210243-703",
+      "email": "e2e.admin.1785388209632@barmantra.com",
+      "passwordHash": "$pbkdf2$v2$600000$sha256$57d0d225c893516095cc3f4eac847a0dba55c12fe2e099338196d87c44acbaf13db922d31008220dcccbd1537b1967a5f4232128dca168482c1284e505617ae8",
+      "salt": "eb6a5a30763c899e6aa0da65066d8c15",
+      "name": "E2E Admin User",
+      "role": "staff",
+      "createdAt": "2026-07-30T05:10:10.243Z"
+    },
+    {
+      "id": "usr-1785388711591-822",
+      "email": "e2e.admin.1785388710926@barmantra.com",
+      "passwordHash": "$pbkdf2$v2$600000$sha256$f43c2756ddf7c8f6303b783f44f7e147a08e60c819736c846b8a531f2d6b9513e40d4e14c3f3b55a983b322bbad5521a697d747549623669f9d1d4e679096dfe",
+      "salt": "3f5c63797095d4cff5b08a304aa30142",
+      "name": "E2E Admin User",
+      "role": "staff",
+      "createdAt": "2026-07-30T05:18:31.591Z"
+    },
+    {
+      "id": "usr-1785389293216-621",
+      "email": "e2e.admin.1785389292528@barmantra.com",
+      "passwordHash": "$pbkdf2$v2$600000$sha256$196ff82d0183779a212ba208958d7030d23ea135cef3190a1332c42d05d0a4b24cd1bd563707577e8f4042c78d8445d1f11572d034eeb91f2bbeab32e3048054",
+      "salt": "fb2211c9fa6f5bf9065ee3296c95ddbb",
+      "name": "E2E Admin User",
+      "role": "staff",
+      "createdAt": "2026-07-30T05:28:13.216Z"
+    },
+    {
+      "id": "usr-1785509660377-245",
+      "email": "js27@gmail.com",
+      "passwordHash": "$pbkdf2$v2$600000$sha256$9b4bdcd8a3b93c33a60a1351263422c9368840d177eaa37ec934413029e8fd068073fa5827c6e28f21851d62d0df342e83b2f5e7cfff32a7534e75f072969934",
+      "salt": "91685bbd3f6725e1099437f6dca057e1",
+      "name": "Jemeet Shahi",
+      "role": "admin",
+      "createdAt": "2026-07-31T14:54:20.377Z"
+    },
+    {
+      "id": "usr-1785678107454-326",
+      "email": "e2e.admin.1785678106846@barmantra.com",
+      "passwordHash": "$pbkdf2$v2$600000$sha256$56b506fdd0c94f9cab142ada7757acc298b06d0f90953e840eb286ec54403579862fb2d900eee873d233cae1f70fee94c17ef2ec11d527e68a8d3c16329dee6f",
+      "salt": "8d5a49287849381d9266478832f3c9bd",
+      "name": "E2E Admin User",
+      "role": "staff",
+      "createdAt": "2026-08-02T13:41:47.454Z"
+    },
+    {
+      "id": "usr-1785678187304-313",
+      "email": "e2e.admin.1785678186614@barmantra.com",
+      "passwordHash": "$pbkdf2$v2$600000$sha256$52a22694ffc105d1950042b0bc3b82a972920f50fa9e525e743c9cf65119f8c9f188894285fd2a36bac30620ece9f2f6bc64a6cf64d57970ff47f3af6fdb8cd9",
+      "salt": "f4c62409deaf77bc2d4d3c2cf01306ba",
+      "name": "E2E Admin User",
+      "role": "staff",
+      "createdAt": "2026-08-02T13:43:07.304Z"
+    },
+    {
+      "id": "usr-1785678231441-876",
+      "email": "e2e.admin.1785678230765@barmantra.com",
+      "passwordHash": "$pbkdf2$v2$600000$sha256$e68ccaf2ba6c9eae0c0fe2119c47ee84d4b8b86d89eedf03684e8341697747abee3956b9cfd065662051991401b715516b2e816501bfc175fe6a9acb0bd3182d",
+      "salt": "d942f84e4f2eaf7429a2e6c77a8abc70",
+      "name": "E2E Admin User",
+      "role": "staff",
+      "createdAt": "2026-08-02T13:43:51.441Z"
     }
   ],
   "bookings": [
+    {
+      "name": "Payment & WhatsApp E2E Client",
+      "phone": "+91 98888 77777",
+      "email": "payment.wa@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-12-15",
+      "guestCount": 100,
+      "message": "E2E testing payment link and WhatsApp dispatch.",
+      "id": "b-1785678234536-897",
+      "pricingEstimate": 275000,
+      "depositAmount": 82500,
+      "paymentStatus": "Deposit_Paid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785678235871-255",
+          "timestamp": "2026-08-02T13:43:55.871Z",
+          "template": "PAYMENT_RECEIPT_CONFIRMATION",
+          "recipient": "+91 98888 77777",
+          "status": "Simulated",
+          "messageSnippet": "🎉 *Payment Confirmed — Barmantra*  Namaste Payment & WhatsApp E2E Client, We have successfully rece..."
+        },
+        {
+          "id": "wa-1785678235806-393",
+          "timestamp": "2026-08-02T13:43:55.806Z",
+          "template": "PROPOSAL_APPROVED_PAYMENT_REQUEST",
+          "recipient": "+91 98888 77777",
+          "status": "Simulated",
+          "messageSnippet": "✨ *Barmantra Proposal Approved*  Royal Greetings Payment & WhatsApp E2E Client, Your luxury bar expe..."
+        },
+        {
+          "id": "wa-1785678235205-837",
+          "timestamp": "2026-08-02T13:43:55.205Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 98888 77777",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Payment & WhatsApp E2E Client, Thank you for..."
+        }
+      ],
+      "status": "Approved",
+      "createdAt": "2026-08-02T13:43:54.536Z",
+      "paymentLink": "http://localhost:3000/#/pay/b-1785678234536-897?sandbox_order=order_sb_1785678235545_326",
+      "paymentTransactionId": "TXN_E2E_1785678235589",
+      "paidAt": "2026-08-02T13:43:55.602Z"
+    },
+    {
+      "name": "Trash & Restore Test Subject",
+      "phone": "+91 90000 11111",
+      "email": "trash.restore@barmantra.com",
+      "eventType": "corporate-bar",
+      "eventDate": "2026-10-10",
+      "guestCount": 150,
+      "message": "Testing soft delete lifecycle.",
+      "id": "b-1785678229875-948",
+      "pricingEstimate": 295000,
+      "depositAmount": 88500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785678235565-529",
+          "timestamp": "2026-08-02T13:43:55.565Z",
+          "template": "PROPOSAL_APPROVED_PAYMENT_REQUEST",
+          "recipient": "+91 90000 11111",
+          "status": "Simulated",
+          "messageSnippet": "✨ *Barmantra Proposal Approved*  Royal Greetings Trash & Restore Test Subject, Your luxury bar exper..."
+        },
+        {
+          "id": "wa-1785678231473-335",
+          "timestamp": "2026-08-02T13:43:51.473Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 90000 11111",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Trash & Restore Test Subject, Thank you for ..."
+        }
+      ],
+      "status": "Approved",
+      "createdAt": "2026-08-02T13:43:49.875Z",
+      "paymentLink": "http://localhost:3000/#/pay/b-1785678229875-948?sandbox_order=order_sb_1785678235171_870"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785678227730-350",
+      "pricingEstimate": 525000,
+      "depositAmount": 157500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785678230805-558",
+          "timestamp": "2026-08-02T13:43:50.805Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 99999 88888",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Automated E2E Client, Thank you for choosing..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:43:47.730Z"
+    },
+    {
+      "name": "Payment & WhatsApp E2E Client",
+      "phone": "+91 98888 77777",
+      "email": "payment.wa@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-12-15",
+      "guestCount": 100,
+      "message": "E2E testing payment link and WhatsApp dispatch.",
+      "id": "b-1785678190236-648",
+      "pricingEstimate": 275000,
+      "depositAmount": 82500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785678191465-133",
+          "timestamp": "2026-08-02T13:43:11.465Z",
+          "template": "PROPOSAL_APPROVED_PAYMENT_REQUEST",
+          "recipient": "+91 98888 77777",
+          "status": "Simulated",
+          "messageSnippet": "✨ *Barmantra Proposal Approved*  Royal Greetings Payment & WhatsApp E2E Client, Your luxury bar expe..."
+        },
+        {
+          "id": "wa-1785678190911-403",
+          "timestamp": "2026-08-02T13:43:10.911Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 98888 77777",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Payment & WhatsApp E2E Client, Thank you for..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:43:10.236Z",
+      "paymentLink": "http://localhost:3000/#/pay/b-1785678190236-648?sandbox_order=order_sb_1785678191175_582"
+    },
+    {
+      "name": "Trash & Restore Test Subject",
+      "phone": "+91 90000 11111",
+      "email": "trash.restore@barmantra.com",
+      "eventType": "corporate-bar",
+      "eventDate": "2026-10-10",
+      "guestCount": 150,
+      "message": "Testing soft delete lifecycle.",
+      "id": "b-1785678185721-307",
+      "pricingEstimate": 295000,
+      "depositAmount": 88500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785678190117-272",
+          "timestamp": "2026-08-02T13:43:10.117Z",
+          "template": "PROPOSAL_APPROVED_PAYMENT_REQUEST",
+          "recipient": "+91 90000 11111",
+          "status": "Simulated",
+          "messageSnippet": "✨ *Barmantra Proposal Approved*  Royal Greetings Trash & Restore Test Subject, Your luxury bar exper..."
+        },
+        {
+          "id": "wa-1785678186645-490",
+          "timestamp": "2026-08-02T13:43:06.645Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 90000 11111",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Trash & Restore Test Subject, Thank you for ..."
+        }
+      ],
+      "status": "Approved",
+      "createdAt": "2026-08-02T13:43:05.721Z",
+      "paymentLink": "http://localhost:3000/#/pay/b-1785678185721-307?sandbox_order=order_sb_1785678189480_836"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785678183622-390",
+      "pricingEstimate": 525000,
+      "depositAmount": 157500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785678186667-172",
+          "timestamp": "2026-08-02T13:43:06.667Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 99999 88888",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Automated E2E Client, Thank you for choosing..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:43:03.622Z"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785678136384-7",
+      "pricingEstimate": 525000,
+      "depositAmount": 157500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785678136401-733",
+          "timestamp": "2026-08-02T13:42:16.401Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 99999 88888",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Automated E2E Client, Thank you for choosing..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:42:16.384Z"
+    },
+    {
+      "name": "Payment & WhatsApp E2E Client",
+      "phone": "+91 98888 77777",
+      "email": "payment.wa@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-12-15",
+      "guestCount": 100,
+      "message": "E2E testing payment link and WhatsApp dispatch.",
+      "id": "b-1785678112755-203",
+      "pricingEstimate": 275000,
+      "depositAmount": 82500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785678112772-887",
+          "timestamp": "2026-08-02T13:41:52.772Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 98888 77777",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Payment & WhatsApp E2E Client, Thank you for..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:41:52.755Z"
+    },
+    {
+      "name": "Trash & Restore Test Subject",
+      "phone": "+91 90000 11111",
+      "email": "trash.restore@barmantra.com",
+      "eventType": "corporate-bar",
+      "eventDate": "2026-10-10",
+      "guestCount": 150,
+      "message": "Testing soft delete lifecycle.",
+      "id": "b-1785678105838-488",
+      "pricingEstimate": 295000,
+      "depositAmount": 88500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785678105947-52",
+          "timestamp": "2026-08-02T13:41:45.947Z",
+          "template": "PROPOSAL_APPROVED_PAYMENT_REQUEST",
+          "recipient": "+91 90000 11111",
+          "status": "Simulated",
+          "messageSnippet": "✨ *Barmantra Proposal Approved*  Royal Greetings Trash & Restore Test Subject, Your luxury bar exper..."
+        },
+        {
+          "id": "wa-1785678105855-234",
+          "timestamp": "2026-08-02T13:41:45.855Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 90000 11111",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Trash & Restore Test Subject, Thank you for ..."
+        }
+      ],
+      "status": "Approved",
+      "createdAt": "2026-08-02T13:41:45.838Z",
+      "paymentLink": "http://localhost:3000/#/pay/b-1785678105838-488?sandbox_order=order_sb_1785678105916_25"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785678103733-308",
+      "pricingEstimate": 525000,
+      "depositAmount": 157500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785678103748-624",
+          "timestamp": "2026-08-02T13:41:43.748Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 99999 88888",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Automated E2E Client, Thank you for choosing..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:41:43.733Z"
+    },
+    {
+      "name": "Payment & WhatsApp E2E Client",
+      "phone": "+91 98888 77777",
+      "email": "payment.wa@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-12-15",
+      "guestCount": 100,
+      "message": "E2E testing payment link and WhatsApp dispatch.",
+      "id": "b-1785677853789-605",
+      "pricingEstimate": 275000,
+      "depositAmount": 82500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785677853806-925",
+          "timestamp": "2026-08-02T13:37:33.806Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 98888 77777",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Payment & WhatsApp E2E Client, Thank you for..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:37:33.789Z"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785677838814-788",
+      "pricingEstimate": 525000,
+      "depositAmount": 157500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785677838833-175",
+          "timestamp": "2026-08-02T13:37:18.833Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 99999 88888",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Automated E2E Client, Thank you for choosing..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:37:18.814Z"
+    },
+    {
+      "name": "Payment & WhatsApp E2E Client",
+      "phone": "+91 98888 77777",
+      "email": "payment.wa@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-12-15",
+      "guestCount": 100,
+      "message": "E2E testing payment link and WhatsApp dispatch.",
+      "id": "b-1785677745144-923",
+      "pricingEstimate": 275000,
+      "depositAmount": 82500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785677745171-419",
+          "timestamp": "2026-08-02T13:35:45.171Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 98888 77777",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Payment & WhatsApp E2E Client, Thank you for..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:35:45.144Z"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785677729820-580",
+      "pricingEstimate": 525000,
+      "depositAmount": 157500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785677729838-360",
+          "timestamp": "2026-08-02T13:35:29.838Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 99999 88888",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Automated E2E Client, Thank you for choosing..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:35:29.820Z"
+    },
+    {
+      "name": "Payment & WhatsApp E2E Client",
+      "phone": "+91 98888 77777",
+      "email": "payment.wa@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-12-15",
+      "guestCount": 100,
+      "message": "E2E testing payment link and WhatsApp dispatch.",
+      "id": "b-1785677653346-225",
+      "pricingEstimate": 275000,
+      "depositAmount": 82500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785677653372-128",
+          "timestamp": "2026-08-02T13:34:13.372Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 98888 77777",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Payment & WhatsApp E2E Client, Thank you for..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:34:13.346Z"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785677637923-909",
+      "pricingEstimate": 525000,
+      "depositAmount": 157500,
+      "paymentStatus": "Unpaid",
+      "paymentGateway": "Sandbox",
+      "whatsappStatus": "Sent",
+      "whatsappLogs": [
+        {
+          "id": "wa-1785677638060-323",
+          "timestamp": "2026-08-02T13:33:58.060Z",
+          "template": "BOOKING_CONFIRMATION",
+          "recipient": "+91 99999 88888",
+          "status": "Simulated",
+          "messageSnippet": "👑 *Barmantra Royal Mixology Inquiry Received*  Namaste Automated E2E Client, Thank you for choosing..."
+        }
+      ],
+      "status": "Pending",
+      "createdAt": "2026-08-02T13:33:57.924Z"
+    },
+    {
+      "name": "Trash & Restore Test Subject",
+      "phone": "+91 90000 11111",
+      "email": "trash.restore@barmantra.com",
+      "eventType": "corporate-bar",
+      "eventDate": "2026-10-10",
+      "guestCount": 150,
+      "message": "Testing soft delete lifecycle.",
+      "id": "b-1785389291612-146",
+      "pricingEstimate": 295000,
+      "status": "Approved",
+      "createdAt": "2026-07-30T05:28:11.612Z"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785389289564-510",
+      "pricingEstimate": 525000,
+      "status": "Pending",
+      "createdAt": "2026-07-30T05:28:09.564Z"
+    },
+    {
+      "name": "Trash & Restore Test Subject",
+      "phone": "+91 90000 11111",
+      "email": "trash.restore@barmantra.com",
+      "eventType": "corporate-bar",
+      "eventDate": "2026-10-10",
+      "guestCount": 150,
+      "message": "Testing soft delete lifecycle.",
+      "id": "b-1785388992031-753",
+      "pricingEstimate": 295000,
+      "status": "Pending",
+      "createdAt": "2026-07-30T05:23:12.031Z"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785388989855-598",
+      "pricingEstimate": 525000,
+      "status": "Pending",
+      "createdAt": "2026-07-30T05:23:09.855Z"
+    },
+    {
+      "name": "Trash & Restore Test Subject",
+      "phone": "+91 90000 11111",
+      "email": "trash.restore@barmantra.com",
+      "eventType": "corporate-bar",
+      "eventDate": "2026-10-10",
+      "guestCount": 150,
+      "message": "Testing soft delete lifecycle.",
+      "id": "b-1785388709956-989",
+      "pricingEstimate": 295000,
+      "status": "Approved",
+      "createdAt": "2026-07-30T05:18:29.956Z"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785388705944-968",
+      "pricingEstimate": 525000,
+      "status": "Pending",
+      "createdAt": "2026-07-30T05:18:25.944Z"
+    },
+    {
+      "name": "Trash & Restore Test Subject",
+      "phone": "+91 90000 11111",
+      "email": "trash.restore@barmantra.com",
+      "eventType": "corporate-bar",
+      "eventDate": "2026-10-10",
+      "guestCount": 150,
+      "message": "Testing soft delete lifecycle.",
+      "id": "b-1785388208723-377",
+      "pricingEstimate": 295000,
+      "status": "Approved",
+      "createdAt": "2026-07-30T05:10:08.723Z"
+    },
+    {
+      "name": "Automated E2E Client",
+      "phone": "+91 99999 88888",
+      "email": "e2e.test@barmantra.com",
+      "eventType": "wedding-bar",
+      "eventDate": "2026-11-25",
+      "guestCount": 200,
+      "message": "Automated Playwright booking test with locked server pricing.",
+      "id": "b-1785388205193-797",
+      "pricingEstimate": 525000,
+      "status": "Pending",
+      "createdAt": "2026-07-30T05:10:05.193Z"
+    },
     {
       "name": "Trash & Restore Test Subject",
       "phone": "+91 90000 11111",
@@ -535,271 +1190,2661 @@
   ],
   "sessions": [
     {
-      "token": "sess_9620a7d760b4e03c6899f99282f66e1416f670afe13ecbc67692d2ddbe1b0b96",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T00:56:29.875Z",
-      "createdAt": "2026-07-25T16:56:29.875Z",
-      "lastActiveAt": "2026-07-25T16:56:29.875Z",
-      "csrfToken": "csrf_932c21a68443ed7bcbc7ffc855f57d27d03cfa754538da7937f00d54129b5eec"
-    },
-    {
-      "token": "sess_f4a000f00c85af3d018c4ec88d924a8bd6e2ccf67271a45619b07d73f4eb75e6",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T00:56:30.719Z",
-      "createdAt": "2026-07-25T16:56:30.719Z",
-      "lastActiveAt": "2026-07-25T16:56:30.928Z",
-      "csrfToken": "csrf_0400ac42a3229b808e25ea69c3857ef444562555e4613df4564c8207b2f76408"
-    },
-    {
-      "token": "sess_565417c2785b8f390d08afcdafc38937381d857c84e0b6e2421fc6207ea752aa",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T00:56:31.738Z",
-      "createdAt": "2026-07-25T16:56:31.738Z",
-      "lastActiveAt": "2026-07-25T16:56:31.832Z",
-      "csrfToken": "csrf_9a17a0273e5391f0e9c23346bd634306585b8d6111a14734e8a59098f7afb0a1"
-    },
-    {
-      "token": "sess_6ec31c78174eff221115e18125b56019891af0e88fb4e59f4eaae9c837bfd790",
-      "userId": "usr-1784998592489-216",
-      "email": "e2e.admin.1784998591815@barmantra.com",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3ItMTc4NTY3ODEwNzQ1NC0zMjYiLCJlbWFpbCI6ImUyZS5hZG1pbi4xNzg1Njc4MTA2ODQ2QGJhcm1hbnRyYS5jb20iLCJuYW1lIjoiRTJFIEFkbWluIFVzZXIiLCJyb2xlIjoic3RhZmYiLCJpYXQiOjE3ODU2NzgxMDgsImV4cCI6MTc4NTY3OTAwOH0.6cEMfQiuy98HlhDT2km6aYyqRKS3UDSYOi8rAYSPr-k",
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3ItMTc4NTY3ODEwNzQ1NC0zMjYiLCJlbWFpbCI6ImUyZS5hZG1pbi4xNzg1Njc4MTA2ODQ2QGJhcm1hbnRyYS5jb20iLCJuYW1lIjoiRTJFIEFkbWluIFVzZXIiLCJyb2xlIjoic3RhZmYiLCJpYXQiOjE3ODU2NzgxMDgsImV4cCI6MTc4NTcwNjkwOH0.dO6cL2qr9-F02yc8RePrfc9zE_gsLc4XjZZYr_H_tVA",
+      "userId": "usr-1785678107454-326",
+      "email": "e2e.admin.1785678106846@barmantra.com",
       "role": "staff",
       "name": "E2E Admin User",
-      "expiresAt": "2026-07-26T00:56:33.177Z",
-      "createdAt": "2026-07-25T16:56:33.177Z",
-      "lastActiveAt": "2026-07-25T16:56:33.177Z",
-      "csrfToken": "csrf_8561a02f5794216d9ee1cdba4194a6bb8b460b872d92fb0f3c8120d9abd09775"
+      "expiresAt": "2026-08-02T21:41:48.137Z",
+      "createdAt": "2026-08-02T13:41:48.137Z",
+      "lastActiveAt": "2026-08-02T13:41:48.137Z",
+      "csrfToken": "csrf_5944c83901a330b1867061e4e0a37782071a3c1376c46e31dadfca017c8b91c5"
     },
     {
-      "token": "sess_9922c0a86aebd973f1d2ea589481a38c24b4597f5bf33fd90adf4aea64a08199",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T00:56:33.848Z",
-      "createdAt": "2026-07-25T16:56:33.848Z",
-      "lastActiveAt": "2026-07-25T16:56:33.848Z",
-      "csrfToken": "csrf_3e8376236a8afa15360f7db1cc9369372e3e3b4dcadeb05be35fc48785542693"
-    },
-    {
-      "token": "sess_feabffaae9d567e5c4426632dc798d6dfc158ec585bbd6955146e07a302ac83e",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T00:56:34.553Z",
-      "createdAt": "2026-07-25T16:56:34.553Z",
-      "lastActiveAt": "2026-07-25T16:56:34.702Z",
-      "csrfToken": "csrf_35b26a64e0decedd7a26342bf7507fbaa0f6462379f8a2d107d4a371fc404bb3"
-    },
-    {
-      "token": "sess_5ddb10715936c70f473bf3d61748c4ecf969c198b974996ffee275a9234176c6",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T00:57:19.653Z",
-      "createdAt": "2026-07-25T16:57:19.653Z",
-      "lastActiveAt": "2026-07-25T16:57:19.653Z",
-      "csrfToken": "csrf_6cbbb9002f5904c926fff4a56e1faedb08a26306113bf1a41b6ae5800b26d5a9"
-    },
-    {
-      "token": "sess_0cecfbf7cb9c7630682897fc03ed8e50c7278cf856f6ff335b5eea2b0f456a8f",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T00:57:20.319Z",
-      "createdAt": "2026-07-25T16:57:20.319Z",
-      "lastActiveAt": "2026-07-25T16:57:20.498Z",
-      "csrfToken": "csrf_20bf8683a33183d53301ca8b1500923e157bd3acfca68243b03bb6708caf8cd8"
-    },
-    {
-      "token": "sess_b723318d32ae2d40544bac2f5eeeca24bd138ff72cb09b105a372d91004485f1",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T00:57:21.374Z",
-      "createdAt": "2026-07-25T16:57:21.374Z",
-      "lastActiveAt": "2026-07-25T16:57:21.434Z",
-      "csrfToken": "csrf_910735c110b27d4724184646f4126ba9c014c4220a0253301d8a6c20f2cb33a4"
-    },
-    {
-      "token": "sess_4b944ea156619b85fa2d1c7d3ae3e9a90f813075ebc9dc347d15282192429175",
-      "userId": "usr-1784998642049-14",
-      "email": "e2e.admin.1784998641427@barmantra.com",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3ItMTc4NTY3ODE4NzMwNC0zMTMiLCJlbWFpbCI6ImUyZS5hZG1pbi4xNzg1Njc4MTg2NjE0QGJhcm1hbnRyYS5jb20iLCJuYW1lIjoiRTJFIEFkbWluIFVzZXIiLCJyb2xlIjoic3RhZmYiLCJpYXQiOjE3ODU2NzgxODcsImV4cCI6MTc4NTY3OTA4N30.7F853WwP7hO7BXnYxxFXGG-4FU0Z4D-kXFYmMG3NpRg",
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3ItMTc4NTY3ODE4NzMwNC0zMTMiLCJlbWFpbCI6ImUyZS5hZG1pbi4xNzg1Njc4MTg2NjE0QGJhcm1hbnRyYS5jb20iLCJuYW1lIjoiRTJFIEFkbWluIFVzZXIiLCJyb2xlIjoic3RhZmYiLCJpYXQiOjE3ODU2NzgxODcsImV4cCI6MTc4NTcwNjk4N30.wB1Ds1r8IPcpyZaSyUl_kvvL9iUkmDSaQDnNIqJVLEM",
+      "userId": "usr-1785678187304-313",
+      "email": "e2e.admin.1785678186614@barmantra.com",
       "role": "staff",
       "name": "E2E Admin User",
-      "expiresAt": "2026-07-26T00:57:22.710Z",
-      "createdAt": "2026-07-25T16:57:22.710Z",
-      "lastActiveAt": "2026-07-25T16:57:22.710Z",
-      "csrfToken": "csrf_aec0ff3849de76c48e18158cf553725088b3f0f0e1cc4d3dc7c2c2ac7d5cdf86"
+      "expiresAt": "2026-08-02T21:43:07.910Z",
+      "createdAt": "2026-08-02T13:43:07.910Z",
+      "lastActiveAt": "2026-08-02T13:43:07.910Z",
+      "csrfToken": "csrf_ab286fd2186c1e78d0ae5fb8df3076f8edadc341a7fdc92857a80d627e1d64f7"
     },
     {
-      "token": "sess_97dc582f506141e5cee5b0421d96f999c7ccebf9d0161fa9698df87922ba15c1",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T00:57:23.398Z",
-      "createdAt": "2026-07-25T16:57:23.398Z",
-      "lastActiveAt": "2026-07-25T16:57:23.398Z",
-      "csrfToken": "csrf_6528ac9ca7c58eb387831338a928a69f8121b3d31e0cb046b9c991e42b8d4a6f"
-    },
-    {
-      "token": "sess_deda9bffa964cec450a23c7ea32de7b1967ceeb7249c61e02f4e9fa342eddfac",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T00:57:24.135Z",
-      "createdAt": "2026-07-25T16:57:24.135Z",
-      "lastActiveAt": "2026-07-25T16:57:24.304Z",
-      "csrfToken": "csrf_7a33317dd1f8628b80be6e7dfc1fc4ac79f5dc3dc8b64cfa1ce873f361bc2003"
-    },
-    {
-      "token": "sess_d276e2aefa72e4b2a7aca7aafb12d4f3caf8f14771674e129cbc40ef9f3e7f5b",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T01:08:10.143Z",
-      "createdAt": "2026-07-25T17:08:10.143Z",
-      "lastActiveAt": "2026-07-25T17:08:10.143Z",
-      "csrfToken": "csrf_bdedb4175149469392cd00d912055a4d56aca7bc2d45b7991978cf977ff9eff9"
-    },
-    {
-      "token": "sess_752ce82a3443b171e9cde9c8f76c0aa28d42a35a5bd75f1fb6e56126ae5bce9f",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T01:08:10.867Z",
-      "createdAt": "2026-07-25T17:08:10.867Z",
-      "lastActiveAt": "2026-07-25T17:08:11.045Z",
-      "csrfToken": "csrf_5c94055a9fc494964d15cc5038fa4550dd0acd90930e1d708814b06d246d28a0"
-    },
-    {
-      "token": "sess_d76694e920d7f9e681c401ea9a68b8c893c0581340c8debffd4cb9f85bd1b8ae",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T01:08:11.810Z",
-      "createdAt": "2026-07-25T17:08:11.810Z",
-      "lastActiveAt": "2026-07-25T17:08:11.890Z",
-      "csrfToken": "csrf_150971a9344a65337010b76f4c26f31e1cb342b437007047484137567bfe06b0"
-    },
-    {
-      "token": "sess_d1874d708290077b8af32eab2e9da7bb9d258d99de9287d33a4283ac8caeeb82",
-      "userId": "usr-1784999292476-55",
-      "email": "e2e.admin.1784999291876@barmantra.com",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3ItMTc4NTY3ODIzMTQ0MS04NzYiLCJlbWFpbCI6ImUyZS5hZG1pbi4xNzg1Njc4MjMwNzY1QGJhcm1hbnRyYS5jb20iLCJuYW1lIjoiRTJFIEFkbWluIFVzZXIiLCJyb2xlIjoic3RhZmYiLCJpYXQiOjE3ODU2NzgyMzIsImV4cCI6MTc4NTY3OTEzMn0.z4wNYLP7LrOEGz3Thyozxz_xblI2RA7_oNOwtv8oEjQ",
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3ItMTc4NTY3ODIzMTQ0MS04NzYiLCJlbWFpbCI6ImUyZS5hZG1pbi4xNzg1Njc4MjMwNzY1QGJhcm1hbnRyYS5jb20iLCJuYW1lIjoiRTJFIEFkbWluIFVzZXIiLCJyb2xlIjoic3RhZmYiLCJpYXQiOjE3ODU2NzgyMzIsImV4cCI6MTc4NTcwNzAzMn0.8XW0jj1cqhlm9sHwBwusHsyBZAmrMHopbZRADo4Pv2Q",
+      "userId": "usr-1785678231441-876",
+      "email": "e2e.admin.1785678230765@barmantra.com",
       "role": "staff",
       "name": "E2E Admin User",
-      "expiresAt": "2026-07-26T01:08:13.100Z",
-      "createdAt": "2026-07-25T17:08:13.100Z",
-      "lastActiveAt": "2026-07-25T17:08:13.100Z",
-      "csrfToken": "csrf_9e8e2263784ea4c0d1932eb31c9b9a4b11b21589cfb7387a916419d85600d18f"
+      "expiresAt": "2026-08-02T21:43:52.149Z",
+      "createdAt": "2026-08-02T13:43:52.149Z",
+      "lastActiveAt": "2026-08-02T13:43:52.149Z",
+      "csrfToken": "csrf_05671bbf4f98e06ce672066122e0117c70bf945b5bb0475674ca65d31075a230"
     },
     {
-      "token": "sess_dcaa71d2e3d38845c9dfdfd99417841c2dff55a422563c8f72c0f99244a8b6c5",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3Itc3VwZXJhZG1pbiIsImVtYWlsIjoiYWRtaW5AYmFybWFudHJhLmNvbSIsIm5hbWUiOiJLYXJ0aWsgQXJvcmEgKE1hc3RlciBNaXhvbG9naXN0KSIsInJvbGUiOiJzdXBlcmFkbWluIiwiaWF0IjoxNzg1Njc4MjM1LCJleHAiOjE3ODU2NzkxMzV9.mX23yMLH_iSeMXMb1-obBvRXxbNiucYFjI2l5_eoeao",
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3Itc3VwZXJhZG1pbiIsImVtYWlsIjoiYWRtaW5AYmFybWFudHJhLmNvbSIsIm5hbWUiOiJLYXJ0aWsgQXJvcmEgKE1hc3RlciBNaXhvbG9naXN0KSIsInJvbGUiOiJzdXBlcmFkbWluIiwiaWF0IjoxNzg1Njc4MjM1LCJleHAiOjE3ODU3MDcwMzV9.DwyBZ6FQtWXtkp8yCeon2rtha8XnLfV4kbi9nlY1GZI",
       "userId": "usr-superadmin",
       "email": "admin@barmantra.com",
       "role": "superadmin",
       "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T01:08:13.918Z",
-      "createdAt": "2026-07-25T17:08:13.918Z",
-      "lastActiveAt": "2026-07-25T17:08:13.918Z",
-      "csrfToken": "csrf_408a8346af411fc42ad02a586e120d9051f068e77ef4fd0956a69feb8f9dafa4"
-    },
-    {
-      "token": "sess_3baedebdf6ebb862b4f806e6e0e9f013e789efdf6c8e412a77e9e965833af00f",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T01:08:14.668Z",
-      "createdAt": "2026-07-25T17:08:14.668Z",
-      "lastActiveAt": "2026-07-25T17:08:14.834Z",
-      "csrfToken": "csrf_a2b168658a301f3b65f018be8501d07725374b161fa7cfff294d91de079e3713"
-    },
-    {
-      "token": "sess_41723b571ebc51c3df1559dd57e210eac49e20ac8686daf53d1a5207d1ea1ec7",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T01:08:53.083Z",
-      "createdAt": "2026-07-25T17:08:53.083Z",
-      "lastActiveAt": "2026-07-25T17:08:53.083Z",
-      "csrfToken": "csrf_84770b8d76c43e594168e0bf00796f42b5edcb57a9fcad6b58441c144845133a"
-    },
-    {
-      "token": "sess_8788e5f1b88ae7e9f916cb7d14b58d99e715051c5b7273ba0cda3aa3706df338",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T01:08:53.845Z",
-      "createdAt": "2026-07-25T17:08:53.845Z",
-      "lastActiveAt": "2026-07-25T17:08:54.043Z",
-      "csrfToken": "csrf_bff64f2a099d434d7be1b4a57bf9fa9841347dbdf8fdda889bc6854e88e32df4"
-    },
-    {
-      "token": "sess_df41299e21468778084efd894e6fb45a7e25ab9f535840f91cd38cc261387a3f",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T01:08:54.813Z",
-      "createdAt": "2026-07-25T17:08:54.813Z",
-      "lastActiveAt": "2026-07-25T17:08:54.894Z",
-      "csrfToken": "csrf_1c3c70186e0231a16139635e5e516db4a9aa40acb7f74c86345be4902d0121e0"
-    },
-    {
-      "token": "sess_1ecc23545bbd872e96ab51b8d6840c7fb601e1fe394bd7a648a2493d39deca2d",
-      "userId": "usr-1784999335607-896",
-      "email": "e2e.admin.1784999334882@barmantra.com",
-      "role": "staff",
-      "name": "E2E Admin User",
-      "expiresAt": "2026-07-26T01:08:56.245Z",
-      "createdAt": "2026-07-25T17:08:56.245Z",
-      "lastActiveAt": "2026-07-25T17:08:56.245Z",
-      "csrfToken": "csrf_2894756147f6649e61f55a7814918d419c4451616a8046fc2b34a0ae412d7a44"
-    },
-    {
-      "token": "sess_d3e95915b0648ca3248159cd799272da2c6df9c0df93eb7f121b9517dc6f6634",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T01:08:56.942Z",
-      "createdAt": "2026-07-25T17:08:56.942Z",
-      "lastActiveAt": "2026-07-25T17:08:56.942Z",
-      "csrfToken": "csrf_475dbed08c2a57dd6d5d87f03466f35d7fd3ec910f9639f76fcaf0b7b2abcfcd"
-    },
-    {
-      "token": "sess_0110af6b6ea6fc10b4cbe92b0cfa0886461593d989f849f728f9bd5450031d0d",
-      "userId": "usr-superadmin",
-      "email": "admin@barmantra.com",
-      "role": "superadmin",
-      "name": "Kartik Arora (Master Mixologist)",
-      "expiresAt": "2026-07-26T01:08:57.653Z",
-      "createdAt": "2026-07-25T17:08:57.653Z",
-      "lastActiveAt": "2026-07-25T17:08:57.802Z",
-      "csrfToken": "csrf_efc2174d51a3c3ef5a9cda155aa81b6f4166bafa6093b747af5e0229bf8ff4c4"
+      "expiresAt": "2026-08-02T21:43:55.128Z",
+      "createdAt": "2026-08-02T13:43:55.128Z",
+      "lastActiveAt": "2026-08-02T13:43:55.154Z",
+      "csrfToken": "csrf_789094bf7d2a418cdd3f7d14ac4d7b574f4b70648cea1dda5c8eebcfa8336392"
     }
   ],
   "auditLogs": [
+    {
+      "id": "log-1785678235871-340",
+      "timestamp": "2026-08-02T13:43:55.871Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678234536-897",
+      "actor": null,
+      "details": "WhatsApp message dispatched (PAYMENT_RECEIPT_CONFIRMATION) to +91 98888 77777: status Simulated"
+    },
+    {
+      "id": "log-1785678235806-798",
+      "timestamp": "2026-08-02T13:43:55.806Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678234536-897",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "WhatsApp message dispatched (PROPOSAL_APPROVED_PAYMENT_REQUEST) to +91 98888 77777: status Simulated"
+    },
+    {
+      "id": "log-1785678235602-69",
+      "timestamp": "2026-08-02T13:43:55.602Z",
+      "action": "PAYMENT_RECEIVED",
+      "entityType": "booking",
+      "entityId": "b-1785678234536-897",
+      "actor": null,
+      "details": "Payment received via Sandbox. Transaction ID: TXN_E2E_1785678235589, Amount: ₹82,500"
+    },
+    {
+      "id": "log-1785678235565-722",
+      "timestamp": "2026-08-02T13:43:55.565Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678229875-948",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "WhatsApp message dispatched (PROPOSAL_APPROVED_PAYMENT_REQUEST) to +91 90000 11111: status Simulated"
+    },
+    {
+      "id": "log-1785678235549-681",
+      "timestamp": "2026-08-02T13:43:55.549Z",
+      "action": "PAYMENT_GENERATED",
+      "entityType": "booking",
+      "entityId": "b-1785678234536-897",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Payment link generated (Sandbox): http://localhost:3000/#/pay/b-1785678234536-897?sandbox_order=order_sb_1785678235545_326"
+    },
+    {
+      "id": "log-1785678235205-968",
+      "timestamp": "2026-08-02T13:43:55.205Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678234536-897",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 98888 77777: status Simulated"
+    },
+    {
+      "id": "log-1785678235177-86",
+      "timestamp": "2026-08-02T13:43:55.177Z",
+      "action": "PAYMENT_GENERATED",
+      "entityType": "booking",
+      "entityId": "b-1785678229875-948",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Payment link generated (Sandbox): http://localhost:3000/#/pay/b-1785678229875-948?sandbox_order=order_sb_1785678235171_870"
+    },
+    {
+      "id": "log-1785678235141-408",
+      "timestamp": "2026-08-02T13:43:55.141Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678234448-267",
+      "timestamp": "2026-08-02T13:43:54.448Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Admin logged out: admin@barmantra.com"
+    },
+    {
+      "id": "log-1785678234409-502",
+      "timestamp": "2026-08-02T13:43:54.409Z",
+      "action": "TOKEN_REFRESH",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "JWT access token refreshed for admin@barmantra.com"
+    },
+    {
+      "id": "log-1785678234396-386",
+      "timestamp": "2026-08-02T13:43:54.396Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678233740-348",
+      "timestamp": "2026-08-02T13:43:53.740Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-staff-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Reactivated admin account: events@barmantra.com"
+    },
+    {
+      "id": "log-1785678233713-157",
+      "timestamp": "2026-08-02T13:43:53.713Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: events@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678233686-865",
+      "timestamp": "2026-08-02T13:43:53.686Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-staff-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Deactivated admin account: events@barmantra.com"
+    },
+    {
+      "id": "log-1785678233635-188",
+      "timestamp": "2026-08-02T13:43:53.635Z",
+      "action": "PRICING_UPDATE",
+      "entityType": "pricing",
+      "entityId": "pricing-rules",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic event pricing rules & per-guest rates",
+      "beforeState": {
+        "eventTypes": [
+          {
+            "eventType": "wedding-bar",
+            "name": "Royal Wedding Bar Curation",
+            "basePrice": 25000,
+            "perGuestRate": 2500
+          },
+          {
+            "eventType": "corporate-bar",
+            "name": "Corporate Lounges & Brand Bars",
+            "basePrice": 25000,
+            "perGuestRate": 1800
+          },
+          {
+            "eventType": "private-bar",
+            "name": "Boutique Private Soirée Bar",
+            "basePrice": 25000,
+            "perGuestRate": 1500
+          },
+          {
+            "eventType": "flair-bar",
+            "name": "Interactive Flair Bar Show",
+            "basePrice": 25000,
+            "perGuestRate": 2000
+          },
+          {
+            "eventType": "masterclass",
+            "name": "Private Cocktail Masterclass",
+            "basePrice": 20000,
+            "perGuestRate": 1200
+          }
+        ],
+        "setupFee": 30000
+      },
+      "afterState": {
+        "eventTypes": [
+          {
+            "eventType": "wedding-bar",
+            "name": "Royal Wedding Bar Curation",
+            "basePrice": 25000,
+            "perGuestRate": 2500
+          },
+          {
+            "eventType": "corporate-bar",
+            "name": "Corporate Lounges & Brand Bars",
+            "basePrice": 25000,
+            "perGuestRate": 1800
+          },
+          {
+            "eventType": "private-bar",
+            "name": "Boutique Private Soirée Bar",
+            "basePrice": 25000,
+            "perGuestRate": 1500
+          },
+          {
+            "eventType": "flair-bar",
+            "name": "Interactive Flair Bar Show",
+            "basePrice": 25000,
+            "perGuestRate": 2000
+          },
+          {
+            "eventType": "masterclass",
+            "name": "Private Cocktail Masterclass",
+            "basePrice": 20000,
+            "perGuestRate": 1200
+          }
+        ],
+        "setupFee": 30000
+      }
+    },
+    {
+      "id": "log-1785678233587-743",
+      "timestamp": "2026-08-02T13:43:53.587Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678232812-457",
+      "timestamp": "2026-08-02T13:43:52.812Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678232163-864",
+      "timestamp": "2026-08-02T13:43:52.163Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-1785678231441-876",
+      "actor": {
+        "id": "usr-1785678231441-876",
+        "email": "e2e.admin.1785678230765@barmantra.com",
+        "name": "E2E Admin User",
+        "role": "staff"
+      },
+      "details": "Successful command studio login for e2e.admin.1785678230765@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678231473-931",
+      "timestamp": "2026-08-02T13:43:51.473Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678229875-948",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 90000 11111: status Simulated"
+    },
+    {
+      "id": "log-1785678231441-205",
+      "timestamp": "2026-08-02T13:43:51.441Z",
+      "action": "USER_CREATE",
+      "entityType": "user",
+      "entityId": "usr-1785678231441-876",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Created new admin account: e2e.admin.1785678230765@barmantra.com (staff)"
+    },
+    {
+      "id": "log-1785678230805-298",
+      "timestamp": "2026-08-02T13:43:50.805Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678227730-350",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 99999 88888: status Simulated"
+    },
+    {
+      "id": "log-1785678230751-217",
+      "timestamp": "2026-08-02T13:43:50.751Z",
+      "action": "CMS_UPDATE",
+      "entityType": "cms",
+      "entityId": "siteSettings",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic CMS section: siteSettings",
+      "beforeState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      },
+      "afterState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      }
+    },
+    {
+      "id": "log-1785678230724-387",
+      "timestamp": "2026-08-02T13:43:50.724Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678230024-353",
+      "timestamp": "2026-08-02T13:43:50.024Z",
+      "action": "RESTORE",
+      "entityType": "booking",
+      "entityId": "b-1785678229875-948",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal restored by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785678229958-324",
+      "timestamp": "2026-08-02T13:43:49.958Z",
+      "action": "SOFT_DELETE",
+      "entityType": "booking",
+      "entityId": "b-1785678229875-948",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal soft deleted by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785678229921-571",
+      "timestamp": "2026-08-02T13:43:49.921Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1785678229875-948",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Approved",
+      "beforeState": {
+        "status": "Pending"
+      },
+      "afterState": {
+        "status": "Approved"
+      }
+    },
+    {
+      "id": "log-1785678229850-200",
+      "timestamp": "2026-08-02T13:43:49.850Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678229134-409",
+      "timestamp": "2026-08-02T13:43:49.134Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678228529-860",
+      "timestamp": "2026-08-02T13:43:48.529Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678191465-874",
+      "timestamp": "2026-08-02T13:43:11.465Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678190236-648",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "WhatsApp message dispatched (PROPOSAL_APPROVED_PAYMENT_REQUEST) to +91 98888 77777: status Simulated"
+    },
+    {
+      "id": "log-1785678191179-764",
+      "timestamp": "2026-08-02T13:43:11.179Z",
+      "action": "PAYMENT_GENERATED",
+      "entityType": "booking",
+      "entityId": "b-1785678190236-648",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Payment link generated (Sandbox): http://localhost:3000/#/pay/b-1785678190236-648?sandbox_order=order_sb_1785678191175_582"
+    },
+    {
+      "id": "log-1785678190911-420",
+      "timestamp": "2026-08-02T13:43:10.911Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678190236-648",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 98888 77777: status Simulated"
+    },
+    {
+      "id": "log-1785678190860-87",
+      "timestamp": "2026-08-02T13:43:10.860Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678190149-137",
+      "timestamp": "2026-08-02T13:43:10.149Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Admin logged out: admin@barmantra.com"
+    },
+    {
+      "id": "log-1785678190117-146",
+      "timestamp": "2026-08-02T13:43:10.117Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678185721-307",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "WhatsApp message dispatched (PROPOSAL_APPROVED_PAYMENT_REQUEST) to +91 90000 11111: status Simulated"
+    },
+    {
+      "id": "log-1785678190100-683",
+      "timestamp": "2026-08-02T13:43:10.100Z",
+      "action": "TOKEN_REFRESH",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "JWT access token refreshed for admin@barmantra.com"
+    },
+    {
+      "id": "log-1785678190084-609",
+      "timestamp": "2026-08-02T13:43:10.084Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678189485-999",
+      "timestamp": "2026-08-02T13:43:09.485Z",
+      "action": "PAYMENT_GENERATED",
+      "entityType": "booking",
+      "entityId": "b-1785678185721-307",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Payment link generated (Sandbox): http://localhost:3000/#/pay/b-1785678185721-307?sandbox_order=order_sb_1785678189480_836"
+    },
+    {
+      "id": "log-1785678189465-905",
+      "timestamp": "2026-08-02T13:43:09.465Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-staff-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Reactivated admin account: events@barmantra.com"
+    },
+    {
+      "id": "log-1785678189442-848",
+      "timestamp": "2026-08-02T13:43:09.442Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: events@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678189418-521",
+      "timestamp": "2026-08-02T13:43:09.418Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-staff-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Deactivated admin account: events@barmantra.com"
+    },
+    {
+      "id": "log-1785678189378-674",
+      "timestamp": "2026-08-02T13:43:09.379Z",
+      "action": "PRICING_UPDATE",
+      "entityType": "pricing",
+      "entityId": "pricing-rules",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic event pricing rules & per-guest rates",
+      "beforeState": {
+        "eventTypes": [
+          {
+            "eventType": "wedding-bar",
+            "name": "Royal Wedding Bar Curation",
+            "basePrice": 25000,
+            "perGuestRate": 2500
+          },
+          {
+            "eventType": "corporate-bar",
+            "name": "Corporate Lounges & Brand Bars",
+            "basePrice": 25000,
+            "perGuestRate": 1800
+          },
+          {
+            "eventType": "private-bar",
+            "name": "Boutique Private Soirée Bar",
+            "basePrice": 25000,
+            "perGuestRate": 1500
+          },
+          {
+            "eventType": "flair-bar",
+            "name": "Interactive Flair Bar Show",
+            "basePrice": 25000,
+            "perGuestRate": 2000
+          },
+          {
+            "eventType": "masterclass",
+            "name": "Private Cocktail Masterclass",
+            "basePrice": 20000,
+            "perGuestRate": 1200
+          }
+        ],
+        "setupFee": 30000
+      },
+      "afterState": {
+        "eventTypes": [
+          {
+            "eventType": "wedding-bar",
+            "name": "Royal Wedding Bar Curation",
+            "basePrice": 25000,
+            "perGuestRate": 2500
+          },
+          {
+            "eventType": "corporate-bar",
+            "name": "Corporate Lounges & Brand Bars",
+            "basePrice": 25000,
+            "perGuestRate": 1800
+          },
+          {
+            "eventType": "private-bar",
+            "name": "Boutique Private Soirée Bar",
+            "basePrice": 25000,
+            "perGuestRate": 1500
+          },
+          {
+            "eventType": "flair-bar",
+            "name": "Interactive Flair Bar Show",
+            "basePrice": 25000,
+            "perGuestRate": 2000
+          },
+          {
+            "eventType": "masterclass",
+            "name": "Private Cocktail Masterclass",
+            "basePrice": 20000,
+            "perGuestRate": 1200
+          }
+        ],
+        "setupFee": 30000
+      }
+    },
+    {
+      "id": "log-1785678189326-166",
+      "timestamp": "2026-08-02T13:43:09.327Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678188595-915",
+      "timestamp": "2026-08-02T13:43:08.595Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678187924-927",
+      "timestamp": "2026-08-02T13:43:07.924Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-1785678187304-313",
+      "actor": {
+        "id": "usr-1785678187304-313",
+        "email": "e2e.admin.1785678186614@barmantra.com",
+        "name": "E2E Admin User",
+        "role": "staff"
+      },
+      "details": "Successful command studio login for e2e.admin.1785678186614@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678187304-167",
+      "timestamp": "2026-08-02T13:43:07.304Z",
+      "action": "USER_CREATE",
+      "entityType": "user",
+      "entityId": "usr-1785678187304-313",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Created new admin account: e2e.admin.1785678186614@barmantra.com (staff)"
+    },
+    {
+      "id": "log-1785678186667-998",
+      "timestamp": "2026-08-02T13:43:06.667Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678183622-390",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 99999 88888: status Simulated"
+    },
+    {
+      "id": "log-1785678186645-30",
+      "timestamp": "2026-08-02T13:43:06.645Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678185721-307",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 90000 11111: status Simulated"
+    },
+    {
+      "id": "log-1785678186605-99",
+      "timestamp": "2026-08-02T13:43:06.605Z",
+      "action": "CMS_UPDATE",
+      "entityType": "cms",
+      "entityId": "siteSettings",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic CMS section: siteSettings",
+      "beforeState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      },
+      "afterState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      }
+    },
+    {
+      "id": "log-1785678186583-483",
+      "timestamp": "2026-08-02T13:43:06.584Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678185912-146",
+      "timestamp": "2026-08-02T13:43:05.912Z",
+      "action": "RESTORE",
+      "entityType": "booking",
+      "entityId": "b-1785678185721-307",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal restored by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785678185798-429",
+      "timestamp": "2026-08-02T13:43:05.798Z",
+      "action": "SOFT_DELETE",
+      "entityType": "booking",
+      "entityId": "b-1785678185721-307",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal soft deleted by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785678185763-983",
+      "timestamp": "2026-08-02T13:43:05.763Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1785678185721-307",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Approved",
+      "beforeState": {
+        "status": "Pending"
+      },
+      "afterState": {
+        "status": "Approved"
+      }
+    },
+    {
+      "id": "log-1785678185700-211",
+      "timestamp": "2026-08-02T13:43:05.700Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678185028-368",
+      "timestamp": "2026-08-02T13:43:05.028Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678184419-349",
+      "timestamp": "2026-08-02T13:43:04.419Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678136414-228",
+      "timestamp": "2026-08-02T13:42:16.414Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678136384-7",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 99999 88888: status Simulated"
+    },
+    {
+      "id": "log-1785678112784-673",
+      "timestamp": "2026-08-02T13:41:52.784Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678112755-203",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 98888 77777: status Simulated"
+    },
+    {
+      "id": "log-1785678108840-575",
+      "timestamp": "2026-08-02T13:41:48.840Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678108151-332",
+      "timestamp": "2026-08-02T13:41:48.151Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-1785678107454-326",
+      "actor": {
+        "id": "usr-1785678107454-326",
+        "email": "e2e.admin.1785678106846@barmantra.com",
+        "name": "E2E Admin User",
+        "role": "staff"
+      },
+      "details": "Successful command studio login for e2e.admin.1785678106846@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678107465-766",
+      "timestamp": "2026-08-02T13:41:47.465Z",
+      "action": "USER_CREATE",
+      "entityType": "user",
+      "entityId": "usr-1785678107454-326",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Created new admin account: e2e.admin.1785678106846@barmantra.com (staff)"
+    },
+    {
+      "id": "log-1785678106834-933",
+      "timestamp": "2026-08-02T13:41:46.834Z",
+      "action": "CMS_UPDATE",
+      "entityType": "cms",
+      "entityId": "siteSettings",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic CMS section: siteSettings",
+      "beforeState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      },
+      "afterState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      }
+    },
+    {
+      "id": "log-1785678106788-998",
+      "timestamp": "2026-08-02T13:41:46.788Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678106073-62",
+      "timestamp": "2026-08-02T13:41:46.073Z",
+      "action": "RESTORE",
+      "entityType": "booking",
+      "entityId": "b-1785678105838-488",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal restored by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785678105998-923",
+      "timestamp": "2026-08-02T13:41:45.998Z",
+      "action": "SOFT_DELETE",
+      "entityType": "booking",
+      "entityId": "b-1785678105838-488",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal soft deleted by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785678105962-441",
+      "timestamp": "2026-08-02T13:41:45.962Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678105838-488",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "WhatsApp message dispatched (PROPOSAL_APPROVED_PAYMENT_REQUEST) to +91 90000 11111: status Simulated"
+    },
+    {
+      "id": "log-1785678105935-420",
+      "timestamp": "2026-08-02T13:41:45.935Z",
+      "action": "PAYMENT_GENERATED",
+      "entityType": "booking",
+      "entityId": "b-1785678105838-488",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Payment link generated (Sandbox): http://localhost:3000/#/pay/b-1785678105838-488?sandbox_order=order_sb_1785678105916_25"
+    },
+    {
+      "id": "log-1785678105908-329",
+      "timestamp": "2026-08-02T13:41:45.908Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1785678105838-488",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Approved",
+      "beforeState": {
+        "status": "Pending"
+      },
+      "afterState": {
+        "status": "Approved"
+      }
+    },
+    {
+      "id": "log-1785678105866-342",
+      "timestamp": "2026-08-02T13:41:45.866Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678105838-488",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 90000 11111: status Simulated"
+    },
+    {
+      "id": "log-1785678105807-612",
+      "timestamp": "2026-08-02T13:41:45.807Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678105133-768",
+      "timestamp": "2026-08-02T13:41:45.133Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678104395-551",
+      "timestamp": "2026-08-02T13:41:44.395Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785678103760-664",
+      "timestamp": "2026-08-02T13:41:43.760Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785678103733-308",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 99999 88888: status Simulated"
+    },
+    {
+      "id": "log-1785677854422-50",
+      "timestamp": "2026-08-02T13:37:34.422Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677853817-5",
+      "timestamp": "2026-08-02T13:37:33.817Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785677853789-605",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 98888 77777: status Simulated"
+    },
+    {
+      "id": "log-1785677851972-319",
+      "timestamp": "2026-08-02T13:37:31.972Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677849586-325",
+      "timestamp": "2026-08-02T13:37:29.587Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677847261-165",
+      "timestamp": "2026-08-02T13:37:27.261Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677844913-26",
+      "timestamp": "2026-08-02T13:37:24.913Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677842548-317",
+      "timestamp": "2026-08-02T13:37:22.548Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677840149-57",
+      "timestamp": "2026-08-02T13:37:20.149Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677839512-764",
+      "timestamp": "2026-08-02T13:37:19.512Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677838844-226",
+      "timestamp": "2026-08-02T13:37:18.844Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785677838814-788",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 99999 88888: status Simulated"
+    },
+    {
+      "id": "log-1785677745803-514",
+      "timestamp": "2026-08-02T13:35:45.803Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677745185-751",
+      "timestamp": "2026-08-02T13:35:45.185Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785677745144-923",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 98888 77777: status Simulated"
+    },
+    {
+      "id": "log-1785677743399-575",
+      "timestamp": "2026-08-02T13:35:43.399Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677741090-476",
+      "timestamp": "2026-08-02T13:35:41.090Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677738717-457",
+      "timestamp": "2026-08-02T13:35:38.717Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677736359-7",
+      "timestamp": "2026-08-02T13:35:36.359Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677733890-485",
+      "timestamp": "2026-08-02T13:35:33.890Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677731209-761",
+      "timestamp": "2026-08-02T13:35:31.209Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677730566-63",
+      "timestamp": "2026-08-02T13:35:30.566Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677729851-514",
+      "timestamp": "2026-08-02T13:35:29.851Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785677729820-580",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 99999 88888: status Simulated"
+    },
+    {
+      "id": "log-1785677653994-69",
+      "timestamp": "2026-08-02T13:34:13.994Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677653387-800",
+      "timestamp": "2026-08-02T13:34:13.387Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785677653346-225",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 98888 77777: status Simulated"
+    },
+    {
+      "id": "log-1785677651581-809",
+      "timestamp": "2026-08-02T13:34:11.581Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677649241-390",
+      "timestamp": "2026-08-02T13:34:09.241Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677646815-932",
+      "timestamp": "2026-08-02T13:34:06.815Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677644426-376",
+      "timestamp": "2026-08-02T13:34:04.426Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677642053-152",
+      "timestamp": "2026-08-02T13:34:02.053Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677639428-628",
+      "timestamp": "2026-08-02T13:33:59.428Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677638763-863",
+      "timestamp": "2026-08-02T13:33:58.763Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785677638075-805",
+      "timestamp": "2026-08-02T13:33:58.075Z",
+      "action": "WHATSAPP_SENT",
+      "entityType": "booking",
+      "entityId": "b-1785677637923-909",
+      "actor": null,
+      "details": "WhatsApp message dispatched (BOOKING_CONFIRMATION) to +91 99999 88888: status Simulated"
+    },
+    {
+      "id": "log-1785653117872-875",
+      "timestamp": "2026-08-02T06:45:17.873Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785509660394-646",
+      "timestamp": "2026-07-31T14:54:20.394Z",
+      "action": "USER_CREATE",
+      "entityType": "user",
+      "entityId": "usr-1785509660377-245",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Created new admin account: js27@gmail.com (admin)"
+    },
+    {
+      "id": "log-1785509603512-329",
+      "timestamp": "2026-07-31T14:53:23.512Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-1784786910143-605",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Deactivated admin account: e2e.admin.1784786909497@barmantra.com"
+    },
+    {
+      "id": "log-1785509586917-787",
+      "timestamp": "2026-07-31T14:53:06.917Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-1784786910143-605",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Deactivated admin account: e2e.admin.1784786909497@barmantra.com"
+    },
+    {
+      "id": "log-1785508782389-308",
+      "timestamp": "2026-07-31T14:39:42.389Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785508761593-338",
+      "timestamp": "2026-07-31T14:39:21.593Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785508696252-307",
+      "timestamp": "2026-07-31T14:38:16.252Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785508349152-44",
+      "timestamp": "2026-07-31T14:32:29.152Z",
+      "action": "CREDENTIALS_UPDATE",
+      "entityType": "user",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Forced password reset for admin@barmantra.com"
+    },
+    {
+      "id": "log-1785508244922-388",
+      "timestamp": "2026-07-31T14:30:44.922Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389738052-31",
+      "timestamp": "2026-07-30T05:35:38.052Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389711952-683",
+      "timestamp": "2026-07-30T05:35:11.952Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: event@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389296317-542",
+      "timestamp": "2026-07-30T05:28:16.317Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Admin logged out: admin@barmantra.com"
+    },
+    {
+      "id": "log-1785389296279-577",
+      "timestamp": "2026-07-30T05:28:16.279Z",
+      "action": "TOKEN_REFRESH",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "JWT access token refreshed for admin@barmantra.com"
+    },
+    {
+      "id": "log-1785389296246-348",
+      "timestamp": "2026-07-30T05:28:16.246Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389295540-747",
+      "timestamp": "2026-07-30T05:28:15.540Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-staff-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Reactivated admin account: events@barmantra.com"
+    },
+    {
+      "id": "log-1785389295495-905",
+      "timestamp": "2026-07-30T05:28:15.495Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: events@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389295473-832",
+      "timestamp": "2026-07-30T05:28:15.473Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-staff-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Deactivated admin account: events@barmantra.com"
+    },
+    {
+      "id": "log-1785389295420-533",
+      "timestamp": "2026-07-30T05:28:15.420Z",
+      "action": "PRICING_UPDATE",
+      "entityType": "pricing",
+      "entityId": "pricing-rules",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic event pricing rules & per-guest rates",
+      "beforeState": {
+        "eventTypes": [
+          {
+            "eventType": "wedding-bar",
+            "name": "Royal Wedding Bar Curation",
+            "basePrice": 25000,
+            "perGuestRate": 2500
+          },
+          {
+            "eventType": "corporate-bar",
+            "name": "Corporate Lounges & Brand Bars",
+            "basePrice": 25000,
+            "perGuestRate": 1800
+          },
+          {
+            "eventType": "private-bar",
+            "name": "Boutique Private Soirée Bar",
+            "basePrice": 25000,
+            "perGuestRate": 1500
+          },
+          {
+            "eventType": "flair-bar",
+            "name": "Interactive Flair Bar Show",
+            "basePrice": 25000,
+            "perGuestRate": 2000
+          },
+          {
+            "eventType": "masterclass",
+            "name": "Private Cocktail Masterclass",
+            "basePrice": 20000,
+            "perGuestRate": 1200
+          }
+        ],
+        "setupFee": 30000
+      },
+      "afterState": {
+        "eventTypes": [
+          {
+            "eventType": "wedding-bar",
+            "name": "Royal Wedding Bar Curation",
+            "basePrice": 25000,
+            "perGuestRate": 2500
+          },
+          {
+            "eventType": "corporate-bar",
+            "name": "Corporate Lounges & Brand Bars",
+            "basePrice": 25000,
+            "perGuestRate": 1800
+          },
+          {
+            "eventType": "private-bar",
+            "name": "Boutique Private Soirée Bar",
+            "basePrice": 25000,
+            "perGuestRate": 1500
+          },
+          {
+            "eventType": "flair-bar",
+            "name": "Interactive Flair Bar Show",
+            "basePrice": 25000,
+            "perGuestRate": 2000
+          },
+          {
+            "eventType": "masterclass",
+            "name": "Private Cocktail Masterclass",
+            "basePrice": 20000,
+            "perGuestRate": 1200
+          }
+        ],
+        "setupFee": 30000
+      }
+    },
+    {
+      "id": "log-1785389295359-392",
+      "timestamp": "2026-07-30T05:28:15.359Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389294663-410",
+      "timestamp": "2026-07-30T05:28:14.663Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389293956-96",
+      "timestamp": "2026-07-30T05:28:13.956Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-1785389293216-621",
+      "actor": {
+        "id": "usr-1785389293216-621",
+        "email": "e2e.admin.1785389292528@barmantra.com",
+        "name": "E2E Admin User",
+        "role": "staff"
+      },
+      "details": "Successful command studio login for e2e.admin.1785389292528@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389293226-607",
+      "timestamp": "2026-07-30T05:28:13.226Z",
+      "action": "USER_CREATE",
+      "entityType": "user",
+      "entityId": "usr-1785389293216-621",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Created new admin account: e2e.admin.1785389292528@barmantra.com (staff)"
+    },
+    {
+      "id": "log-1785389292517-943",
+      "timestamp": "2026-07-30T05:28:12.517Z",
+      "action": "CMS_UPDATE",
+      "entityType": "cms",
+      "entityId": "siteSettings",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic CMS section: siteSettings",
+      "beforeState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      },
+      "afterState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      }
+    },
+    {
+      "id": "log-1785389292469-774",
+      "timestamp": "2026-07-30T05:28:12.469Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389291763-217",
+      "timestamp": "2026-07-30T05:28:11.763Z",
+      "action": "RESTORE",
+      "entityType": "booking",
+      "entityId": "b-1785389291612-146",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal restored by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785389291688-713",
+      "timestamp": "2026-07-30T05:28:11.688Z",
+      "action": "SOFT_DELETE",
+      "entityType": "booking",
+      "entityId": "b-1785389291612-146",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal soft deleted by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785389291653-669",
+      "timestamp": "2026-07-30T05:28:11.653Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1785389291612-146",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Approved",
+      "beforeState": {
+        "status": "Pending"
+      },
+      "afterState": {
+        "status": "Approved"
+      }
+    },
+    {
+      "id": "log-1785389291578-882",
+      "timestamp": "2026-07-30T05:28:11.578Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389290866-354",
+      "timestamp": "2026-07-30T05:28:10.866Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389290226-807",
+      "timestamp": "2026-07-30T05:28:10.226Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785389002250-940",
+      "timestamp": "2026-07-30T05:23:22.250Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Admin logged out: admin@barmantra.com"
+    },
+    {
+      "id": "log-1785389002195-556",
+      "timestamp": "2026-07-30T05:23:22.195Z",
+      "action": "TOKEN_REFRESH",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "JWT access token refreshed for admin@barmantra.com"
+    },
+    {
+      "id": "log-1785389002091-961",
+      "timestamp": "2026-07-30T05:23:22.091Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388999642-238",
+      "timestamp": "2026-07-30T05:23:19.642Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388997162-57",
+      "timestamp": "2026-07-30T05:23:17.162Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388994650-663",
+      "timestamp": "2026-07-30T05:23:14.650Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388991998-552",
+      "timestamp": "2026-07-30T05:23:11.998Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388991233-303",
+      "timestamp": "2026-07-30T05:23:11.233Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388990557-487",
+      "timestamp": "2026-07-30T05:23:10.557Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388714514-577",
+      "timestamp": "2026-07-30T05:18:34.514Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388713840-127",
+      "timestamp": "2026-07-30T05:18:33.840Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-staff-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Reactivated admin account: events@barmantra.com"
+    },
+    {
+      "id": "log-1785388713803-849",
+      "timestamp": "2026-07-30T05:18:33.803Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: events@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388713781-933",
+      "timestamp": "2026-07-30T05:18:33.781Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-staff-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Deactivated admin account: events@barmantra.com"
+    },
+    {
+      "id": "log-1785388713732-81",
+      "timestamp": "2026-07-30T05:18:33.732Z",
+      "action": "PRICING_UPDATE",
+      "entityType": "pricing",
+      "entityId": "pricing-rules",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic event pricing rules & per-guest rates",
+      "beforeState": {
+        "eventTypes": [
+          {
+            "eventType": "wedding-bar",
+            "name": "Royal Wedding Bar Curation",
+            "basePrice": 25000,
+            "perGuestRate": 2500
+          },
+          {
+            "eventType": "corporate-bar",
+            "name": "Corporate Lounges & Brand Bars",
+            "basePrice": 25000,
+            "perGuestRate": 1800
+          },
+          {
+            "eventType": "private-bar",
+            "name": "Boutique Private Soirée Bar",
+            "basePrice": 25000,
+            "perGuestRate": 1500
+          },
+          {
+            "eventType": "flair-bar",
+            "name": "Interactive Flair Bar Show",
+            "basePrice": 25000,
+            "perGuestRate": 2000
+          },
+          {
+            "eventType": "masterclass",
+            "name": "Private Cocktail Masterclass",
+            "basePrice": 20000,
+            "perGuestRate": 1200
+          }
+        ],
+        "setupFee": 30000
+      },
+      "afterState": {
+        "eventTypes": [
+          {
+            "eventType": "wedding-bar",
+            "name": "Royal Wedding Bar Curation",
+            "basePrice": 25000,
+            "perGuestRate": 2500
+          },
+          {
+            "eventType": "corporate-bar",
+            "name": "Corporate Lounges & Brand Bars",
+            "basePrice": 25000,
+            "perGuestRate": 1800
+          },
+          {
+            "eventType": "private-bar",
+            "name": "Boutique Private Soirée Bar",
+            "basePrice": 25000,
+            "perGuestRate": 1500
+          },
+          {
+            "eventType": "flair-bar",
+            "name": "Interactive Flair Bar Show",
+            "basePrice": 25000,
+            "perGuestRate": 2000
+          },
+          {
+            "eventType": "masterclass",
+            "name": "Private Cocktail Masterclass",
+            "basePrice": 20000,
+            "perGuestRate": 1200
+          }
+        ],
+        "setupFee": 30000
+      }
+    },
+    {
+      "id": "log-1785388713683-552",
+      "timestamp": "2026-07-30T05:18:33.683Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388712964-745",
+      "timestamp": "2026-07-30T05:18:32.964Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388712280-436",
+      "timestamp": "2026-07-30T05:18:32.280Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-1785388711591-822",
+      "actor": {
+        "id": "usr-1785388711591-822",
+        "email": "e2e.admin.1785388710926@barmantra.com",
+        "name": "E2E Admin User",
+        "role": "staff"
+      },
+      "details": "Successful command studio login for e2e.admin.1785388710926@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388711602-110",
+      "timestamp": "2026-07-30T05:18:31.602Z",
+      "action": "USER_CREATE",
+      "entityType": "user",
+      "entityId": "usr-1785388711591-822",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Created new admin account: e2e.admin.1785388710926@barmantra.com (staff)"
+    },
+    {
+      "id": "log-1785388710912-785",
+      "timestamp": "2026-07-30T05:18:30.912Z",
+      "action": "CMS_UPDATE",
+      "entityType": "cms",
+      "entityId": "siteSettings",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic CMS section: siteSettings",
+      "beforeState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      },
+      "afterState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      }
+    },
+    {
+      "id": "log-1785388710865-470",
+      "timestamp": "2026-07-30T05:18:30.865Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388710114-141",
+      "timestamp": "2026-07-30T05:18:30.114Z",
+      "action": "RESTORE",
+      "entityType": "booking",
+      "entityId": "b-1785388709956-989",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal restored by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785388710035-380",
+      "timestamp": "2026-07-30T05:18:30.035Z",
+      "action": "SOFT_DELETE",
+      "entityType": "booking",
+      "entityId": "b-1785388709956-989",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal soft deleted by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785388709993-802",
+      "timestamp": "2026-07-30T05:18:29.993Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1785388709956-989",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Approved",
+      "beforeState": {
+        "status": "Pending"
+      },
+      "afterState": {
+        "status": "Approved"
+      }
+    },
+    {
+      "id": "log-1785388709893-871",
+      "timestamp": "2026-07-30T05:18:29.893Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388707357-834",
+      "timestamp": "2026-07-30T05:18:27.357Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388706678-453",
+      "timestamp": "2026-07-30T05:18:26.678Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388212453-221",
+      "timestamp": "2026-07-30T05:10:12.453Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-staff-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Reactivated admin account: events@barmantra.com"
+    },
+    {
+      "id": "log-1785388212414-871",
+      "timestamp": "2026-07-30T05:10:12.414Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: events@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388212390-478",
+      "timestamp": "2026-07-30T05:10:12.390Z",
+      "action": "USER_DEACTIVATE",
+      "entityType": "user",
+      "entityId": "usr-staff-1",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Deactivated admin account: events@barmantra.com"
+    },
+    {
+      "id": "log-1785388212340-928",
+      "timestamp": "2026-07-30T05:10:12.340Z",
+      "action": "PRICING_UPDATE",
+      "entityType": "pricing",
+      "entityId": "pricing-rules",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic event pricing rules & per-guest rates",
+      "beforeState": {
+        "eventTypes": [
+          {
+            "eventType": "wedding-bar",
+            "name": "Royal Wedding Bar Curation",
+            "basePrice": 25000,
+            "perGuestRate": 2500
+          },
+          {
+            "eventType": "corporate-bar",
+            "name": "Corporate Lounges & Brand Bars",
+            "basePrice": 25000,
+            "perGuestRate": 1800
+          },
+          {
+            "eventType": "private-bar",
+            "name": "Boutique Private Soirée Bar",
+            "basePrice": 25000,
+            "perGuestRate": 1500
+          },
+          {
+            "eventType": "flair-bar",
+            "name": "Interactive Flair Bar Show",
+            "basePrice": 25000,
+            "perGuestRate": 2000
+          },
+          {
+            "eventType": "masterclass",
+            "name": "Private Cocktail Masterclass",
+            "basePrice": 20000,
+            "perGuestRate": 1200
+          }
+        ],
+        "setupFee": 30000
+      },
+      "afterState": {
+        "eventTypes": [
+          {
+            "eventType": "wedding-bar",
+            "name": "Royal Wedding Bar Curation",
+            "basePrice": 25000,
+            "perGuestRate": 2500
+          },
+          {
+            "eventType": "corporate-bar",
+            "name": "Corporate Lounges & Brand Bars",
+            "basePrice": 25000,
+            "perGuestRate": 1800
+          },
+          {
+            "eventType": "private-bar",
+            "name": "Boutique Private Soirée Bar",
+            "basePrice": 25000,
+            "perGuestRate": 1500
+          },
+          {
+            "eventType": "flair-bar",
+            "name": "Interactive Flair Bar Show",
+            "basePrice": 25000,
+            "perGuestRate": 2000
+          },
+          {
+            "eventType": "masterclass",
+            "name": "Private Cocktail Masterclass",
+            "basePrice": 20000,
+            "perGuestRate": 1200
+          }
+        ],
+        "setupFee": 30000
+      }
+    },
+    {
+      "id": "log-1785388212288-77",
+      "timestamp": "2026-07-30T05:10:12.288Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388211594-386",
+      "timestamp": "2026-07-30T05:10:11.594Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388210899-561",
+      "timestamp": "2026-07-30T05:10:10.899Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-1785388210243-703",
+      "actor": {
+        "id": "usr-1785388210243-703",
+        "email": "e2e.admin.1785388209632@barmantra.com",
+        "name": "E2E Admin User",
+        "role": "staff"
+      },
+      "details": "Successful command studio login for e2e.admin.1785388209632@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388210253-400",
+      "timestamp": "2026-07-30T05:10:10.253Z",
+      "action": "USER_CREATE",
+      "entityType": "user",
+      "entityId": "usr-1785388210243-703",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Created new admin account: e2e.admin.1785388209632@barmantra.com (staff)"
+    },
+    {
+      "id": "log-1785388209621-883",
+      "timestamp": "2026-07-30T05:10:09.621Z",
+      "action": "CMS_UPDATE",
+      "entityType": "cms",
+      "entityId": "siteSettings",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Updated dynamic CMS section: siteSettings",
+      "beforeState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      },
+      "afterState": {
+        "siteTitle": "Barmantra | Luxury Mobile Bar & Mixology Jaipur",
+        "heroHeadline": "E2E Dynamic Royal Bar",
+        "heroSubheadline": "We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.",
+        "phone": "+91 98290 12345",
+        "email": "concierge@barmantra.com",
+        "address": "Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004",
+        "tagline": "The Premiere Luxury Bartending Service of Jaipur",
+        "whatsappNumber": "+919829012345"
+      }
+    },
+    {
+      "id": "log-1785388209575-569",
+      "timestamp": "2026-07-30T05:10:09.575Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388208872-37",
+      "timestamp": "2026-07-30T05:10:08.872Z",
+      "action": "RESTORE",
+      "entityType": "booking",
+      "entityId": "b-1785388208723-377",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal restored by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785388208800-171",
+      "timestamp": "2026-07-30T05:10:08.800Z",
+      "action": "SOFT_DELETE",
+      "entityType": "booking",
+      "entityId": "b-1785388208723-377",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Booking proposal soft deleted by Kartik Arora (Master Mixologist)"
+    },
+    {
+      "id": "log-1785388208762-820",
+      "timestamp": "2026-07-30T05:10:08.762Z",
+      "action": "STATUS_UPDATE",
+      "entityType": "booking",
+      "entityId": "b-1785388208723-377",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Status updated to Approved",
+      "beforeState": {
+        "status": "Pending"
+      },
+      "afterState": {
+        "status": "Approved"
+      }
+    },
+    {
+      "id": "log-1785388208674-665",
+      "timestamp": "2026-07-30T05:10:08.674Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1785388205946-501",
+      "timestamp": "2026-07-30T05:10:05.946Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
     {
       "id": "log-1784999337818-491",
       "timestamp": "2026-07-25T17:08:57.818Z",

@@ -84,15 +84,16 @@ function createRateLimiter(options: RateLimitOptions) {
 
 const publicFormRateLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: process.env.NODE_ENV === 'test' ? 1000 : 10,
   message: 'Too many requests submitted from this IP address. Please wait 15 minutes before submitting another proposal.'
 });
 
 const adminLoginRateLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 30,
+  max: process.env.NODE_ENV === 'test' ? 1000 : 30,
   message: 'Too many authentication attempts. Royal Command Studio access restricted for 15 minutes.'
 });
+
 
 // Main server bootstrapping
 async function startServer() {
@@ -144,12 +145,13 @@ async function startServer() {
   });
 
   // Admin JWT & CSRF authentication middleware
-  const adminAuthMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const adminAuthMiddleware = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const sessionToken = (req as any).cookies.barmantra_access_token || (req as any).cookies.barmantra_session || req.headers.authorization?.split('Bearer ')[1];
     const csrfHeaderToken = (req.headers['x-csrf-token'] || req.headers['x-xsrf-token']) as string | undefined;
     const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase());
 
-    const { session, error } = validateSession(sessionToken, csrfHeaderToken, isStateChanging);
+    const { session, error } = await validateSession(sessionToken, csrfHeaderToken, isStateChanging);
+
     
     if (session) {
       (req as any).user = {
@@ -232,7 +234,8 @@ async function startServer() {
   });
 
   // Public: Submit a booking request (Rate Limited + Server Computed Pricing)
-  app.post('/api/bookings', publicFormRateLimiter, (req, res) => {
+  app.post('/api/bookings', publicFormRateLimiter, async (req, res) => {
+
     try {
       const { name, phone, email, eventType, eventDate, guestCount, message, pricingEstimate } = req.body;
       
@@ -248,7 +251,8 @@ async function startServer() {
       // Server-side Independent Quote Computation
       const serverCalculatedPrice = calculatePricingEstimate(String(eventType), count);
 
-      const booking = addBooking({
+      const booking = await addBooking({
+
         name,
         phone,
         email,
@@ -358,7 +362,8 @@ async function startServer() {
       }
 
       const paidAmount = Number(amount) || booking.depositAmount || Math.round(booking.pricingEstimate * 0.30);
-      const updatedBooking = updateBookingPaymentSuccess(bookingId, transactionId, paidAmount, gateway || 'Sandbox');
+      const updatedBooking = await updateBookingPaymentSuccess(bookingId, transactionId, paidAmount, gateway || 'Sandbox');
+
 
       if (updatedBooking) {
         // Send WhatsApp Payment Receipt Confirmation
@@ -389,7 +394,7 @@ async function startServer() {
 
 
   // Public: Submit general contact inquiry (Rate Limited)
-  app.post('/api/contacts', publicFormRateLimiter, (req, res) => {
+  app.post('/api/contacts', publicFormRateLimiter, async (req, res) => {
     try {
       const { name, phone, email, eventType, eventDate, guestCount, message } = req.body;
       
@@ -399,7 +404,8 @@ async function startServer() {
 
       const count = Number(guestCount);
 
-      const contact = addContact({
+      const contact = await addContact({
+
         name,
         phone,
         email,
@@ -600,7 +606,7 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   }
 
   // Admin: Login endpoint (Rate Limited & Hashed Account Verification)
-  app.post('/api/admin/login', adminLoginRateLimiter, (req, res) => {
+  app.post('/api/admin/login', adminLoginRateLimiter, async (req, res) => {
     const { email, password } = req.body;
     const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || '127.0.0.1';
     const userAgent = (req.headers['user-agent'] as string) || 'Unknown Client';
@@ -613,7 +619,8 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
     const user = validateUserCredentials(loginEmail, String(password));
 
     if (user) {
-      const { token, refreshToken, csrfToken, expiresAt } = createSession(user);
+      const { token, refreshToken, csrfToken, expiresAt } = await createSession(user);
+
       const actor: DbActor = { id: user.id, email: user.email, name: user.name, role: user.role };
       logAuditAction('LOGIN', 'auth', actor, user.id, `Successful command studio login for ${user.email}`, undefined, undefined, { ip: clientIp, userAgent });
 
@@ -640,9 +647,10 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin: JWT Access Token Refresh Endpoint
-  app.post('/api/admin/refresh', (req, res) => {
+  app.post('/api/admin/refresh', async (req, res) => {
     const refreshToken = (req as any).cookies?.barmantra_refresh_token || req.body?.refreshToken;
-    const result = refreshJwtSessionToken(refreshToken);
+    const result = await refreshJwtSessionToken(refreshToken);
+
 
     if (result.success && result.accessToken && result.refreshToken) {
       setAuthCookies(res, result.accessToken, result.refreshToken);
@@ -659,7 +667,7 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED: Password Change Endpoint
-  app.post('/api/admin/change-password', adminAuthMiddleware, (req, res) => {
+  app.post('/api/admin/change-password', adminAuthMiddleware, async (req, res) => {
     const { newPassword } = req.body;
     const actor = (req as any).user as DbActor;
 
@@ -671,13 +679,14 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
       return res.status(400).json({ error: 'Cannot use a generic default password. Please choose a custom secure password.' });
     }
 
-    const result = forceUserPasswordReset(actor.id, String(newPassword), actor);
+    const result = await forceUserPasswordReset(actor.id, String(newPassword), actor);
     if (result.success) {
       res.json({ success: true, message: 'Password updated successfully. Account is now secured.' });
     } else {
       res.status(400).json({ error: result.error || 'Failed to update password.' });
     }
   });
+
 
   // Public: Admin Access Sign-Up / Access Request
   app.post('/api/admin/request-access', (req, res) => {
@@ -696,15 +705,15 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin: Logout endpoint
-  app.post('/api/admin/logout', (req, res) => {
+  app.post('/api/admin/logout', async (req, res) => {
     const sessionToken = (req as any).cookies?.barmantra_access_token || (req as any).cookies?.barmantra_session || (req as any).cookies?.barmantra_refresh_token || req.headers.authorization?.split('Bearer ')[1];
     if (sessionToken) {
-      const session = getSession(sessionToken);
+      const session = await getSession(sessionToken);
       if (session) {
         const actor: DbActor = { id: session.userId, email: session.email, name: session.name, role: session.role };
-        logAuditAction('LOGIN', 'auth', actor, session.userId, `Admin logged out: ${session.email}`);
+        await logAuditAction('LOGIN', 'auth', actor, session.userId, `Admin logged out: ${session.email}`);
       }
-      destroySession(sessionToken);
+      await destroySession(sessionToken);
     }
     res.setHeader('Set-Cookie', [
       'barmantra_access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict',
@@ -715,9 +724,10 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin: Check Auth Status
-  app.get('/api/admin/check-auth', (req, res) => {
+  app.get('/api/admin/check-auth', async (req, res) => {
     const sessionToken = (req as any).cookies?.barmantra_access_token || (req as any).cookies?.barmantra_session || req.headers.authorization?.split('Bearer ')[1];
-    const { session } = validateSession(sessionToken, undefined, false);
+    const { session } = await validateSession(sessionToken, undefined, false);
+
     if (session) {
       res.json({ 
         authenticated: true, 
@@ -727,7 +737,7 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
     } else {
       const refreshToken = (req as any).cookies?.barmantra_refresh_token;
       if (refreshToken) {
-        const refreshed = refreshJwtSessionToken(refreshToken);
+        const refreshed = await refreshJwtSessionToken(refreshToken);
         if (refreshed.success && refreshed.accessToken && refreshed.refreshToken) {
           setAuthCookies(res, refreshed.accessToken, refreshed.refreshToken);
           return res.json({
@@ -747,7 +757,7 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED: Update booking status
-  app.patch('/api/admin/bookings/:id/status', adminAuthMiddleware, (req, res) => {
+  app.patch('/api/admin/bookings/:id/status', adminAuthMiddleware, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     const actor = (req as any).user as DbActor;
@@ -756,7 +766,8 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
       return res.status(400).json({ error: 'Invalid booking status.' });
     }
 
-    const updated = updateBookingStatus(id, status, actor);
+    const updated = await updateBookingStatus(id, status, actor);
+
     if (updated) {
       // If status changed to Approved, automatically dispatch payment request if payment link exists or generate sandbox payment link
       if (status === 'Approved') {
@@ -819,7 +830,8 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
         originUrl
       });
 
-      const updated = updateBookingPaymentLink(booking.id, payOrder.paymentLink, payOrder.gateway, actor);
+      const updated = await updateBookingPaymentLink(booking.id, payOrder.paymentLink, payOrder.gateway, actor);
+
 
       // Auto dispatch WhatsApp message with payment link
       sendWhatsAppNotification({
@@ -883,7 +895,8 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
         }
       });
 
-      const updated = logBookingWhatsAppMessage(
+      const updated = await logBookingWhatsAppMessage(
+
         booking.id, 
         template || 'CUSTOM', 
         booking.phone, 
@@ -906,10 +919,10 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
 
 
   // Admin SECURED: Soft Delete booking (Move to Trash)
-  app.delete('/api/admin/bookings/:id', adminAuthMiddleware, (req, res) => {
+  app.delete('/api/admin/bookings/:id', adminAuthMiddleware, async (req, res) => {
     const { id } = req.params;
     const actor = (req as any).user as DbActor;
-    const deleted = softDeleteBooking(id, actor);
+    const deleted = await softDeleteBooking(id, actor);
     if (deleted) {
       res.json({ success: true, message: 'Booking moved to trash with restore capability.', booking: deleted });
     } else {
@@ -918,10 +931,10 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED: Restore soft deleted booking
-  app.post('/api/admin/bookings/:id/restore', adminAuthMiddleware, (req, res) => {
+  app.post('/api/admin/bookings/:id/restore', adminAuthMiddleware, async (req, res) => {
     const { id } = req.params;
     const actor = (req as any).user as DbActor;
-    const restored = restoreBooking(id, actor);
+    const restored = await restoreBooking(id, actor);
     if (restored) {
       res.json({ success: true, message: 'Booking restored to active ledger successfully.', booking: restored });
     } else {
@@ -935,7 +948,7 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED: Update contact status
-  app.patch('/api/admin/contacts/:id/status', adminAuthMiddleware, (req, res) => {
+  app.patch('/api/admin/contacts/:id/status', adminAuthMiddleware, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     const actor = (req as any).user as DbActor;
@@ -944,7 +957,7 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
       return res.status(400).json({ error: 'Invalid contact status.' });
     }
 
-    const updated = updateContactStatus(id, status, actor);
+    const updated = await updateContactStatus(id, status, actor);
     if (updated) {
       res.json({ success: true, contact: updated });
     } else {
@@ -953,10 +966,10 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED: Soft Delete contact inquiry
-  app.delete('/api/admin/contacts/:id', adminAuthMiddleware, (req, res) => {
+  app.delete('/api/admin/contacts/:id', adminAuthMiddleware, async (req, res) => {
     const { id } = req.params;
     const actor = (req as any).user as DbActor;
-    const deleted = softDeleteContact(id, actor);
+    const deleted = await softDeleteContact(id, actor);
     if (deleted) {
       res.json({ success: true, message: 'Inquiry moved to trash with restore capability.', contact: deleted });
     } else {
@@ -965,10 +978,11 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED: Restore soft deleted contact
-  app.post('/api/admin/contacts/:id/restore', adminAuthMiddleware, (req, res) => {
+  app.post('/api/admin/contacts/:id/restore', adminAuthMiddleware, async (req, res) => {
     const { id } = req.params;
     const actor = (req as any).user as DbActor;
-    const restored = restoreContact(id, actor);
+    const restored = await restoreContact(id, actor);
+
     if (restored) {
       res.json({ success: true, message: 'Contact inquiry restored to active ledger successfully.', contact: restored });
     } else {
@@ -1136,7 +1150,7 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED: Update a specific dynamic CMS section
-  app.put('/api/admin/site-content/:section', adminAuthMiddleware, (req, res) => {
+  app.put('/api/admin/site-content/:section', adminAuthMiddleware, async (req, res) => {
     const { section } = req.params;
     const actor = (req as any).user as DbActor;
     const payload = req.body;
@@ -1145,7 +1159,7 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
       return res.status(400).json({ error: 'CMS payload is required.' });
     }
 
-    const updated = updateSiteSection(section, payload, actor);
+    const updated = await updateSiteSection(section, payload, actor);
     if (updated) {
       res.json({ success: true, message: `Dynamic section '${section}' updated successfully.` });
     } else {
@@ -1161,7 +1175,7 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED: Register a new admin/staff user
-  app.post('/api/admin/register', adminAuthMiddleware, (req, res) => {
+  app.post('/api/admin/register', adminAuthMiddleware, async (req, res) => {
     const { email, password, name, role } = req.body;
     const actor = (req as any).user as DbActor;
 
@@ -1169,7 +1183,7 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
       return res.status(400).json({ error: 'Email, password, and name are strictly required.' });
     }
 
-    const result = registerAdminUser({ email, password, name, role }, actor);
+    const result = await registerAdminUser({ email, password, name, role }, actor);
     if (result.success) {
       res.status(201).json({ success: true, message: 'New admin account successfully registered.', user: result.user });
     } else {
@@ -1178,12 +1192,12 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED: Update credentials/password for an admin account
-  app.patch('/api/admin/users/:id/credentials', adminAuthMiddleware, (req, res) => {
+  app.patch('/api/admin/users/:id/credentials', adminAuthMiddleware, async (req, res) => {
     const { id } = req.params;
     const { email, name, password, role } = req.body;
     const actor = (req as any).user as DbActor;
 
-    const result = updateUserCredentials(id, { email, name, password, role }, actor);
+    const result = await updateUserCredentials(id, { email, name, password, role }, actor);
     if (result.success) {
       res.json({ success: true, message: 'User credentials updated successfully.' });
     } else {
@@ -1197,13 +1211,13 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED (Superadmin Only): Update dynamic pricing rules
-  app.put('/api/admin/pricing/rules', adminAuthMiddleware, superadminOnlyMiddleware, (req, res) => {
+  app.put('/api/admin/pricing/rules', adminAuthMiddleware, superadminOnlyMiddleware, async (req, res) => {
     const actor = (req as any).user as DbActor;
     const { eventTypes, setupFee } = req.body;
     if (!eventTypes || !Array.isArray(eventTypes)) {
       return res.status(400).json({ error: 'eventTypes array is required.' });
     }
-    const success = updatePricingRules({ eventTypes, setupFee: Number(setupFee || 25000) }, actor);
+    const success = await updatePricingRules({ eventTypes, setupFee: Number(setupFee || 25000) }, actor);
     if (success) {
       res.json({ success: true, message: 'Dynamic pricing rules updated successfully.' });
     } else {
@@ -1212,13 +1226,13 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED (Superadmin Only): Permanent purge from Trash Archive
-  app.delete('/api/admin/trash/purge/:type/:id', adminAuthMiddleware, superadminOnlyMiddleware, (req, res) => {
+  app.delete('/api/admin/trash/purge/:type/:id', adminAuthMiddleware, superadminOnlyMiddleware, async (req, res) => {
     const actor = (req as any).user as DbActor;
     const { type, id } = req.params;
     if (type !== 'booking' && type !== 'contact') {
       return res.status(400).json({ error: 'Invalid entity type for purge.' });
     }
-    const success = purgeTrashItem(type, id, actor);
+    const success = await purgeTrashItem(type, id, actor);
     if (success) {
       res.json({ success: true, message: `Record ${id} permanently purged from database.` });
     } else {
@@ -1227,11 +1241,11 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED (Superadmin Only): Deactivate / Reactivate User Account
-  app.patch('/api/admin/users/:id/deactivate', adminAuthMiddleware, superadminOnlyMiddleware, (req, res) => {
+  app.patch('/api/admin/users/:id/deactivate', adminAuthMiddleware, superadminOnlyMiddleware, async (req, res) => {
     const actor = (req as any).user as DbActor;
     const { id } = req.params;
     const { isDeactivated } = req.body;
-    const result = setUserDeactivated(id, Boolean(isDeactivated), actor);
+    const result = await setUserDeactivated(id, Boolean(isDeactivated), actor);
     if (result.success) {
       res.json({ success: true, message: `User account ${isDeactivated ? 'deactivated' : 'reactivated'} successfully.` });
     } else {
@@ -1240,14 +1254,15 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
   });
 
   // Admin SECURED (Superadmin Only): Force Password Reset for User Account
-  app.post('/api/admin/users/:id/reset-password', adminAuthMiddleware, superadminOnlyMiddleware, (req, res) => {
+  app.post('/api/admin/users/:id/reset-password', adminAuthMiddleware, superadminOnlyMiddleware, async (req, res) => {
     const actor = (req as any).user as DbActor;
     const { id } = req.params;
     const { newPassword } = req.body;
     if (!newPassword || newPassword.trim().length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters.' });
     }
-    const result = forceUserPasswordReset(id, newPassword, actor);
+    const result = await forceUserPasswordReset(id, newPassword, actor);
+
     if (result.success) {
       res.json({ success: true, message: 'Password reset forced successfully.' });
     } else {

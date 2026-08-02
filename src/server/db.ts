@@ -8,6 +8,8 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from './config.ts';
+import { withDbLock } from './dbWriteQueue.ts';
+
 
 
 export type UserRole = 'superadmin' | 'admin' | 'staff';
@@ -406,8 +408,8 @@ export function saveDb(data: DatabaseSchema): void {
   }
 }
 
-// Audit Logging helper
-export function logAuditAction(
+function appendAuditLog(
+  db: DatabaseSchema,
   action: DbAuditLogEntry['action'],
   entityType: DbAuditLogEntry['entityType'],
   actor: DbActor | null,
@@ -417,7 +419,6 @@ export function logAuditAction(
   afterState?: any,
   meta?: { ip?: string; userAgent?: string }
 ): void {
-  const db = getDb();
   let detailStr = details || '';
   if (meta?.ip) {
     detailStr += ` [IP: ${meta.ip}]`;
@@ -438,12 +439,27 @@ export function logAuditAction(
     afterState
   };
   db.auditLogs.unshift(entry);
-  // Keep last 500 audit log entries to prevent file explosion
   if (db.auditLogs.length > 500) {
     db.auditLogs = db.auditLogs.slice(0, 500);
   }
-  saveDb(db);
 }
+
+// Audit Logging helper
+export function logAuditAction(
+  action: DbAuditLogEntry['action'],
+  entityType: DbAuditLogEntry['entityType'],
+  actor: DbActor | null,
+  entityId?: string,
+  details?: string,
+  beforeState?: any,
+  afterState?: any,
+  meta?: { ip?: string; userAgent?: string }
+): Promise<void> {
+  return withDbLock(db => {
+    appendAuditLog(db, action, entityType, actor, entityId, details, beforeState, afterState, meta);
+  });
+}
+
 
 // User & Authentication Helpers
 export function findUserByEmail(email: string): DbUser | undefined {
@@ -473,51 +489,49 @@ export function validateUserCredentials(email: string, password: string): DbUser
 
 // Session management (JWT + db.json lastActiveAt Idle Tracker)
 
-export function createSession(user: DbUser): { token: string; refreshToken: string; csrfToken: string; expiresAt: string; session: DbSession } {
-  const db = getDb();
-  
-  const payload = {
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role
-  };
+export function createSession(user: DbUser): Promise<{ token: string; refreshToken: string; csrfToken: string; expiresAt: string; session: DbSession }> {
+  return withDbLock(db => {
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    };
 
-  const token = jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: '15m' });
-  const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '8h' });
-  const csrfToken = `csrf_${crypto.randomBytes(32).toString('hex')}`;
-  
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString(); // 8 hours absolute lifetime
-  const isoNow = now.toISOString();
+    const token = jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: '15m' });
+    const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '8h' });
+    const csrfToken = `csrf_${crypto.randomBytes(32).toString('hex')}`;
+    
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString(); // 8 hours absolute lifetime
+    const isoNow = now.toISOString();
 
-  // Purge previous/expired sessions for this user
-  db.sessions = db.sessions.filter(s => s.userId !== user.id && new Date(s.expiresAt) > now);
+    // Purge previous/expired sessions for this user
+    db.sessions = db.sessions.filter(s => s.userId !== user.id && new Date(s.expiresAt) > now);
 
-  const sessionObj: DbSession = {
-    token,
-    refreshToken,
-    userId: user.id,
-    email: user.email,
-    role: user.role,
-    name: user.name,
-    expiresAt,
-    createdAt: isoNow,
-    lastActiveAt: isoNow,
-    csrfToken
-  };
+    const sessionObj: DbSession = {
+      token,
+      refreshToken,
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+      expiresAt,
+      createdAt: isoNow,
+      lastActiveAt: isoNow,
+      csrfToken
+    };
 
-  db.sessions.push(sessionObj);
-  saveDb(db);
-  
-  return { token, refreshToken, csrfToken, expiresAt, session: sessionObj };
+    db.sessions.push(sessionObj);
+    return { token, refreshToken, csrfToken, expiresAt, session: sessionObj };
+  });
 }
 
-export function validateSession(
+export async function validateSession(
   token: string | undefined,
   csrfHeaderToken?: string,
   isStateChanging: boolean = false
-): { session: DbSession | null; error?: string } {
+): Promise<{ session: DbSession | null; error?: string }> {
   if (!token) return { session: null, error: 'Session token missing' };
   
   // 1. Verify JWT signature & 15m access token expiration
@@ -528,137 +542,133 @@ export function validateSession(
     return { session: null, error: `Invalid or expired access token: ${err.message}` };
   }
 
-  const db = getDb();
-
-  // 2. Check if user account is deactivated
-  const user = db.users.find(u => u.id === decoded.userId);
-  if (!user || user.isDeactivated) {
-    db.sessions = db.sessions.filter(s => s.userId !== decoded.userId);
-    saveDb(db);
-    return { session: null, error: 'User account has been deactivated' };
-  }
-
-  // 3. Match active session in db.json for idle & CSRF tracking
-  const session = db.sessions.find(s => s.userId === decoded.userId || s.token === token);
-  if (!session) {
-    return { session: null, error: 'Session record not found' };
-  }
-
-  const nowMs = Date.now();
-  const createdMs = new Date(session.createdAt || session.expiresAt).getTime();
-  const lastActiveMs = new Date(session.lastActiveAt || session.createdAt || session.expiresAt).getTime();
-
-  // 4. Absolute lifetime check (8 hours)
-  const MAX_ABSOLUTE_MS = 8 * 60 * 60 * 1000;
-  if (nowMs - createdMs > MAX_ABSOLUTE_MS || new Date(session.expiresAt).getTime() < nowMs) {
-    db.sessions = db.sessions.filter(s => s.userId !== session.userId);
-    saveDb(db);
-    return { session: null, error: 'Session expired (absolute lifetime limit reached)' };
-  }
-
-  // 5. Idle timeout check (30 minutes inactivity - REQUIRED LOCKED DECISION)
-  const MAX_IDLE_MS = 30 * 60 * 1000;
-  if (nowMs - lastActiveMs > MAX_IDLE_MS) {
-    db.sessions = db.sessions.filter(s => s.userId !== session.userId);
-    saveDb(db);
-    return { session: null, error: 'Session timed out due to 30 minutes of inactivity' };
-  }
-
-  // 6. CSRF Validation on state-changing requests (POST, PUT, PATCH, DELETE)
-  if (isStateChanging) {
-    if (!csrfHeaderToken || !session.csrfToken || csrfHeaderToken !== session.csrfToken) {
-      return { session: null, error: 'CSRF token validation failed' };
+  return withDbLock(db => {
+    // 2. Check if user account is deactivated
+    const user = db.users.find(u => u.id === decoded.userId);
+    if (!user || user.isDeactivated) {
+      db.sessions = db.sessions.filter(s => s.userId !== decoded.userId);
+      return { session: null, error: 'User account has been deactivated' };
     }
-  }
 
-  // Update last active timestamp on every successful request
-  session.lastActiveAt = new Date().toISOString();
-  saveDb(db);
+    // 3. Match active session in db.json for idle & CSRF tracking
+    const session = db.sessions.find(s => s.userId === decoded.userId || s.token === token);
+    if (!session) {
+      return { session: null, error: 'Session record not found' };
+    }
 
-  return { session };
+    const nowMs = Date.now();
+    const createdMs = new Date(session.createdAt || session.expiresAt).getTime();
+    const lastActiveMs = new Date(session.lastActiveAt || session.createdAt || session.expiresAt).getTime();
+
+    // 4. Absolute lifetime check (8 hours)
+    const MAX_ABSOLUTE_MS = 8 * 60 * 60 * 1000;
+    if (nowMs - createdMs > MAX_ABSOLUTE_MS || new Date(session.expiresAt).getTime() < nowMs) {
+      db.sessions = db.sessions.filter(s => s.userId !== session.userId);
+      return { session: null, error: 'Session expired (absolute lifetime limit reached)' };
+    }
+
+    // 5. Idle timeout check (30 minutes inactivity - REQUIRED LOCKED DECISION)
+    const MAX_IDLE_MS = 30 * 60 * 1000;
+    if (nowMs - lastActiveMs > MAX_IDLE_MS) {
+      db.sessions = db.sessions.filter(s => s.userId !== session.userId);
+      return { session: null, error: 'Session timed out due to 30 minutes of inactivity' };
+    }
+
+    // 6. CSRF Validation on state-changing requests (POST, PUT, PATCH, DELETE)
+    if (isStateChanging) {
+      if (!csrfHeaderToken || !session.csrfToken || csrfHeaderToken !== session.csrfToken) {
+        return { session: null, error: 'CSRF token validation failed' };
+      }
+    }
+
+    // Update last active timestamp on every successful request
+    session.lastActiveAt = new Date().toISOString();
+    return { session };
+  });
 }
 
-export function refreshJwtSessionToken(refreshToken: string | undefined): {
+
+export function refreshJwtSessionToken(refreshToken: string | undefined): Promise<{
   success: boolean;
   accessToken?: string;
   refreshToken?: string;
   csrfToken?: string;
   user?: DbActor;
   error?: string;
-} {
+}> {
   if (!refreshToken) {
-    return { success: false, error: 'Refresh token missing' };
+    return Promise.resolve({ success: false, error: 'Refresh token missing' });
   }
 
   let decoded: any;
   try {
     decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
   } catch (err: any) {
-    return { success: false, error: `Invalid or expired refresh token: ${err.message}` };
+    return Promise.resolve({ success: false, error: `Invalid or expired refresh token: ${err.message}` });
   }
 
-  const db = getDb();
-  const user = db.users.find(u => u.id === decoded.userId);
-  if (!user || user.isDeactivated) {
-    db.sessions = db.sessions.filter(s => s.userId !== decoded.userId);
-    saveDb(db);
-    return { success: false, error: 'User account has been deactivated' };
-  }
+  return withDbLock(db => {
+    const user = db.users.find(u => u.id === decoded.userId);
+    if (!user || user.isDeactivated) {
+      db.sessions = db.sessions.filter(s => s.userId !== decoded.userId);
+      return { success: false, error: 'User account has been deactivated' };
+    }
 
-  const session = db.sessions.find(s => s.userId === decoded.userId || s.refreshToken === refreshToken);
-  if (!session) {
-    return { success: false, error: 'Session record not found' };
-  }
+    const session = db.sessions.find(s => s.userId === decoded.userId || s.refreshToken === refreshToken);
+    if (!session) {
+      return { success: false, error: 'Session record not found' };
+    }
 
-  const nowMs = Date.now();
-  const lastActiveMs = new Date(session.lastActiveAt || session.createdAt).getTime();
+    const nowMs = Date.now();
+    const lastActiveMs = new Date(session.lastActiveAt || session.createdAt).getTime();
 
-  // Check 30-min idle timeout
-  const MAX_IDLE_MS = 30 * 60 * 1000;
-  if (nowMs - lastActiveMs > MAX_IDLE_MS) {
-    db.sessions = db.sessions.filter(s => s.userId !== session.userId);
-    saveDb(db);
-    return { success: false, error: 'Session timed out due to 30 minutes of inactivity' };
-  }
+    // Check 30-min idle timeout
+    const MAX_IDLE_MS = 30 * 60 * 1000;
+    if (nowMs - lastActiveMs > MAX_IDLE_MS) {
+      db.sessions = db.sessions.filter(s => s.userId !== session.userId);
+      return { success: false, error: 'Session timed out due to 30 minutes of inactivity' };
+    }
 
-  // Generate fresh JWT token pair
-  const payload = {
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role
-  };
+    // Generate fresh JWT token pair
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    };
 
-  const newAccessToken = jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: '15m' });
-  const newRefreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '8h' });
+    const newAccessToken = jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: '15m' });
+    const newRefreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '8h' });
 
-  session.token = newAccessToken;
-  session.refreshToken = newRefreshToken;
-  session.lastActiveAt = new Date().toISOString();
-  saveDb(db);
+    session.token = newAccessToken;
+    session.refreshToken = newRefreshToken;
+    session.lastActiveAt = new Date().toISOString();
 
-  const actor: DbActor = { id: user.id, email: user.email, name: user.name, role: user.role };
-  logAuditAction('TOKEN_REFRESH', 'auth', actor, user.id, `JWT access token refreshed for ${user.email}`);
+    const actor: DbActor = { id: user.id, email: user.email, name: user.name, role: user.role };
+    appendAuditLog(db, 'TOKEN_REFRESH', 'auth', actor, user.id, `JWT access token refreshed for ${user.email}`);
 
-  return {
-    success: true,
-    accessToken: newAccessToken,
-    refreshToken: newRefreshToken,
-    csrfToken: session.csrfToken,
-    user: actor
-  };
+    return {
+      success: true,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      csrfToken: session.csrfToken,
+      user: actor
+    };
+  });
 }
 
-export function getSession(token: string | undefined): DbSession | null {
-  const result = validateSession(token, undefined, false);
+export async function getSession(token: string | undefined): Promise<DbSession | null> {
+  const result = await validateSession(token, undefined, false);
   return result.session;
 }
 
-export function destroySession(tokenOrUserId: string): void {
-  const db = getDb();
-  db.sessions = db.sessions.filter(s => s.token !== tokenOrUserId && s.userId !== tokenOrUserId && s.refreshToken !== tokenOrUserId);
-  saveDb(db);
+
+export function destroySession(tokenOrUserId: string): Promise<void> {
+  return withDbLock(db => {
+    db.sessions = db.sessions.filter(s => s.token !== tokenOrUserId && s.userId !== tokenOrUserId && s.refreshToken !== tokenOrUserId);
+  });
 }
+
 
 // Database Actions for Bookings
 export function getActiveBookings(): DbBooking[] {
@@ -671,56 +681,56 @@ export function getDeletedBookings(): DbBooking[] {
   return db.bookings.filter(b => !!b.deletedAt);
 }
 
-export function addBooking(booking: Omit<DbBooking, 'id' | 'pricingEstimate' | 'status' | 'createdAt'>): DbBooking {
-  const db = getDb();
-  const estimate = calculatePricingEstimate(booking.eventType, booking.guestCount);
-  const depositAmount = Math.round(estimate * 0.30); // 30% retainer deposit
-  const newBooking: DbBooking = {
-    ...booking,
-    id: `b-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    pricingEstimate: estimate,
-    depositAmount,
-    paymentStatus: 'Unpaid',
-    paymentGateway: 'Sandbox',
-    whatsappStatus: 'Pending',
-    whatsappLogs: [],
-    status: 'Pending',
-    createdAt: new Date().toISOString()
-  };
-  
-  db.bookings.unshift(newBooking);
-  saveDb(db);
-  return newBooking;
+export function addBooking(booking: Omit<DbBooking, 'id' | 'pricingEstimate' | 'status' | 'createdAt'>): Promise<DbBooking> {
+  return withDbLock(db => {
+    const estimate = calculatePricingEstimate(booking.eventType, booking.guestCount);
+    const depositAmount = Math.round(estimate * 0.30); // 30% retainer deposit
+    const newBooking: DbBooking = {
+      ...booking,
+      id: `b-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      pricingEstimate: estimate,
+      depositAmount,
+      paymentStatus: 'Unpaid',
+      paymentGateway: 'Sandbox',
+      whatsappStatus: 'Pending',
+      whatsappLogs: [],
+      status: 'Pending',
+      createdAt: new Date().toISOString()
+    };
+    
+    db.bookings.unshift(newBooking);
+    return newBooking;
+  });
 }
 
-export function updateBookingPaymentLink(id: string, paymentLink: string, gateway: 'Razorpay' | 'Stripe' | 'Sandbox', actor?: DbActor): DbBooking | null {
-  const db = getDb();
-  const booking = db.bookings.find(b => b.id === id);
-  if (booking) {
-    booking.paymentLink = paymentLink;
-    booking.paymentGateway = gateway;
-    saveDb(db);
-    if (actor) {
-      logAuditAction('PAYMENT_GENERATED', 'booking', actor, id, `Payment link generated (${gateway}): ${paymentLink}`);
+export function updateBookingPaymentLink(id: string, paymentLink: string, gateway: 'Razorpay' | 'Stripe' | 'Sandbox', actor?: DbActor): Promise<DbBooking | null> {
+  return withDbLock(db => {
+    const booking = db.bookings.find(b => b.id === id);
+    if (booking) {
+      booking.paymentLink = paymentLink;
+      booking.paymentGateway = gateway;
+      if (actor) {
+        appendAuditLog(db, 'PAYMENT_GENERATED', 'booking', actor, id, `Payment link generated (${gateway}): ${paymentLink}`);
+      }
+      return booking;
     }
-    return booking;
-  }
-  return null;
+    return null;
+  });
 }
 
-export function updateBookingPaymentSuccess(id: string, transactionId: string, paidAmount: number, gateway: string, actor?: DbActor): DbBooking | null {
-  const db = getDb();
-  const booking = db.bookings.find(b => b.id === id);
-  if (booking) {
-    booking.paymentStatus = paidAmount >= booking.pricingEstimate ? 'Fully_Paid' : 'Deposit_Paid';
-    booking.paymentTransactionId = transactionId;
-    booking.paidAt = new Date().toISOString();
-    booking.status = 'Approved';
-    saveDb(db);
-    logAuditAction('PAYMENT_RECEIVED', 'booking', actor || null, id, `Payment received via ${gateway}. Transaction ID: ${transactionId}, Amount: ₹${paidAmount.toLocaleString('en-IN')}`);
-    return booking;
-  }
-  return null;
+export function updateBookingPaymentSuccess(id: string, transactionId: string, paidAmount: number, gateway: string, actor?: DbActor): Promise<DbBooking | null> {
+  return withDbLock(db => {
+    const booking = db.bookings.find(b => b.id === id);
+    if (booking) {
+      booking.paymentStatus = paidAmount >= booking.pricingEstimate ? 'Fully_Paid' : 'Deposit_Paid';
+      booking.paymentTransactionId = transactionId;
+      booking.paidAt = new Date().toISOString();
+      booking.status = 'Approved';
+      appendAuditLog(db, 'PAYMENT_RECEIVED', 'booking', actor || null, id, `Payment received via ${gateway}. Transaction ID: ${transactionId}, Amount: ₹${paidAmount.toLocaleString('en-IN')}`);
+      return booking;
+    }
+    return null;
+  });
 }
 
 export function logBookingWhatsAppMessage(
@@ -730,72 +740,73 @@ export function logBookingWhatsAppMessage(
   status: 'Sent' | 'Failed' | 'Simulated', 
   messageSnippet: string,
   actor?: DbActor
-): DbBooking | null {
-  const db = getDb();
-  const booking = db.bookings.find(b => b.id === id);
-  if (booking) {
-    if (!booking.whatsappLogs) booking.whatsappLogs = [];
-    const entry = {
-      id: `wa-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      timestamp: new Date().toISOString(),
-      template,
-      recipient,
-      status,
-      messageSnippet
-    };
-    booking.whatsappLogs.unshift(entry);
-    booking.whatsappStatus = status === 'Failed' ? 'Failed' : 'Sent';
-    saveDb(db);
-    logAuditAction(
-      status === 'Failed' ? 'WHATSAPP_FAILED' : 'WHATSAPP_SENT', 
-      'booking', 
-      actor || null, 
-      id, 
-      `WhatsApp message dispatched (${template}) to ${recipient}: status ${status}`
-    );
-    return booking;
-  }
-  return null;
+): Promise<DbBooking | null> {
+  return withDbLock(db => {
+    const booking = db.bookings.find(b => b.id === id);
+    if (booking) {
+      if (!booking.whatsappLogs) booking.whatsappLogs = [];
+      const entry = {
+        id: `wa-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        timestamp: new Date().toISOString(),
+        template,
+        recipient,
+        status,
+        messageSnippet
+      };
+      booking.whatsappLogs.unshift(entry);
+      booking.whatsappStatus = status === 'Failed' ? 'Failed' : 'Sent';
+      appendAuditLog(
+        db,
+        status === 'Failed' ? 'WHATSAPP_FAILED' : 'WHATSAPP_SENT', 
+        'booking', 
+        actor || null, 
+        id, 
+        `WhatsApp message dispatched (${template}) to ${recipient}: status ${status}`
+      );
+      return booking;
+    }
+    return null;
+  });
 }
 
 
-export function updateBookingStatus(id: string, status: DbBooking['status'], actor: DbActor): DbBooking | null {
-  const db = getDb();
-  const booking = db.bookings.find(b => b.id === id);
-  if (booking) {
-    const beforeState = { status: booking.status };
-    booking.status = status;
-    saveDb(db);
-    logAuditAction('STATUS_UPDATE', 'booking', actor, id, `Status updated to ${status}`, beforeState, { status });
-    return booking;
-  }
-  return null;
+export function updateBookingStatus(id: string, status: DbBooking['status'], actor: DbActor): Promise<DbBooking | null> {
+  return withDbLock(db => {
+    const booking = db.bookings.find(b => b.id === id);
+    if (booking) {
+      const beforeState = { status: booking.status };
+      booking.status = status;
+      appendAuditLog(db, 'STATUS_UPDATE', 'booking', actor, id, `Status updated to ${status}`, beforeState, { status });
+      return booking;
+    }
+    return null;
+  });
 }
 
-export function softDeleteBooking(id: string, actor: DbActor): DbBooking | null {
-  const db = getDb();
-  const booking = db.bookings.find(b => b.id === id);
-  if (booking && !booking.deletedAt) {
-    booking.deletedAt = new Date().toISOString();
-    booking.deletedBy = actor.email;
-    saveDb(db);
-    logAuditAction('SOFT_DELETE', 'booking', actor, id, `Booking proposal soft deleted by ${actor.name}`);
-    return booking;
-  }
-  return null;
+export function softDeleteBooking(id: string, actor: DbActor): Promise<DbBooking | null> {
+  return withDbLock(db => {
+    const booking = db.bookings.find(b => b.id === id);
+    if (booking && !booking.deletedAt) {
+      booking.deletedAt = new Date().toISOString();
+      booking.deletedBy = actor.email;
+      appendAuditLog(db, 'SOFT_DELETE', 'booking', actor, id, `Booking proposal soft deleted by ${actor.name}`);
+      return booking;
+    }
+    return null;
+  });
 }
 
-export function restoreBooking(id: string, actor: DbActor): DbBooking | null {
-  const db = getDb();
-  const booking = db.bookings.find(b => b.id === id);
-  if (booking && booking.deletedAt) {
-    delete booking.deletedAt;
-    delete booking.deletedBy;
-    saveDb(db);
-    logAuditAction('RESTORE', 'booking', actor, id, `Booking proposal restored by ${actor.name}`);
-    return booking;
-  }
-  return null;
+export function restoreBooking(id: string, actor: DbActor): Promise<DbBooking | null> {
+  return withDbLock(db => {
+    const booking = db.bookings.find(b => b.id === id);
+    if (booking && booking.deletedAt) {
+      delete booking.deletedAt;
+      delete booking.deletedBy;
+      appendAuditLog(db, 'RESTORE', 'booking', actor, id, `Booking proposal restored by ${actor.name}`);
+      return booking;
+    }
+    return null;
+  });
 }
 
 // Database Actions for Contacts
@@ -809,57 +820,57 @@ export function getDeletedContacts(): DbContact[] {
   return db.contacts.filter(c => !!c.deletedAt);
 }
 
-export function addContact(contact: Omit<DbContact, 'id' | 'status' | 'createdAt'>): DbContact {
-  const db = getDb();
-  const newContact: DbContact = {
-    ...contact,
-    id: `c-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    status: 'Unread',
-    createdAt: new Date().toISOString()
-  };
-  
-  db.contacts.unshift(newContact);
-  saveDb(db);
-  return newContact;
+export function addContact(contact: Omit<DbContact, 'id' | 'status' | 'createdAt'>): Promise<DbContact> {
+  return withDbLock(db => {
+    const newContact: DbContact = {
+      ...contact,
+      id: `c-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      status: 'Unread',
+      createdAt: new Date().toISOString()
+    };
+    
+    db.contacts.unshift(newContact);
+    return newContact;
+  });
 }
 
-export function updateContactStatus(id: string, status: DbContact['status'], actor: DbActor): DbContact | null {
-  const db = getDb();
-  const contact = db.contacts.find(c => c.id === id);
-  if (contact) {
-    const beforeState = { status: contact.status };
-    contact.status = status;
-    saveDb(db);
-    logAuditAction('STATUS_UPDATE', 'contact', actor, id, `Contact status updated to ${status}`, beforeState, { status });
-    return contact;
-  }
-  return null;
+export function updateContactStatus(id: string, status: DbContact['status'], actor: DbActor): Promise<DbContact | null> {
+  return withDbLock(db => {
+    const contact = db.contacts.find(c => c.id === id);
+    if (contact) {
+      const beforeState = { status: contact.status };
+      contact.status = status;
+      appendAuditLog(db, 'STATUS_UPDATE', 'contact', actor, id, `Contact status updated to ${status}`, beforeState, { status });
+      return contact;
+    }
+    return null;
+  });
 }
 
-export function softDeleteContact(id: string, actor: DbActor): DbContact | null {
-  const db = getDb();
-  const contact = db.contacts.find(c => c.id === id);
-  if (contact && !contact.deletedAt) {
-    contact.deletedAt = new Date().toISOString();
-    contact.deletedBy = actor.email;
-    saveDb(db);
-    logAuditAction('SOFT_DELETE', 'contact', actor, id, `Contact inquiry soft deleted by ${actor.name}`);
-    return contact;
-  }
-  return null;
+export function softDeleteContact(id: string, actor: DbActor): Promise<DbContact | null> {
+  return withDbLock(db => {
+    const contact = db.contacts.find(c => c.id === id);
+    if (contact && !contact.deletedAt) {
+      contact.deletedAt = new Date().toISOString();
+      contact.deletedBy = actor.email;
+      appendAuditLog(db, 'SOFT_DELETE', 'contact', actor, id, `Contact inquiry soft deleted by ${actor.name}`);
+      return contact;
+    }
+    return null;
+  });
 }
 
-export function restoreContact(id: string, actor: DbActor): DbContact | null {
-  const db = getDb();
-  const contact = db.contacts.find(c => c.id === id);
-  if (contact && contact.deletedAt) {
-    delete contact.deletedAt;
-    delete contact.deletedBy;
-    saveDb(db);
-    logAuditAction('RESTORE', 'contact', actor, id, `Contact inquiry restored by ${actor.name}`);
-    return contact;
-  }
-  return null;
+export function restoreContact(id: string, actor: DbActor): Promise<DbContact | null> {
+  return withDbLock(db => {
+    const contact = db.contacts.find(c => c.id === id);
+    if (contact && contact.deletedAt) {
+      delete contact.deletedAt;
+      delete contact.deletedBy;
+      appendAuditLog(db, 'RESTORE', 'contact', actor, id, `Contact inquiry restored by ${actor.name}`);
+      return contact;
+    }
+    return null;
+  });
 }
 
 // --- CMS DYNAMIC CONTENT HELPERS ---
@@ -876,17 +887,17 @@ export function getSiteContent(): Record<string, any> {
   };
 }
 
-export function updateSiteSection(section: string, payload: any, actor: DbActor): boolean {
-  const db = getDb();
-  const validSections = ['siteSettings', 'heroSlides', 'services', 'portfolioItems', 'team', 'testimonials', 'faqs'];
-  if (!validSections.includes(section)) return false;
+export function updateSiteSection(section: string, payload: any, actor: DbActor): Promise<boolean> {
+  return withDbLock(db => {
+    const validSections = ['siteSettings', 'heroSlides', 'services', 'portfolioItems', 'team', 'testimonials', 'faqs'];
+    if (!validSections.includes(section)) return false;
 
-  const beforeState = (db as any)[section];
-  (db as any)[section] = payload;
-  saveDb(db);
+    const beforeState = (db as any)[section];
+    (db as any)[section] = payload;
 
-  logAuditAction('CMS_UPDATE', 'cms', actor, section, `Updated dynamic CMS section: ${section}`, beforeState, payload);
-  return true;
+    appendAuditLog(db, 'CMS_UPDATE', 'cms', actor, section, `Updated dynamic CMS section: ${section}`, beforeState, payload);
+    return true;
+  });
 }
 
 // --- ADMIN USER & CREDENTIAL MANAGEMENT HELPERS ---
@@ -906,67 +917,67 @@ export function getAllUsers(): DbUser[] {
 export function registerAdminUser(
   userData: { email: string; password: string; name: string; role: UserRole },
   actor: DbActor | null
-): { success: boolean; user?: DbUser; error?: string } {
-  const db = getDb();
-  const existing = db.users.find(u => u.email.toLowerCase() === userData.email.toLowerCase());
-  if (existing) {
-    return { success: false, error: 'User with this email already exists in Royal Studio.' };
-  }
+): Promise<{ success: boolean; user?: DbUser; error?: string }> {
+  return withDbLock(db => {
+    const existing = db.users.find(u => u.email.toLowerCase() === userData.email.toLowerCase());
+    if (existing) {
+      return { success: false, error: 'User with this email already exists in Royal Studio.' };
+    }
 
-  const { hash, salt } = hashPassword(userData.password);
-  const newUser: DbUser = {
-    id: `usr-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    email: userData.email.trim(),
-    passwordHash: hash,
-    salt,
-    name: userData.name.trim(),
-    role: userData.role || 'staff',
-    createdAt: new Date().toISOString()
-  };
+    const { hash, salt } = hashPassword(userData.password);
+    const newUser: DbUser = {
+      id: `usr-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      email: userData.email.trim(),
+      passwordHash: hash,
+      salt,
+      name: userData.name.trim(),
+      role: userData.role || 'staff',
+      createdAt: new Date().toISOString()
+    };
 
-  db.users.push(newUser);
-  saveDb(db);
+    db.users.push(newUser);
 
-  logAuditAction('USER_CREATE', 'user', actor, newUser.id, `Created new admin account: ${newUser.email} (${newUser.role})`);
-  return { success: true, user: newUser };
+    appendAuditLog(db, 'USER_CREATE', 'user', actor, newUser.id, `Created new admin account: ${newUser.email} (${newUser.role})`);
+    return { success: true, user: newUser };
+  });
 }
 
 export function updateUserCredentials(
   userId: string,
   updates: { email?: string; name?: string; password?: string; role?: UserRole },
   actor: DbActor
-): { success: boolean; user?: DbUser; error?: string } {
-  const db = getDb();
-  const user = db.users.find(u => u.id === userId);
-  if (!user) {
-    return { success: false, error: 'Target user record not found.' };
-  }
-
-  if (updates.email && updates.email.toLowerCase() !== user.email.toLowerCase()) {
-    const existing = db.users.find(u => u.email.toLowerCase() === updates.email!.toLowerCase());
-    if (existing) {
-      return { success: false, error: 'Email is already in use by another user.' };
+): Promise<{ success: boolean; user?: DbUser; error?: string }> {
+  return withDbLock(db => {
+    const user = db.users.find(u => u.id === userId);
+    if (!user) {
+      return { success: false, error: 'Target user record not found.' };
     }
-    user.email = updates.email.trim();
-  }
 
-  if (updates.name) {
-    user.name = updates.name.trim();
-  }
+    if (updates.email && updates.email.toLowerCase() !== user.email.toLowerCase()) {
+      const existing = db.users.find(u => u.email.toLowerCase() === updates.email!.toLowerCase());
+      if (existing) {
+        return { success: false, error: 'Email is already in use by another user.' };
+      }
+      user.email = updates.email.trim();
+    }
 
-  if (updates.role && actor.role === 'superadmin') {
-    user.role = updates.role;
-  }
+    if (updates.name) {
+      user.name = updates.name.trim();
+    }
 
-  if (updates.password && updates.password.trim() !== '') {
-    const { hash, salt } = hashPassword(updates.password);
-    user.passwordHash = hash;
-    user.salt = salt;
-  }
+    if (updates.role && actor.role === 'superadmin') {
+      user.role = updates.role;
+    }
 
-  saveDb(db);
-  logAuditAction('CREDENTIALS_UPDATE', 'user', actor, userId, `Updated credentials for ${user.email}`);
-  return { success: true, user };
+    if (updates.password && updates.password.trim() !== '') {
+      const { hash, salt } = hashPassword(updates.password);
+      user.passwordHash = hash;
+      user.salt = salt;
+    }
+
+    appendAuditLog(db, 'CREDENTIALS_UPDATE', 'user', actor, userId, `Updated credentials for ${user.email}`);
+    return { success: true, user };
+  });
 }
 
 // --- DYNAMIC PRICING ENGINE HELPERS ---
@@ -975,71 +986,71 @@ export function getPricingRules(): PricingRules {
   return db.pricingRules || DEFAULT_PRICING_RULES;
 }
 
-export function updatePricingRules(rules: PricingRules, actor: DbActor): boolean {
-  const db = getDb();
-  const beforeState = db.pricingRules || DEFAULT_PRICING_RULES;
-  db.pricingRules = rules;
-  saveDb(db);
+export function updatePricingRules(rules: PricingRules, actor: DbActor): Promise<boolean> {
+  return withDbLock(db => {
+    const beforeState = db.pricingRules || DEFAULT_PRICING_RULES;
+    db.pricingRules = rules;
 
-  logAuditAction('PRICING_UPDATE', 'pricing', actor, 'pricing-rules', `Updated dynamic event pricing rules & per-guest rates`, beforeState, rules);
-  return true;
+    appendAuditLog(db, 'PRICING_UPDATE', 'pricing', actor, 'pricing-rules', `Updated dynamic event pricing rules & per-guest rates`, beforeState, rules);
+    return true;
+  });
 }
 
 // --- TRASH PURGE HELPER (SUPERADMIN ONLY) ---
-export function purgeTrashItem(type: 'booking' | 'contact', id: string, actor: DbActor): boolean {
-  const db = getDb();
-  if (type === 'booking') {
-    const idx = db.bookings.findIndex(b => b.id === id && !!b.deletedAt);
-    if (idx !== -1) {
-      const removed = db.bookings.splice(idx, 1)[0];
-      saveDb(db);
-      logAuditAction('PURGE', 'booking', actor, id, `Permanently purged deleted proposal for ${removed.name}`);
-      return true;
+export function purgeTrashItem(type: 'booking' | 'contact', id: string, actor: DbActor): Promise<boolean> {
+  return withDbLock(db => {
+    if (type === 'booking') {
+      const idx = db.bookings.findIndex(b => b.id === id && !!b.deletedAt);
+      if (idx !== -1) {
+        const removed = db.bookings.splice(idx, 1)[0];
+        appendAuditLog(db, 'PURGE', 'booking', actor, id, `Permanently purged deleted proposal for ${removed.name}`);
+        return true;
+      }
+    } else if (type === 'contact') {
+      const idx = db.contacts.findIndex(c => c.id === id && !!c.deletedAt);
+      if (idx !== -1) {
+        const removed = db.contacts.splice(idx, 1)[0];
+        appendAuditLog(db, 'PURGE', 'contact', actor, id, `Permanently purged deleted inquiry for ${removed.name}`);
+        return true;
+      }
     }
-  } else if (type === 'contact') {
-    const idx = db.contacts.findIndex(c => c.id === id && !!c.deletedAt);
-    if (idx !== -1) {
-      const removed = db.contacts.splice(idx, 1)[0];
-      saveDb(db);
-      logAuditAction('PURGE', 'contact', actor, id, `Permanently purged deleted inquiry for ${removed.name}`);
-      return true;
-    }
-  }
-  return false;
+    return false;
+  });
 }
 
 // --- USER DEACTIVATION & FORCED PASSWORD RESET HELPERS (SUPERADMIN ONLY) ---
-export function setUserDeactivated(userId: string, isDeactivated: boolean, actor: DbActor): { success: boolean; error?: string } {
-  const db = getDb();
-  const user = db.users.find(u => u.id === userId);
-  if (!user) return { success: false, error: 'User record not found.' };
+export function setUserDeactivated(userId: string, isDeactivated: boolean, actor: DbActor): Promise<{ success: boolean; error?: string }> {
+  return withDbLock(db => {
+    const user = db.users.find(u => u.id === userId);
+    if (!user) return { success: false, error: 'User record not found.' };
 
-  user.isDeactivated = isDeactivated;
-  if (isDeactivated) {
-    // Invalidate all active sessions for this deactivated user immediately
+    user.isDeactivated = isDeactivated;
+    if (isDeactivated) {
+      // Invalidate all active sessions for this deactivated user immediately
+      db.sessions = db.sessions.filter(s => s.userId !== userId);
+    }
+
+    appendAuditLog(db, 'USER_DEACTIVATE', 'user', actor, userId, `${isDeactivated ? 'Deactivated' : 'Reactivated'} admin account: ${user.email}`);
+    return { success: true };
+  });
+}
+
+export function forceUserPasswordReset(userId: string, newPassword: string, actor: DbActor): Promise<{ success: boolean; error?: string }> {
+  return withDbLock(db => {
+    const user = db.users.find(u => u.id === userId);
+    if (!user) return { success: false, error: 'User record not found.' };
+
+    const { hash, salt } = hashPassword(newPassword);
+    user.passwordHash = hash;
+    user.salt = salt;
+
+    // Invalidate active sessions forcing re-login with new password
     db.sessions = db.sessions.filter(s => s.userId !== userId);
-  }
-  saveDb(db);
 
-  logAuditAction('USER_DEACTIVATE', 'user', actor, userId, `${isDeactivated ? 'Deactivated' : 'Reactivated'} admin account: ${user.email}`);
-  return { success: true };
+    appendAuditLog(db, 'CREDENTIALS_UPDATE', 'user', actor, userId, `Forced password reset for ${user.email}`);
+    return { success: true };
+  });
 }
 
-export function forceUserPasswordReset(userId: string, newPassword: string, actor: DbActor): { success: boolean; error?: string } {
-  const db = getDb();
-  const user = db.users.find(u => u.id === userId);
-  if (!user) return { success: false, error: 'User record not found.' };
-
-  const { hash, salt } = hashPassword(newPassword);
-  user.passwordHash = hash;
-  user.salt = salt;
-
-  // Invalidate active sessions forcing re-login with new password
-  db.sessions = db.sessions.filter(s => s.userId !== userId);
-  saveDb(db);
-
-  logAuditAction('CREDENTIALS_UPDATE', 'user', actor, userId, `Forced password reset for ${user.email}`);
-  return { success: true };
-}
 
 
