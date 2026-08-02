@@ -46,7 +46,7 @@ test.describe('Barmantra E2E Production Suite', () => {
     });
     expect(badLoginRes.status()).toBe(401);
     const badData = await badLoginRes.json();
-    expect(badData.error).toContain('Invalid royal credentials');
+    expect(badData.error).toContain('Invalid admin credentials');
 
     // 2. Valid login attempt
     const validLoginRes = await request.post('/api/admin/login', {
@@ -59,6 +59,11 @@ test.describe('Barmantra E2E Production Suite', () => {
     const validData = await validLoginRes.json();
     expect(validData.success).toBe(true);
     expect(validData.user.role).toBe('superadmin');
+
+    // 3. Verify Set-Cookie headers contain JWT access and refresh tokens
+    const setCookies = validLoginRes.headersArray().filter(h => h.name.toLowerCase() === 'set-cookie').map(h => h.value).join('; ');
+    expect(setCookies).toContain('barmantra_access_token');
+    expect(setCookies).toContain('barmantra_refresh_token');
   });
 
   test('Scenario 3: Admin approve proposal, soft-delete, and restore from Trash Archive', async ({ request }) => {
@@ -71,8 +76,13 @@ test.describe('Barmantra E2E Production Suite', () => {
     });
     expect(loginRes.ok()).toBeTruthy();
     const loginData = await loginRes.json();
+    const cookieHeader = loginRes.headersArray()
+      .filter(h => h.name.toLowerCase() === 'set-cookie')
+      .map(h => h.value.split(';')[0])
+      .join('; '); 
+      
     const authHeaders = {
-      Cookie: loginRes.headers()['set-cookie'],
+      Cookie: cookieHeader,
       'X-CSRF-Token': loginData.csrfToken
     };
 
@@ -144,8 +154,12 @@ test.describe('Barmantra E2E Production Suite', () => {
     });
     expect(loginRes.ok()).toBeTruthy();
     const loginData = await loginRes.json();
+    const cookieHeader = loginRes.headersArray()
+      .filter(h => h.name.toLowerCase() === 'set-cookie')
+      .map(h => h.value.split(';')[0])
+      .join('; ');
     const authHeaders = {
-      Cookie: loginRes.headers()['set-cookie'],
+      Cookie: cookieHeader,
       'X-CSRF-Token': loginData.csrfToken
     };
 
@@ -199,7 +213,11 @@ test.describe('Barmantra E2E Production Suite', () => {
       }
     });
     expect(loginRes.ok()).toBeTruthy();
-    const cookieOnlyHeader = { Cookie: loginRes.headers()['set-cookie'] };
+    const cookieString = loginRes.headersArray()
+      .filter(h => h.name.toLowerCase() === 'set-cookie')
+      .map(h => h.value.split(';')[0])
+      .join('; ');
+    const cookieOnlyHeader = { Cookie: cookieString };
 
     // 3. State-changing request WITH cookie BUT WITHOUT CSRF header must return 403 Forbidden
     const csrfFailRes = await request.put('/api/admin/site-content/siteSettings', {
@@ -229,8 +247,12 @@ test.describe('Barmantra E2E Production Suite', () => {
     });
     expect(loginRes.ok()).toBeTruthy();
     const loginData = await loginRes.json();
+    const cookieString6 = loginRes.headersArray()
+      .filter(h => h.name.toLowerCase() === 'set-cookie')
+      .map(h => h.value.split(';')[0])
+      .join('; ');
     const authHeaders = {
-      Cookie: loginRes.headers()['set-cookie'],
+      Cookie: cookieString6,
       'X-CSRF-Token': loginData.csrfToken
     };
 
@@ -280,5 +302,117 @@ test.describe('Barmantra E2E Production Suite', () => {
     expect(reactivateRes.ok()).toBeTruthy();
   });
 
+  test('Scenario 7: JWT Access Token Refresh Rotation & Tampered Token Rejection', async ({ request }) => {
+    // 1. Authenticate to obtain access & refresh tokens
+    const loginRes = await request.post('/api/admin/login', {
+      data: {
+        email: 'admin@barmantra.com',
+        password: process.env.ADMIN_PASSWORD || 'barmantra123'
+      }
+    });
+    const loginCookies = loginRes.headersArray()
+      .filter(h => h.name.toLowerCase() === 'set-cookie')
+      .map(h => h.value.split(';')[0])
+      .join('; ');
+
+    // 2. Perform token refresh using refresh token cookie
+    const refreshRes = await request.post('/api/admin/refresh', {
+      headers: { Cookie: loginCookies }
+    });
+    expect(refreshRes.ok()).toBeTruthy();
+    const refreshData = await refreshRes.json();
+    expect(refreshData.success).toBe(true);
+    expect(refreshData.token).toBeDefined();
+
+    // 3. Request with tampered access token must be rejected with 401
+    const tamperedRes = await request.get('/api/admin/bookings', {
+      headers: { Cookie: 'barmantra_access_token=invalid.jwt.signature' }
+    });
+    expect(tamperedRes.status()).toBe(401);
+
+    // 4. Logout invalidates session and clears cookies
+    const logoutRes = await request.post('/api/admin/logout', {
+      headers: { Cookie: loginCookies }
+    });
+    expect(logoutRes.ok()).toBeTruthy();
+
+    // 5. Subsequent request after logout must be rejected with 401
+    const postLogoutRes = await request.get('/api/admin/bookings', {
+      headers: { Cookie: loginCookies }
+    });
+    expect(postLogoutRes.status()).toBe(401);
+  });
+
+  test('Scenario 8: Online Payment Gateway checkout & WhatsApp notification trigger lifecycle', async ({ request }) => {
+
+    // 1. Submit public booking
+    const bookingRes = await request.post('/api/bookings', {
+      data: {
+        name: 'Payment & WhatsApp E2E Client',
+        phone: '+91 98888 77777',
+        email: 'payment.wa@barmantra.com',
+        eventType: 'wedding-bar',
+        eventDate: '2026-12-15',
+        guestCount: 100,
+        message: 'E2E testing payment link and WhatsApp dispatch.'
+      }
+    });
+    expect(bookingRes.status()).toBe(201);
+    const bookingObj = (await bookingRes.json()).booking;
+    const bookingId = bookingObj.id;
+
+    // 2. Log in as superadmin
+    const loginRes = await request.post('/api/admin/login', {
+      data: {
+        email: 'admin@barmantra.com',
+        password: process.env.ADMIN_PASSWORD || 'barmantra123'
+      }
+    });
+    expect(loginRes.ok()).toBeTruthy();
+    const loginData = await loginRes.json();
+    const cookieHeader = loginRes.headersArray()
+      .filter(h => h.name.toLowerCase() === 'set-cookie')
+      .map(h => h.value.split(';')[0])
+      .join('; ');
+    const authHeaders = {
+      Cookie: cookieHeader,
+      'X-CSRF-Token': loginData.csrfToken
+    };
+
+    // 3. Admin generates payment link
+    const payLinkRes = await request.post(`/api/admin/bookings/${bookingId}/payment-link`, {
+      headers: authHeaders
+    });
+    expect(payLinkRes.ok()).toBeTruthy();
+    const payLinkData = await payLinkRes.json();
+    expect(payLinkData.success).toBe(true);
+    expect(payLinkData.paymentOrder.paymentLink).toContain('/#/pay/');
+
+    // 4. Client fetches public pay info
+    const payInfoRes = await request.get(`/api/public/bookings/${bookingId}/pay-info`);
+    expect(payInfoRes.ok()).toBeTruthy();
+    const payInfo = await payInfoRes.json();
+    expect(payInfo.paymentStatus).toBe('Unpaid');
+    expect(payInfo.depositAmount).toBeGreaterThan(0);
+
+    // 5. Complete deposit payment via verification endpoint
+    const verifyRes = await request.post('/api/payments/verify', {
+      data: {
+        bookingId,
+        transactionId: `TXN_E2E_${Date.now()}`,
+        orderId: `ORD_E2E_${Date.now()}`,
+        signature: 'SIG_E2E_VALID',
+        amount: payInfo.depositAmount,
+        gateway: 'Sandbox'
+      }
+    });
+    expect(verifyRes.ok()).toBeTruthy();
+    const verifyData = await verifyRes.json();
+    expect(verifyData.success).toBe(true);
+    expect(verifyData.booking.paymentStatus).toBe('Deposit_Paid');
+    expect(verifyData.booking.status).toBe('Approved');
+  });
+
 });
+
 
