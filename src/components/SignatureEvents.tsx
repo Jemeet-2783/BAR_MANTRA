@@ -19,7 +19,7 @@ const SIGNATURE_EVENTS: SignatureEvent[] = [
   {
     id: 'sig-1',
     title: 'Royal Wedding Bar Curation',
-    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg',
     tag: 'Palace Weddings',
     description: 'Transforming historic forts and palace venues with grand royal bars, delivering bespoke signature cocktails, custom ice stamps, and spectacular service.',
     highlights: ['Custom crystal glassware', 'Saffron-infused signature blends', 'Elite royal uniformed mixologists']
@@ -27,7 +27,7 @@ const SIGNATURE_EVENTS: SignatureEvent[] = [
   {
     id: 'sig-2',
     title: 'Destination Resort Bar Service',
-    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738672358_image6125.jpg',
     tag: 'Elite Hospitality',
     description: 'Bespoke multi-day resort bar setups with dedicated mixology carts, customized guest arrival welcome drinks, and daily themed poolside bars.',
     highlights: ['Liquid nitrogen culinary mixology', 'Themed morning hangover cures', '24/7 hospitality lounge setup']
@@ -35,7 +35,7 @@ const SIGNATURE_EVENTS: SignatureEvent[] = [
   {
     id: 'sig-3',
     title: 'Corporate Lounge & Brand Bars',
-    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044117_image5514.jpg',
     tag: 'Brand Prestige',
     description: 'Ultra-luxurious cocktail lounges designed for corporate networks, combining custom company branded ice logos, state-of-the-art smoke-infusions, and rapid service.',
     highlights: ['Laser-etched logo ice blocks', 'Pre-batched draft cocktail systems', 'Choreographed flair bar shows']

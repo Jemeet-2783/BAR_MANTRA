@@ -163,7 +163,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-1',
     title: 'The Saffron Court Bar at City Palace',
     category: 'event-bars',
-    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg',
     location: 'City Palace, Jaipur',
     date: 'December 2025',
     description: 'A royal wedding mobile bar featuring deep crimson styling, saffron-infused gin cocktails, and bespoke hand-engraved clear ice blocks for 500 elite guests.'
@@ -181,7 +181,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-3',
     title: 'The Marigold Canopy Beer & Cocktail Bar',
     category: 'event-bars',
-    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436277_image1090.jpg',
     location: 'Samode Palace, Jaipur',
     date: 'January 2026',
     description: 'An outdoor garden wedding mehendi bar decorated with 10,000 meters of hand-strung marigolds, serving traditional cardamom-infused aperitifs in earthen kulhads.'
@@ -190,7 +190,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-4',
     title: 'High-Velocity Car Launch Cocktail Bar',
     category: 'event-bars',
-    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741282366_image4645.jpg',
     location: 'Jaipur Exhibition & Convention Centre',
     date: 'October 2025',
     description: 'A high-impact vehicle launch bar utilizing laser-lit backdrops, dry-ice smoked craft cocktails, and high-speed tandem flair bar shows.'
