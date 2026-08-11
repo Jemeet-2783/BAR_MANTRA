@@ -40,14 +40,14 @@ export function AboutView() {
         {/* Background photo */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1572116553112-75d7767d6c51?auto=format&fit=crop&w=1920&q=80"
+            src="https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436274_image60.jpg"
             alt="Royal Heritage Bar Setup"
             referrerPolicy="no-referrer"
             onError={(e) => {
               const target = e.currentTarget;
               if (!target.dataset.fallback) {
                 target.dataset.fallback = 'true';
-                target.src = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80';
+                target.src = 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044114_image9381.jpg';
               }
             }}
             className="w-full h-full object-cover opacity-30"

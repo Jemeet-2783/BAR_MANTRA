@@ -55,14 +55,14 @@ export function About() {
               {/* Primary large image (Palace / Haveli detail) */}
               <div className="absolute top-0 left-0 w-[85%] h-[85%] rounded-lg overflow-hidden shadow-2xl border-4 border-white transform -rotate-3 hover:rotate-0 transition-transform duration-500">
                 <img
-                  src="https://images.unsplash.com/photo-1560512823-829485b8bf24?auto=format&fit=crop&w=600&q=80"
+                  src="https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436274_image60.jpg"
                   alt="Bespoke Royal Bar Design"
                   referrerPolicy="no-referrer"
                   onError={(e) => {
                     const target = e.currentTarget;
                     if (!target.dataset.fallback) {
                       target.dataset.fallback = 'true';
-                      target.src = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80';
+                      target.src = 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044114_image9381.jpg';
                     }
                   }}
                   className="w-full h-full object-cover"
@@ -72,14 +72,14 @@ export function About() {
               {/* Secondary overlapping image (Bridal styling / Marigold arrangement) */}
               <div className="absolute bottom-0 right-0 w-[60%] h-[60%] rounded-lg overflow-hidden shadow-2xl border-4 border-white transform rotate-6 hover:rotate-0 transition-transform duration-500">
                 <img
-                  src="https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80"
+                  src="https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg"
                   alt="Exquisite Artisanal Cocktails"
                   referrerPolicy="no-referrer"
                   onError={(e) => {
                     const target = e.currentTarget;
                     if (!target.dataset.fallback) {
                       target.dataset.fallback = 'true';
-                      target.src = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80';
+                      target.src = 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg';
                     }
                   }}
                   className="w-full h-full object-cover"

@@ -19,7 +19,7 @@ const SIGNATURE_EVENTS: SignatureEvent[] = [
   {
     id: 'sig-1',
     title: 'Royal Wedding Bar Curation',
-    image: 'https://images.unsplash.com/photo-1542849187-5ec6ea5e6a27?auto=format&fit=crop&w=600&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436274_image60.jpg',
     tag: 'Palace Weddings',
     description: 'Transforming historic forts and palace venues with grand royal bars, delivering bespoke signature cocktails, custom ice stamps, and spectacular service.',
     highlights: ['Custom crystal glassware', 'Saffron-infused signature blends', 'Elite royal uniformed mixologists']
@@ -27,7 +27,7 @@ const SIGNATURE_EVENTS: SignatureEvent[] = [
   {
     id: 'sig-2',
     title: 'Destination Resort Bar Service',
-    image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg',
     tag: 'Elite Hospitality',
     description: 'Bespoke multi-day resort bar setups with dedicated mixology carts, customized guest arrival welcome drinks, and daily themed poolside bars.',
     highlights: ['Liquid nitrogen culinary mixology', 'Themed morning hangover cures', '24/7 hospitality lounge setup']
@@ -35,7 +35,7 @@ const SIGNATURE_EVENTS: SignatureEvent[] = [
   {
     id: 'sig-3',
     title: 'Corporate Lounge & Brand Bars',
-    image: 'https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=600&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg',
     tag: 'Brand Prestige',
     description: 'Ultra-luxurious cocktail lounges designed for corporate networks, combining custom company branded ice logos, state-of-the-art smoke-infusions, and rapid service.',
     highlights: ['Laser-etched logo ice blocks', 'Pre-batched draft cocktail systems', 'Choreographed flair bar shows']
@@ -43,7 +43,7 @@ const SIGNATURE_EVENTS: SignatureEvent[] = [
   {
     id: 'sig-4',
     title: 'Sangeet & Mehendi Craft Bars',
-    image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741282366_image4645.jpg',
     tag: 'Vibrant Celebrations',
     description: 'High-energy colorful bars featuring fast-paced interactive cocktail counters, local native-infused mocktails, and spectacular flair bartending presentations.',
     highlights: ['Dual-lane high-speed service', 'Traditional marigold-dressed bar backdrops', 'Interactive DIY cocktail setups']
@@ -51,7 +51,7 @@ const SIGNATURE_EVENTS: SignatureEvent[] = [
   {
     id: 'sig-5',
     title: 'Cultural & Folk Festivity Bars',
-    image: 'https://images.unsplash.com/photo-1574096079513-d8259312b785?auto=format&fit=crop&w=600&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738668977_image2392.jpg',
     tag: 'Heritage Festive',
     description: 'Bringing the soul of Rajasthan to life through traditional earthenware (kulhad) cocktail serves, local herbal infusions, and candlelit vintage brass bars.',
     highlights: ['Earthen kulhad-style cocktails', 'Native cardamom & rose liquor blends', 'Brass-fitted antique bar aesthetics']
@@ -59,7 +59,7 @@ const SIGNATURE_EVENTS: SignatureEvent[] = [
   {
     id: 'sig-6',
     title: 'Private Haveli Cocktail Soirées',
-    image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738672358_image6125.jpg',
     tag: 'Personal Milestones',
     description: 'Bespoke bar lounges set in private havelis, designed with romantic candlelight, custom-aged whiskey tastings, and personalized menu pairings.',
     highlights: ['Single-malt rare collection tastings', 'Personalized laser-engraved menus', 'Discreet, highly attentive bartenders']

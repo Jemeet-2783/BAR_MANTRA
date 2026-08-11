@@ -163,7 +163,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-1',
     title: 'The Saffron Court Bar at City Palace',
     category: 'event-bars',
-    image: 'https://images.unsplash.com/photo-1542849187-5ec6ea5e6a27?auto=format&fit=crop&w=800&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436274_image60.jpg',
     location: 'City Palace, Jaipur',
     date: 'December 2025',
     description: 'A royal wedding mobile bar featuring deep crimson styling, saffron-infused gin cocktails, and bespoke hand-engraved clear ice blocks for 500 elite guests.'
@@ -172,7 +172,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-2',
     title: 'Modern Royal Lounge at Rambagh Palace',
     category: 'event-bars',
-    image: 'https://images.unsplash.com/photo-1510626176961-4b57d4fbad03?auto=format&fit=crop&w=800&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044114_image9381.jpg',
     location: 'Rambagh Palace, Jaipur',
     date: 'November 2025',
     description: 'An elite corporate banquet bar. Merged high-tech LED bar facades with custom whiskey infusions and premium crystal glassware.'
@@ -181,7 +181,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-3',
     title: 'The Marigold Canopy Beer & Cocktail Bar',
     category: 'event-bars',
-    image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=800&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg',
     location: 'Samode Palace, Jaipur',
     date: 'January 2026',
     description: 'An outdoor garden wedding mehendi bar decorated with 10,000 meters of hand-strung marigolds, serving traditional cardamom-infused aperitifs in earthen kulhads.'
@@ -190,7 +190,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-4',
     title: 'High-Velocity Car Launch Cocktail Bar',
     category: 'event-bars',
-    image: 'https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=800&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg',
     location: 'Jaipur Exhibition & Convention Centre',
     date: 'October 2025',
     description: 'A high-impact vehicle launch bar utilizing laser-lit backdrops, dry-ice smoked craft cocktails, and high-speed tandem flair bar shows.'
@@ -199,7 +199,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-5',
     title: 'A Golden Sitar Whiskey Tasting Lounge',
     category: 'cocktails',
-    image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738672358_image6125.jpg',
     location: 'Private Heritage Haveli, Raja Park',
     date: 'February 2026',
     description: 'An intimate private haveli celebration featuring slow-aged single malt whiskey tastings paired with native Rajasthani spices and live classical sitar music.'
@@ -208,7 +208,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-6',
     title: 'Jaipur Literature Festival VIP Craft Bar',
     category: 'cocktails',
-    image: 'https://images.unsplash.com/photo-1574096079513-d8259312b785?auto=format&fit=crop&w=800&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738672359_image3467.jpg',
     location: 'Diggi Palace, Jaipur',
     date: 'March 2026',
     description: 'A lively, premium VIP festival craft bar. Showcased local botanical distillates, organic marigold-honey syrups, and zero-waste edible flower garnishes.'
@@ -217,7 +217,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-7',
     title: 'Emerald Sufi Night Absinthe & Cocktail Bar',
     category: 'guest-experiences',
-    image: 'https://images.unsplash.com/photo-1542849187-5ec6ea5e6a27?auto=format&fit=crop&w=800&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436277_image1090.jpg',
     location: 'Chomu Palace Resort, Jaipur',
     date: 'November 2025',
     description: 'A magical emerald-themed sangeet bar in a historic palace courtyard, filled with hundred brass lamps, serving premium signature rose-water cocktails.'
@@ -226,7 +226,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     id: 'port-8',
     title: 'Milestone Summit Golden Martini Bar',
     category: 'guest-experiences',
-    image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044117_image5514.jpg',
     location: 'Marriott Hotel, Jaipur',
     date: 'September 2025',
     description: 'An elegant award ceremony martini bar for 300 international delegates, featuring custom-carved floating ice logos and choreographed cocktail showmanship.'

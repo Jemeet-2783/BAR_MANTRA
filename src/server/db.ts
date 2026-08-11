@@ -343,18 +343,17 @@ const DEFAULT_SITE_SETTINGS: SiteSettings = {
 const DEFAULT_HERO_SLIDES: HeroSlide[] = [
   {
     id: 'hs-1',
-    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436274_image60.jpg',
     title: 'Royal Wedding Bar Curation',
   },
-
   {
     id: 'hs-2',
-    image: 'https://images.unsplash.com/photo-1575444758702-4a6b9222336e?auto=format&fit=crop&w=1920&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044114_image9381.jpg',
     title: 'Exquisite Mixology Showcase',
   },
   {
     id: 'hs-3',
-    image: 'https://images.unsplash.com/photo-1574096079513-d8259312b785?auto=format&fit=crop&w=1920&q=80',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg',
     title: 'Heritage Palace Lounge Bar',
   },
 ];
