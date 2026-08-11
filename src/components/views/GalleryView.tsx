@@ -77,7 +77,7 @@ const EXTENDED_PORTFOLIO: PortfolioItem[] = [
     id: 'g-8',
     title: 'Milestone Summit Golden Martini Bar',
     category: 'guest-experiences',
-    image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80',
     location: 'Marriott Hotel, Jaipur',
     date: 'September 2025',
     description: 'An elegant award ceremony martini bar for 300 international delegates, featuring custom-carved floating ice logos and choreographed cocktail showmanship.'
@@ -86,7 +86,7 @@ const EXTENDED_PORTFOLIO: PortfolioItem[] = [
     id: 'g-9',
     title: 'Royal Mandap & Crystal Champagne Bar',
     category: 'event-bars',
-    image: 'https://images.unsplash.com/photo-1516616370751-86d6bd8b055a?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
     location: 'Samode Bagh, Jaipur',
     date: 'October 2025',
     description: 'A majestic champagne tower reception bar featuring custom laser-stamped clear ice shards and authentic saffron-scented French sparkling pours.'
@@ -104,7 +104,7 @@ const EXTENDED_PORTFOLIO: PortfolioItem[] = [
     id: 'g-11',
     title: 'The Marigold Folk Music Gin Counter',
     category: 'cocktails',
-    image: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=800&q=80',
     location: 'Hawa Mahal Courtyard, Jaipur',
     date: 'February 2026',
     description: 'A colorful heritage gin bar featuring fresh local citrus, wild lavender infusions, and classical folk instrumental pairing sessions.'
@@ -131,7 +131,7 @@ const EXTENDED_PORTFOLIO: PortfolioItem[] = [
     id: 'g-14',
     title: 'The Palace Jaali mobile Gin & Tonic Bar',
     category: 'event-bars',
-    image: 'https://images.unsplash.com/photo-1578474846511-04ba529f0b88?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1574096079513-d8259312b785?auto=format&fit=crop&w=800&q=80',
     location: 'Heritage Haveli, Jaipur',
     date: 'December 2025',
     description: 'Bespoke brass jaali mobile counter bar serving custom-infused Indian botanical tonic and local rose waters under floating oil lamps.'
@@ -140,7 +140,7 @@ const EXTENDED_PORTFOLIO: PortfolioItem[] = [
     id: 'g-15',
     title: 'Royal Polo Club Single-Malt Lounge',
     category: 'guest-experiences',
-    image: 'https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80',
     location: 'Jaipur Polo Grounds, Jaipur',
     date: 'October 2025',
     description: 'An executive single-malt whiskey and cigar bar catering to royal club members, with leather lounge seating and custom spices.'
@@ -149,7 +149,7 @@ const EXTENDED_PORTFOLIO: PortfolioItem[] = [
     id: 'g-16',
     title: 'Sunset Rooftop Aperitivo Bar',
     category: 'guest-experiences',
-    image: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80',
     location: 'Historic Haveli Rooftop, Jaipur',
     date: 'November 2025',
     description: 'Rooftop craft spritz and botanical welcome bar for luxury celebrants, with sunset views and organic cardamom-grapefruit sodas.'
@@ -254,6 +254,13 @@ export function GalleryView() {
                   alt={item.title}
                   loading="lazy"
                   referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.dataset.fallback) {
+                      target.dataset.fallback = 'true';
+                      target.src = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80';
+                    }
+                  }}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
@@ -316,6 +323,13 @@ export function GalleryView() {
               src={filterItems[lightboxIndex].image}
               alt={filterItems[lightboxIndex].title}
               referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.fallback) {
+                  target.dataset.fallback = 'true';
+                  target.src = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80';
+                }
+              }}
               className="max-w-full max-h-full object-contain rounded-lg border-2 border-gold-500/30 shadow-2xl"
             />
 

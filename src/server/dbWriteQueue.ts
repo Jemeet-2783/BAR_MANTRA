@@ -1,4 +1,4 @@
-/**
+  /**
  * Barmantra — Sequential Database Write Queue (In-Memory Mutex)
  */
 

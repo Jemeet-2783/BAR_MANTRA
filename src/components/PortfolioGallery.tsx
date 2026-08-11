@@ -109,6 +109,13 @@ export function PortfolioGallery() {
                 alt={item.title}
                 loading="lazy"
                 referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.dataset.fallback) {
+                    target.dataset.fallback = 'true';
+                    target.src = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80';
+                  }
+                }}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
               {/* Hover Dark Shading overlay */}
@@ -182,6 +189,13 @@ export function PortfolioGallery() {
               src={filteredItems[lightboxIndex].image}
               alt={filteredItems[lightboxIndex].title}
               referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.fallback) {
+                  target.dataset.fallback = 'true';
+                  target.src = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80';
+                }
+              }}
               className="max-w-full max-h-full object-contain rounded-lg border-2 border-gold-500/30 shadow-2xl"
             />
 

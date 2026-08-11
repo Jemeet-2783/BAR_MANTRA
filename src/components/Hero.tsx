@@ -53,6 +53,13 @@ export function Hero() {
               src={getResponsiveImageUrl(slide.image, 1920)}
               alt={slide.title}
               referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.fallback) {
+                  target.dataset.fallback = 'true';
+                  target.src = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80';
+                }
+              }}
               className={`w-full h-full object-cover transition-transform duration-[6000ms] ease-out ${
                 index === currentSlide ? 'animate-ken-burns' : 'scale-100'
               }`}

@@ -43,6 +43,13 @@ export function AboutView() {
             src="https://images.unsplash.com/photo-1572116553112-75d7767d6c51?auto=format&fit=crop&w=1920&q=80"
             alt="Royal Heritage Bar Setup"
             referrerPolicy="no-referrer"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (!target.dataset.fallback) {
+                target.dataset.fallback = 'true';
+                target.src = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80';
+              }
+            }}
             className="w-full h-full object-cover opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-maroon-950 via-maroon-950/80 to-transparent" />
