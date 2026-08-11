@@ -203,7 +203,7 @@ export function Navbar() {
           </button>
 
           <div className="text-center font-sans text-xs text-gold-400/80 tracking-wide font-light">
-            📍 Raja Park, Jaipur, Rajasthan · 📞 +91 98290 12345
+            📍 D-45, Raja Park, Jaipur · 📞 +91 73576 52737
           </div>
         </div>
       </div>

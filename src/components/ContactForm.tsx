@@ -203,7 +203,7 @@ export function ContactForm() {
                     <input
                       type="tel"
                       {...register('phone')}
-                      placeholder="e.g. +91 98290 12345"
+                      placeholder="e.g. +91 73576 52737"
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 focus:ring-1 focus:ring-gold-500 bg-ivory-50/50 outline-none text-sm transition-all placeholder:text-gray-500"
                     />
                     {errors.phone && (
@@ -352,8 +352,8 @@ export function ContactForm() {
                     <h4 className="font-mono text-[10px] uppercase tracking-wider text-gold-500 font-bold">
                       Direct Hotline
                     </h4>
-                    <a href="tel:+919829012345" className="font-sans text-sm text-ivory-200 mt-1 block hover:text-gold-400 transition-colors">
-                      +91 98290 12345
+                    <a href="tel:+917357652737" className="font-sans text-sm text-ivory-200 mt-1 block hover:text-gold-400 transition-colors">
+                      +91 73576 52737
                     </a>
                   </div>
                 </div>
@@ -364,36 +364,42 @@ export function ContactForm() {
                     <h4 className="font-mono text-[10px] uppercase tracking-wider text-gold-500 font-bold">
                       Email Concierge
                     </h4>
-                    <a href="mailto:plan@barmantra.com" className="font-sans text-sm text-ivory-200 mt-1 block hover:text-gold-400 transition-colors">
-                      plan@barmantra.com
+                    <a href="mailto:concierge@barmantra.com" className="font-sans text-sm text-ivory-200 mt-1 block hover:text-gold-400 transition-colors">
+                      concierge@barmantra.com
                     </a>
                   </div>
                 </div>
               </div>
 
-              {/* Business Hours */}
+              {/* Business Hours Breakdown */}
               <div className="flex items-start space-x-4">
                 <Clock className="w-5 h-5 text-gold-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-mono text-[10px] uppercase tracking-wider text-gold-500 font-bold">
-                    Business Hours
+                <div className="w-full">
+                  <h4 className="font-mono text-[10px] uppercase tracking-wider text-gold-500 font-bold mb-1.5">
+                    Studio Weekly Operating Hours
                   </h4>
-                  <p className="font-sans text-sm text-ivory-200 mt-1">
-                    Monday – Saturday: 10:00 AM – 7:00 PM (IST)
-                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 font-mono text-xs text-ivory-300">
+                    <p><span className="text-gold-400 font-semibold">Mon:</span> Open 24 Hours</p>
+                    <p><span className="text-gold-400 font-semibold">Tue:</span> 8:00 PM – 12:00 AM</p>
+                    <p><span className="text-gold-400 font-semibold">Wed:</span> 12:00 AM – 8:00 PM</p>
+                    <p><span className="text-gold-400 font-semibold">Thu:</span> 9:00 AM – 8:00 PM</p>
+                    <p><span className="text-gold-400 font-semibold">Fri:</span> 9:00 AM – 5:00 PM</p>
+                    <p><span className="text-gold-400 font-semibold">Sat:</span> 9:00 AM – 9:00 PM</p>
+                    <p className="col-span-1 sm:col-span-2"><span className="text-gold-400 font-semibold">Sun:</span> 8:00 AM – 8:30 PM</p>
+                  </div>
                 </div>
               </div>
 
               {/* WhatsApp direct chat CTA */}
               <div className="pt-2">
                 <a
-                  href="https://wa.me/919829012345?text=Hello%20Barmantra,%20I%20would%20like%20to%20enquire%20about%20booking%20a%20luxury%20bar%20experience."
+                  href="https://wa.me/917357652737?text=Hello%20Barmantra,%20I%20would%20like%20to%20enquire%20about%20booking%20a%20luxury%20bar%20experience."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center space-x-2.5 px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-sans text-xs font-bold shadow-md transition-colors cursor-pointer"
                 >
                   <MessageSquare size={16} />
-                  <span>Start Live WhatsApp Chat</span>
+                  <span>Start Live WhatsApp Chat (+91 73576 52737)</span>
                 </a>
               </div>
             </div>

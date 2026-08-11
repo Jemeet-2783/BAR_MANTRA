@@ -109,13 +109,13 @@ export function Footer() {
                 <li className="flex items-start space-x-3">
                   <MapPin className="w-4.5 h-4.5 text-gold-500 flex-shrink-0 mt-0.5" />
                   <span className="leading-relaxed font-light">
-                    {siteSettings.address || 'D-45, Raja Park, Jaipur, Rajasthan 302020, India'}
+                    {siteSettings.address || 'D-45, Raja Park, Jaipur, Rajasthan 302020'}
                   </span>
                 </li>
                 <li className="flex items-center space-x-3">
                   <Phone className="w-4.5 h-4.5 text-gold-500 flex-shrink-0" />
-                  <a href={`tel:${siteSettings.phone.replace(/\s+/g, '')}`} className="hover:text-gold-500 transition-colors font-mono">
-                    {siteSettings.phone || '+91 98290 12345'}
+                  <a href={`tel:${(siteSettings.phone || '+91 73576 52737').replace(/\s+/g, '')}`} className="hover:text-gold-500 transition-colors font-mono">
+                    {siteSettings.phone || '+91 73576 52737'}
                   </a>
                 </li>
                 <li className="flex items-center space-x-3">
@@ -125,6 +125,22 @@ export function Footer() {
                   </a>
                 </li>
               </ul>
+
+              {/* Operating Hours Summary */}
+              <div className="pt-2 border-t border-gold-600/15">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-gold-400 block mb-1.5">
+                  Studio Operating Hours
+                </span>
+                <div className="text-xs text-ivory-300 space-y-0.5 font-mono font-light">
+                  <p><span className="text-gold-500 font-semibold">Mon:</span> Open 24 Hours</p>
+                  <p><span className="text-gold-500 font-semibold">Tue:</span> 8:00 PM – 12:00 AM</p>
+                  <p><span className="text-gold-500 font-semibold">Wed:</span> 12:00 AM – 8:00 PM</p>
+                  <p><span className="text-gold-500 font-semibold">Thu:</span> 9:00 AM – 8:00 PM</p>
+                  <p><span className="text-gold-500 font-semibold">Fri:</span> 9:00 AM – 5:00 PM</p>
+                  <p><span className="text-gold-500 font-semibold">Sat:</span> 9:00 AM – 9:00 PM</p>
+                  <p><span className="text-gold-500 font-semibold">Sun:</span> 8:00 AM – 8:30 PM</p>
+                </div>
+              </div>
             </div>
 
             {/* Social Channels Column */}
@@ -186,7 +202,7 @@ export function Footer() {
 
       {/* FLOATING PERSISTENT WHATSAPP BUBBLE */}
       <a
-        href="https://wa.me/919829012345?text=Hello%20Barmantra,%20I%20would%20like%20to%20enquire%20about%20booking%20a%20luxury%20bar%20experience."
+        href="https://wa.me/917357652737?text=Hello%20Barmantra,%20I%20would%20like%20to%20enquire%20about%20booking%20a%20luxury%20bar%20experience."
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-45 bg-emerald-600 hover:bg-emerald-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl border border-white/20 transform hover:-translate-y-1 hover:scale-105 active:translate-y-0 transition-all group cursor-pointer"

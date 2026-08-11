@@ -74,11 +74,11 @@ export function NewsletterCTA() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mt-4 text-xs font-mono tracking-wider text-ivory-300">
           <span className="uppercase">Or jump on an instant call:</span>
           <a
-            href="tel:+919829012345"
+            href="tel:+917357652737"
             className="inline-flex items-center space-x-2 text-gold-400 hover:text-gold-300 transition-colors font-bold"
           >
             <Phone size={13} />
-            <span>+91 98290 12345</span>
+            <span>+91 73576 52737</span>
           </a>
         </div>
 

@@ -40,11 +40,11 @@ const DEFAULT_SETTINGS: SiteSettings = {
   siteTitle: 'Barmantra | Luxury Mobile Bar & Mixology Jaipur',
   heroHeadline: 'Luxury Bar Experiences',
   heroSubheadline: 'We weave royal Rajasthani heritage, modern artisanal mixology, and immaculate bar showmanship into high-end celebrations that linger in memories forever.',
-  phone: '+91 98290 12345',
+  phone: '+91 73576 52737',
   email: 'concierge@barmantra.com',
-  address: 'Barmantra Royal Studio, Raja Park, Jaipur, Rajasthan 302004',
+  address: 'D-45, Raja Park, Jaipur, Rajasthan 302020',
   tagline: 'The Premiere Luxury Bartending Service of Jaipur',
-  whatsappNumber: '+919829012345'
+  whatsappNumber: '+917357652737'
 };
 
 const DEFAULT_SLIDES: HeroSlide[] = [

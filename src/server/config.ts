@@ -41,5 +41,5 @@ export const RAZORPAY_KEY_SECRET = optionalEnv('RAZORPAY_KEY_SECRET', '');
 export const STRIPE_SECRET_KEY = optionalEnv('STRIPE_SECRET_KEY', '');
 export const WHATSAPP_PHONE_NUMBER_ID = optionalEnv('WHATSAPP_PHONE_NUMBER_ID', '');
 export const WHATSAPP_ACCESS_TOKEN = optionalEnv('WHATSAPP_ACCESS_TOKEN', '');
-export const WHATSAPP_ADMIN_NUMBER = optionalEnv('WHATSAPP_ADMIN_NUMBER', '+919829012345');
+export const WHATSAPP_ADMIN_NUMBER = optionalEnv('WHATSAPP_ADMIN_NUMBER', '+917357652737');
 export const GEMINI_API_KEY = optionalEnv('GEMINI_API_KEY', '');
