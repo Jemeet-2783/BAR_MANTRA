@@ -55,7 +55,7 @@ export function About() {
               {/* Primary large image (Palace / Haveli detail) */}
               <div className="absolute top-0 left-0 w-[85%] h-[85%] rounded-lg overflow-hidden shadow-2xl border-4 border-white transform -rotate-3 hover:rotate-0 transition-transform duration-500">
                 <img
-                  src="https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436274_image60.jpg"
+                  src="https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg"
                   alt="Bespoke Royal Bar Design"
                   referrerPolicy="no-referrer"
                   onError={(e) => {

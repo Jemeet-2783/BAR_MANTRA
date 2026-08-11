@@ -50,7 +50,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
 const DEFAULT_SLIDES: HeroSlide[] = [
   {
     id: 'hs-1',
-    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436274_image60.jpg',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg',
     title: 'Royal Wedding Bar Curation',
   },
   {

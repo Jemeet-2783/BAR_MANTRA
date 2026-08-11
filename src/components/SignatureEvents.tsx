@@ -19,7 +19,7 @@ const SIGNATURE_EVENTS: SignatureEvent[] = [
   {
     id: 'sig-1',
     title: 'Royal Wedding Bar Curation',
-    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436274_image60.jpg',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg',
     tag: 'Palace Weddings',
     description: 'Transforming historic forts and palace venues with grand royal bars, delivering bespoke signature cocktails, custom ice stamps, and spectacular service.',
     highlights: ['Custom crystal glassware', 'Saffron-infused signature blends', 'Elite royal uniformed mixologists']

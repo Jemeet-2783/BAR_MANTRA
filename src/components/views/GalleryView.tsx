@@ -14,7 +14,7 @@ const EXTENDED_PORTFOLIO: PortfolioItem[] = [
     id: 'g-1',
     title: 'The Saffron Court Bar at City Palace',
     category: 'event-bars',
-    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436274_image60.jpg',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image7938.jpg',
     location: 'City Palace, Jaipur',
     date: 'December 2025',
     description: 'A royal wedding mobile bar featuring deep crimson styling, saffron-infused gin cocktails, and bespoke hand-engraved clear ice blocks for 500 elite guests.'
