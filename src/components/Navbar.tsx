@@ -21,6 +21,18 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Lock body scroll when mobile menu is open to prevent page bleed-through
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
+
   const navLinks = [
     { label: 'Home', path: '#/', type: 'route' },
     { label: 'About', path: '#/about', type: 'route' },
@@ -124,39 +136,77 @@ export function Navbar() {
             </div>
           </div>
         </div>
+      </nav>
 
-        {/* Mobile Fullscreen Overlay Navigation */}
-        <div
-          className={`fixed inset-0 top-[60px] w-full bg-maroon-950/98 backdrop-blur-lg z-40 flex flex-col items-center justify-center space-y-8 transition-all duration-300 px-6 ${
-            isMobileMenuOpen
-              ? 'opacity-100 pointer-events-auto translate-y-0'
-              : 'opacity-0 pointer-events-none -translate-y-4'
-          }`}
-        >
-          {navLinks.map((link, idx) => (
-            <button
-              key={link.label}
-              onClick={() => handleLinkClick(link)}
-              style={{ transitionDelay: `${idx * 50}ms` }}
-              className={`font-serif text-2xl tracking-wider uppercase transition-transform duration-300 ${
-                isMobileMenuOpen ? 'translate-y-0 scale-100' : 'translate-y-4 scale-95'
-              } ${isLinkActive(link) ? 'text-gold-400 font-bold' : 'text-ivory-100'}`}
-            >
-              {link.label}
-            </button>
-          ))}
+      {/* Mobile Fullscreen Overlay Navigation Drawer */}
+      <div
+        className={`fixed inset-0 w-screen h-screen bg-maroon-950/98 backdrop-blur-2xl z-[100] flex flex-col justify-between transition-all duration-300 ${
+          isMobileMenuOpen
+            ? 'opacity-100 pointer-events-auto translate-y-0'
+            : 'opacity-0 pointer-events-none -translate-y-4'
+        }`}
+      >
+        {/* Drawer Top Header */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gold-600/20 bg-maroon-950">
+          <div onClick={() => { setIsMobileMenuOpen(false); navigateTo('#/'); }} className="cursor-pointer">
+            <BarmantraLogo iconSize={32} />
+          </div>
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="p-2.5 rounded-full bg-gold-600/10 text-gold-400 hover:text-gold-300 hover:bg-gold-600/20 border border-gold-500/20 transition-all cursor-pointer"
+            aria-label="Close navigation menu"
+          >
+            <X size={24} />
+          </button>
+        </div>
 
+        {/* Scrollable Navigation Items */}
+        <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col justify-center space-y-2.5">
+          {navLinks.map((link, idx) => {
+            const active = isLinkActive(link);
+            return (
+              <button
+                key={link.label}
+                onClick={() => handleLinkClick(link)}
+                style={{ transitionDelay: `${idx * 30}ms` }}
+                className={`w-full text-left px-5 py-3.5 rounded-xl border transition-all duration-200 flex items-center justify-between cursor-pointer ${
+                  active
+                    ? 'bg-gradient-to-r from-gold-600/20 to-maroon-900/60 border-gold-500/50 text-gold-400 font-bold shadow-md'
+                    : 'bg-maroon-900/20 border-gold-600/10 text-ivory-100 hover:bg-maroon-900/40 hover:border-gold-500/30'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className={`text-xs ${active ? 'text-gold-400' : 'text-gold-600/60'}`}>✦</span>
+                  <span className="font-serif text-lg tracking-wider uppercase">{link.label}</span>
+                </div>
+                {active && (
+                  <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-gold-400 bg-gold-500/20 px-2.5 py-0.5 rounded-full">
+                    Active
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Drawer Bottom Footer CTA */}
+        <div className="p-6 border-t border-gold-600/20 bg-maroon-950/90 flex flex-col space-y-4">
           <button
             onClick={() => {
               setIsMobileMenuOpen(false);
               navigateTo('#/contact');
             }}
-            className="w-full max-w-xs mt-4 inline-flex items-center justify-center px-8 py-4 rounded-full bg-gradient-to-r from-gold-600 to-gold-500 text-maroon-950 font-sans font-bold text-base shadow-lg hover:from-gold-500 transition-all cursor-pointer"
+            className="w-full py-3.5 rounded-full bg-gradient-to-r from-gold-600 to-gold-500 text-maroon-950 font-sans font-bold text-base shadow-xl hover:from-gold-500 active:scale-98 transition-all cursor-pointer flex items-center justify-center space-x-2"
           >
-            Book Luxury Bar
+            <span>Book Luxury Bar</span>
+            <span className="font-serif text-lg">→</span>
           </button>
+
+          <div className="text-center font-sans text-xs text-gold-400/80 tracking-wide font-light">
+            📍 Raja Park, Jaipur, Rajasthan · 📞 +91 98290 12345
+          </div>
         </div>
-      </nav>
+      </div>
     </>
   );
 }

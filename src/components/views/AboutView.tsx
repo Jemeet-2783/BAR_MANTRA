@@ -36,7 +36,7 @@ export function AboutView() {
       />
       
       {/* Editorial Page Hero Banner */}
-      <section className="relative py-28 bg-maroon-950 text-ivory-50 text-center overflow-hidden">
+      <section className="relative py-16 sm:py-24 md:py-28 bg-maroon-950 text-ivory-50 text-center overflow-hidden">
         {/* Background photo */}
         <div className="absolute inset-0 z-0">
           <img
@@ -56,10 +56,10 @@ export function AboutView() {
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-4">
-          <span className="text-xs font-mono uppercase tracking-widest text-gold-400 font-bold mb-3 block">
+          <span className="text-xs font-mono uppercase tracking-widest text-gold-400 font-bold mb-2 sm:mb-3 block">
             Inside Barmantra
           </span>
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl text-ivory-50 tracking-tight leading-tight">
+          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-ivory-50 tracking-tight leading-tight">
             Our Brand Story <span className="shimmer-gold font-semibold italic">& Heritage</span>
           </h1>
           <p className="font-sans text-sm sm:text-base text-ivory-200 mt-4 max-w-xl mx-auto leading-relaxed font-light">
