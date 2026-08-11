@@ -179,9 +179,16 @@ export function ServicesView() {
       <section className="relative py-28 bg-maroon-950 text-ivory-50 text-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1510626176961-4b57d4fbad03?auto=format&fit=crop&w=1920&q=80"
+            src="https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image65.jpg"
             alt="Palace Service Setup"
             referrerPolicy="no-referrer"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (!target.dataset.fallback) {
+                target.dataset.fallback = 'true';
+                target.src = 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg';
+              }
+            }}
             className="w-full h-full object-cover opacity-25"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-maroon-950 via-maroon-950/70 to-transparent" />

@@ -21,14 +21,14 @@ export function ContactView() {
       <section className="relative py-16 sm:py-24 md:py-28 bg-maroon-950 text-ivory-50 text-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1574096079513-d8259312b785?auto=format&fit=crop&w=1920&q=80"
+            src="https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044117_image5514.jpg"
             alt="Luxury bar experience"
             referrerPolicy="no-referrer"
             onError={(e) => {
               const target = e.currentTarget;
               if (!target.dataset.fallback) {
                 target.dataset.fallback = 'true';
-                target.src = 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80';
+                target.src = 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg';
               }
             }}
             className="w-full h-full object-cover opacity-25"

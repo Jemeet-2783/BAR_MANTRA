@@ -21,8 +21,8 @@ export const SERVICES: Service[] = [
       'High-Velocity Service for 500+ Guests with Absolute Perfection'
     ],
     images: [
-      'https://images.unsplash.com/photo-1607190074257-dd4b7af0309f?auto=format&fit=crop&w=1200&q=80', // Royal wedding lighting/vibe
-      'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1200&q=80'  // Wedding couple royal vibe
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg',
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image65.jpg'
     ],
     timeline: [
       { title: 'Vision & Concept', description: 'Interactive design sessions to map out theme, colors, and signature drink palettes.' },
@@ -46,8 +46,8 @@ export const SERVICES: Service[] = [
       'Interactive DIY Mixology Stations for Networking'
     ],
     images: [
-      'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80', // Corporate event lighting
-      'https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=1200&q=80'  // Gala dinner
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044117_image5514.jpg',
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738668772_image978.jpg'
     ],
     timeline: [
       { title: 'Brand Briefing', description: 'Integrating your corporate identity and brand colors into the drink concepts.' },
@@ -71,8 +71,8 @@ export const SERVICES: Service[] = [
       'Sitar-Accompanied Traditional Welcome Aperitifs'
     ],
     images: [
-      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80', // Elegant table setup
-      'https://images.unsplash.com/photo-1519225495810-7512c696505a?auto=format&fit=crop&w=1200&q=80'  // Fairy lights celebration
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738672358_image6125.jpg',
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738672359_image3467.jpg'
     ],
     timeline: [
       { title: 'Story Discovery', description: 'Defining a unique drink menu that highlights the celebrant\'s favorite flavors.' },
@@ -96,8 +96,8 @@ export const SERVICES: Service[] = [
       'Dynamic Ambient Lighting Tailored to the Bar Theme'
     ],
     images: [
-      'https://images.unsplash.com/photo-1595188384244-c3a17412000e?auto=format&fit=crop&w=1200&q=80', // Golden arch palace decor
-      'https://images.unsplash.com/photo-1520854221256-17451cc35953?auto=format&fit=crop&w=1200&q=80'  // Floral elements
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image65.jpg',
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738668977_image2392.jpg'
     ],
     timeline: [
       { title: 'Sketching & 3D Renders', description: 'Developing 3D mockups of the custom bar facade.' },
@@ -121,8 +121,8 @@ export const SERVICES: Service[] = [
       'Custom Branded Shakers & Light-Up Bar Elements'
     ],
     images: [
-      'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80', // Live performance singer
-      'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80'  // Sound & lights
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741282366_image4645.jpg',
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436277_image1090.jpg'
     ],
     timeline: [
       { title: 'Choreography Mapping', description: 'Designing the show timing to match the peak energy of your party.' },
@@ -146,8 +146,8 @@ export const SERVICES: Service[] = [
       'Organic & Edible Gold Leaf Drink Garnishes'
     ],
     images: [
-      'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1200&q=80', // Table spread high-end
-      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80'  // Catering glassware setup
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044117_image5514.jpg',
+      'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044123_image2679.jpg'
     ],
     timeline: [
       { title: 'Tasting & Development', description: 'Collaborative tasting sessions to perfect the flavor balances.' },

@@ -63,9 +63,16 @@ export function WhyBarmantra() {
             {/* Decorative Quote block with Unsplash visual */}
             <div className="relative rounded-2xl overflow-hidden aspect-video shadow-lg border border-gold-600/20">
               <img
-                src="https://images.unsplash.com/photo-1510626176961-4b57d4fbad03?auto=format&fit=crop&w=600&q=80"
+                src="https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738672358_image6125.jpg"
                 alt="Barmantra Elite Bar Setup"
                 referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.dataset.fallback) {
+                    target.dataset.fallback = 'true';
+                    target.src = 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image3892.jpg';
+                  }
+                }}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-maroon-950 via-maroon-950/40 to-transparent flex items-end p-5">
