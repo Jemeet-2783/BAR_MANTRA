@@ -55,13 +55,23 @@ const DEFAULT_SLIDES: HeroSlide[] = [
   },
   {
     id: 'hs-2',
-    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738672358_image6125.jpg',
-    title: 'Exquisite Mixology Showcase',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044120_image65.jpg',
+    title: 'Luxury Mirrored Bar & Floral Canopy',
   },
   {
     id: 'hs-3',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1739044117_image5514.jpg',
+    title: 'Artisanal Cocktail & Champagne Showmanship',
+  },
+  {
+    id: 'hs-4',
     image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1741436277_image1090.jpg',
-    title: 'Heritage Palace Lounge Bar',
+    title: 'Signature Night Sangeet & Neon Lounge',
+  },
+  {
+    id: 'hs-5',
+    image: 'https://image.wedmegood.com/resized/1000X/uploads/member/1146941/1738672358_image6125.jpg',
+    title: 'Heritage Palace VIP Cocktail Bar',
   },
 ];
 
