@@ -3,8 +3,8 @@
     {
       "id": "usr-superadmin",
       "email": "admin@barmantra.com",
-      "passwordHash": "$pbkdf2$v2$600000$sha256$fa94aee981249b6b7a9f73b646c05bfab6b9071c0df4e28623b306440f6c2789",
-      "salt": "db0cbfcf231db69cf61794b1ef4795e1",
+      "passwordHash": "$pbkdf2$v2$600000$sha256$d573af9bc10abc2f79ffa24b188a52e29ca5d9e8c55ef4a5d8d80fb5fadf757cb4f1d37f335d75d7258e6291ab58fcfd6ec7ce1710ff5bda3587c0786ea78d56",
+      "salt": "29af38821fe46dd99fbeab293d254348",
       "name": "Kartik Arora (Master Mixologist)",
       "role": "superadmin",
       "createdAt": "2026-01-01T00:00:00.000Z"
@@ -99,8 +99,35 @@
     "tagline": "The Premiere Luxury Bartending Service of Jaipur",
     "whatsappNumber": "+917357652737"
   },
-  "sessions": [],
+  "sessions": [
+    {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3Itc3VwZXJhZG1pbiIsImVtYWlsIjoiYWRtaW5AYmFybWFudHJhLmNvbSIsIm5hbWUiOiJLYXJ0aWsgQXJvcmEgKE1hc3RlciBNaXhvbG9naXN0KSIsInJvbGUiOiJzdXBlcmFkbWluIiwiaWF0IjoxNzg2NTA5MDk4LCJleHAiOjE3ODY1MDk5OTh9.Hts1TqiffCQ_6ySSmlbtZg6xGoC4uBD_GvW-mBJyJ9U",
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3Itc3VwZXJhZG1pbiIsImVtYWlsIjoiYWRtaW5AYmFybWFudHJhLmNvbSIsIm5hbWUiOiJLYXJ0aWsgQXJvcmEgKE1hc3RlciBNaXhvbG9naXN0KSIsInJvbGUiOiJzdXBlcmFkbWluIiwiaWF0IjoxNzg2NTA5MDk4LCJleHAiOjE3ODY1Mzc4OTh9.uFQeFcizMWrgSIJs9Xey_WoSs333iPEuZkcl-zFk6h4",
+      "userId": "usr-superadmin",
+      "email": "admin@barmantra.com",
+      "role": "superadmin",
+      "name": "Kartik Arora (Master Mixologist)",
+      "expiresAt": "2026-08-12T12:31:38.808Z",
+      "createdAt": "2026-08-12T04:31:38.808Z",
+      "lastActiveAt": "2026-08-12T04:32:28.430Z",
+      "csrfToken": "csrf_e3d368d2534b57e8c2e9b2184a67acdebc163fd4db34f9b9853d504b5c5fff42"
+    }
+  ],
   "auditLogs": [
+    {
+      "id": "log-1786509099427-343",
+      "timestamp": "2026-08-12T04:31:39.427Z",
+      "action": "LOGIN",
+      "entityType": "auth",
+      "entityId": "usr-superadmin",
+      "actor": {
+        "id": "usr-superadmin",
+        "email": "admin@barmantra.com",
+        "name": "Kartik Arora (Master Mixologist)",
+        "role": "superadmin"
+      },
+      "details": "Successful command studio login for admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
     {
       "id": "log-1786508643478-851",
       "timestamp": "2026-08-12T04:24:03.478Z",

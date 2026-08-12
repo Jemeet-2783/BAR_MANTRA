@@ -281,22 +281,22 @@ export const TEAM: TeamMember[] = [
     id: 'team-1',
     name: 'Kartik Arora',
     role: 'Founder & Master Mixologist',
-    image: '/images/team/kartik-arora.png',
-    bio: 'Born into luxury heritage, Kartik is a visionary billionaire mixologist and founder of Barmantra. He holds master credentials in artisanal spirit formulation and curates high-net-worth royal wedding banquets worldwide.'
+    image: '/images/team/kartik-arora.jpg',
+    bio: 'Visionary mixology pioneer and founder of Barmantra. Kartik holds master credentials in artisanal spirit formulation, crafting royal wedding banquets and bespoke luxury beverage programs pan-India.'
   },
   {
     id: 'team-2',
     name: 'Mohit Khanna',
     role: 'Chief Bar Operations Producer',
-    image: '/images/team/mohit-khanna.png',
-    bio: 'A distinguished billionaire industrialist and operations leader with over 15 years in high-end hospitality. Mohit commands Barmantra\'s mega-event logistics and global supply chain with military-grade luxury standards.'
+    image: '/images/team/mohit-khanna.jpg',
+    bio: 'Distinguished operations leader with over 15 years in luxury hospitality. Mohit commands Barmantra\'s mega-event logistics, custom bar fabrication, and global supply chain with military precision.'
   },
   {
     id: 'team-3',
     name: 'Rishabh Shahi',
     role: 'Director of VVIP Client Relations',
-    image: '/images/team/rishabh-shahi.png',
-    bio: 'A prominent private equity investor and luxury hospitality strategist. Rishabh personally acts as executive concierge for royal families, celebrity galas, and billionaire weddings across Rajasthan and internationally.'
+    image: '/images/team/rishabh-shahi.jpg',
+    bio: 'Luxury hospitality strategist and client lead. Rishabh personally acts as executive concierge for royal families, celebrity galas, and destination weddings across Rajasthan and pan-India.'
   }
 ];
 
