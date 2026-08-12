@@ -180,10 +180,45 @@ export function verifyPassword(password: string, hash: string, salt: string): { 
   }
 }
 
+// Password complexity & weak password blacklisting helper
+export function isStrongPassword(password: string): { valid: boolean; message?: string } {
+  if (!password || typeof password !== 'string') {
+    return { valid: false, message: 'Password is required.' };
+  }
+  if (password.length < 8) {
+    return { valid: false, message: 'Password must be at least 8 characters long.' };
+  }
+
+  const weakBlacklist = [
+    'barmantra123',
+    'staff123',
+    'admin123',
+    'password',
+    'password123',
+    '12345678',
+    'barmantra',
+    'admin',
+    'admin@123'
+  ];
+
+  if (weakBlacklist.includes(password.toLowerCase().trim())) {
+    return { valid: false, message: 'This password is too generic or easily guessable. Please choose a custom secure password.' };
+  }
+
+  const hasDigitOrSymbol = /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  if (!hasDigitOrSymbol) {
+    return { valid: false, message: 'Password must contain at least one number or special symbol.' };
+  }
+
+  return { valid: true };
+}
+
 // Initial default superadmin setup
-const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'barmantra123';
+const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Barmantra#2026!Secure';
+const DEFAULT_STAFF_PASSWORD = process.env.STAFF_PASSWORD || 'Staff#2026!Barmantra';
+
 const defaultAdminHash = hashPassword(DEFAULT_ADMIN_PASSWORD);
-const defaultStaffHash = hashPassword('staff123');
+const defaultStaffHash = hashPassword(DEFAULT_STAFF_PASSWORD);
 
 const INITIAL_USERS: DbUser[] = [
   {

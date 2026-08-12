@@ -549,16 +549,21 @@ export function AdminView() {
   const handlePasswordChangeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordChangeError('');
-    if (!newCustomPassword || newCustomPassword.length < 6) {
-      setPasswordChangeError('Password must be at least 6 characters.');
+    if (!newCustomPassword || newCustomPassword.length < 8) {
+      setPasswordChangeError('Password must be at least 8 characters long.');
       return;
     }
     if (newCustomPassword !== confirmCustomPassword) {
       setPasswordChangeError('Passwords do not match.');
       return;
     }
-    if (newCustomPassword === 'barmantra123' || newCustomPassword === 'staff123') {
-      setPasswordChangeError('Please enter a custom password (cannot use default).');
+    const weakList = ['barmantra123', 'staff123', 'admin123', 'password', 'password123', '12345678', 'barmantra', 'admin'];
+    if (weakList.includes(newCustomPassword.toLowerCase().trim())) {
+      setPasswordChangeError('This password is too generic. Please enter a custom secure password.');
+      return;
+    }
+    if (!/[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newCustomPassword)) {
+      setPasswordChangeError('Password must contain at least one number or special character.');
       return;
     }
 
@@ -1041,7 +1046,7 @@ export function AdminView() {
                 type="password"
                 value={newCustomPassword}
                 onChange={(e) => setNewCustomPassword(e.target.value)}
-                placeholder="Enter at least 6 characters..."
+                placeholder="Min 8 chars with numbers/symbols..."
                 className="w-full p-3 rounded-xl border border-gray-300 font-mono outline-none focus:border-gold-600"
               />
             </div>

@@ -102,6 +102,22 @@
   "sessions": [],
   "auditLogs": [
     {
+      "id": "log-1786507529237-30",
+      "timestamp": "2026-08-12T04:05:29.237Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1786507508432-926",
+      "timestamp": "2026-08-12T04:05:08.432Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
       "id": "log-1785680380384-104",
       "timestamp": "2026-08-02T14:19:40.384Z",
       "action": "CREDENTIALS_UPDATE",

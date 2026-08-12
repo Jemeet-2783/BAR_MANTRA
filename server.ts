@@ -46,6 +46,7 @@ import {
   updateBookingPaymentLink,
   updateBookingPaymentSuccess,
   logBookingWhatsAppMessage,
+  isStrongPassword,
   DbActor
 } from './src/server/db.ts';
 import { sendWhatsAppNotification } from './src/server/whatsappService.ts';
@@ -671,12 +672,9 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
     const { newPassword } = req.body;
     const actor = (req as any).user as DbActor;
 
-    if (!newPassword || String(newPassword).length < 6) {
-      return res.status(400).json({ error: 'New password must be at least 6 characters long.' });
-    }
-
-    if (newPassword === 'barmantra123' || newPassword === 'staff123') {
-      return res.status(400).json({ error: 'Cannot use a generic default password. Please choose a custom secure password.' });
+    const passwordCheck = isStrongPassword(String(newPassword));
+    if (!passwordCheck.valid) {
+      return res.status(400).json({ error: passwordCheck.message || 'Password does not meet security requirements.' });
     }
 
     const result = await forceUserPasswordReset(actor.id, String(newPassword), actor);
@@ -1183,6 +1181,11 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
       return res.status(400).json({ error: 'Email, password, and name are strictly required.' });
     }
 
+    const checkPass = isStrongPassword(String(password));
+    if (!checkPass.valid) {
+      return res.status(400).json({ error: checkPass.message || 'Password does not meet security requirements.' });
+    }
+
     const result = await registerAdminUser({ email, password, name, role }, actor);
     if (result.success) {
       res.status(201).json({ success: true, message: 'New admin account successfully registered.', user: result.user });
@@ -1258,8 +1261,9 @@ Do NOT include any markdown code blocks (like \`\`\`json) or text other than the
     const actor = (req as any).user as DbActor;
     const { id } = req.params;
     const { newPassword } = req.body;
-    if (!newPassword || newPassword.trim().length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+    const checkPass = isStrongPassword(String(newPassword));
+    if (!checkPass.valid) {
+      return res.status(400).json({ error: checkPass.message || 'Password does not meet security requirements.' });
     }
     const result = await forceUserPasswordReset(id, newPassword, actor);
 
