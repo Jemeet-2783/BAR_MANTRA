@@ -416,6 +416,18 @@ export function getDb(): DatabaseSchema {
     // Schema migrations for backward compatibility
     if (!data.users || data.users.length === 0) {
       data.users = INITIAL_USERS;
+    } else if (process.env.ADMIN_PASSWORD) {
+      const superadmin = data.users.find(u => u.id === 'usr-superadmin' || u.email === 'admin@barmantra.com');
+      if (superadmin) {
+        const { isMatch } = verifyPassword(process.env.ADMIN_PASSWORD, superadmin.passwordHash, superadmin.salt);
+        if (!isMatch) {
+          console.log(`[ENV AUTH SYNC]: Synchronizing admin@barmantra.com password from ADMIN_PASSWORD environment variable...`);
+          const newHash = hashPassword(process.env.ADMIN_PASSWORD);
+          superadmin.passwordHash = newHash.hash;
+          superadmin.salt = newHash.salt;
+          saveDb(data);
+        }
+      }
     }
     if (!data.auditLogs) {
       data.auditLogs = [];
