@@ -3,8 +3,8 @@
     {
       "id": "usr-superadmin",
       "email": "admin@barmantra.com",
-      "passwordHash": "$pbkdf2$v2$600000$sha256$def26de6210c568b6f46e10bc920fc8b8a3bc3a83389e5b62cfba2b2761491a11fdaea1631afcec48243f09baea6fb876e7f9bee12330262ba04f0ef6882f3f5",
-      "salt": "289c1debd8d7d43457ea1f1aa769fc40",
+      "passwordHash": "$pbkdf2$v2$600000$sha256$fa94aee981249b6b7a9f73b646c05bfab6b9071c0df4e28623b306440f6c2789",
+      "salt": "db0cbfcf231db69cf61794b1ef4795e1",
       "name": "Kartik Arora (Master Mixologist)",
       "role": "superadmin",
       "createdAt": "2026-01-01T00:00:00.000Z"
@@ -101,6 +101,30 @@
   },
   "sessions": [],
   "auditLogs": [
+    {
+      "id": "log-1786508643478-851",
+      "timestamp": "2026-08-12T04:24:03.478Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1786508564605-8",
+      "timestamp": "2026-08-12T04:22:44.605Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
+    {
+      "id": "log-1786508535009-596",
+      "timestamp": "2026-08-12T04:22:15.009Z",
+      "action": "LOGIN_FAILED",
+      "entityType": "auth",
+      "actor": null,
+      "details": "Failed login attempt for email: admin@barmantra.com [IP: 127.0.0.1] [UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)]"
+    },
     {
       "id": "log-1786508296887-119",
       "timestamp": "2026-08-12T04:18:16.887Z",

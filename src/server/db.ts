@@ -170,12 +170,18 @@ export function verifyPassword(password: string, hash: string, salt: string): { 
   if (hash.startsWith(HASH_PREFIX_V2)) {
     const rawHash = hash.replace(HASH_PREFIX_V2, '');
     const testHash = crypto.pbkdf2Sync(password, salt, PBKDF2_ITERATIONS, PBKDF2_KEYLEN, PBKDF2_ALGO).toString('hex');
-    const isMatch = crypto.timingSafeEqual(Buffer.from(testHash, 'hex'), Buffer.from(rawHash, 'hex'));
+    const bufA = Buffer.from(testHash, 'hex');
+    const bufB = Buffer.from(rawHash, 'hex');
+    if (bufA.length !== bufB.length) return { isMatch: false, needsRehash: false };
+    const isMatch = crypto.timingSafeEqual(bufA, bufB);
     return { isMatch, needsRehash: false };
   } else {
     // Legacy 10,000 iteration PBKDF2-SHA512 verification fallback
     const testHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-    const isMatch = crypto.timingSafeEqual(Buffer.from(testHash, 'hex'), Buffer.from(hash, 'hex'));
+    const bufA = Buffer.from(testHash, 'hex');
+    const bufB = Buffer.from(hash, 'hex');
+    if (bufA.length !== bufB.length) return { isMatch: false, needsRehash: true };
+    const isMatch = crypto.timingSafeEqual(bufA, bufB);
     return { isMatch, needsRehash: isMatch };
   }
 }
