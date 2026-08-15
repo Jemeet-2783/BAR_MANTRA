@@ -59,12 +59,18 @@ export function useHashRoute() {
     currentRoute = 'contact';
   } else if (cleanHash === '/admin') {
     currentRoute = 'admin';
+  } else if (cleanHash === '/lookup' || cleanHash.startsWith('/lookup')) {
+    currentRoute = 'lookup';
   } else if (cleanHash.startsWith('/services/')) {
     currentRoute = 'services/detail';
     serviceSlug = cleanHash.replace('/services/', '');
   } else if (cleanHash.startsWith('/pay/')) {
     currentRoute = 'pay';
     const pathParts = cleanHash.replace('/pay/', '').split('?');
+    bookingId = pathParts[0];
+  } else if (cleanHash.startsWith('/invoice/')) {
+    currentRoute = 'invoice';
+    const pathParts = cleanHash.replace('/invoice/', '').split('?');
     bookingId = pathParts[0];
   }
 

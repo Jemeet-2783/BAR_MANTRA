@@ -227,9 +227,16 @@ export const PaymentView: React.FC<PaymentViewProps> = ({ bookingId, onNavigate 
                   </div>
                 </div>
 
-                <div className="flex items-center justify-center gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+                <div className="flex items-center justify-center gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-4">
                   <Receipt className="w-4 h-4" /> WhatsApp Receipt Dispatched to {payInfo.phone}
                 </div>
+
+                <a
+                  href={`#/invoice/${payInfo.id}`}
+                  className="w-full bg-neutral-900 border border-amber-500/30 text-amber-300 font-medium py-2.5 px-4 rounded-xl hover:bg-neutral-800 transition-all text-xs flex items-center justify-center gap-2"
+                >
+                  <Receipt className="w-4 h-4 text-amber-400" /> Print Official GST Invoice & Receipt
+                </a>
               </div>
             ) : (
               /* Action State: Complete Payment */

@@ -19,6 +19,11 @@ const AdminView = lazy(() => import('./components/views/AdminView').then(m => ({
 const ServicesView = lazy(() => import('./components/views/ServicesView').then(m => ({ default: m.ServicesView })));
 const PaymentView = lazy(() => import('./components/views/PaymentView').then(m => ({ default: m.PaymentView })));
 
+const PrivacyView = lazy(() => import('./components/views/PrivacyView').then(m => ({ default: m.PrivacyView })));
+const TermsView = lazy(() => import('./components/views/TermsView').then(m => ({ default: m.TermsView })));
+const BookingLookupView = lazy(() => import('./components/views/BookingLookupView').then(m => ({ default: m.BookingLookupView })));
+const InvoicePrintView = lazy(() => import('./components/views/InvoicePrintView').then(m => ({ default: m.InvoicePrintView })));
+
 export default function App() {
   const { currentRoute, serviceSlug, bookingId, navigateTo } = useHashRoute();
 
@@ -39,82 +44,22 @@ export default function App() {
         return <AdminView />;
       case 'pay':
         return <PaymentView bookingId={bookingId || ''} onNavigate={navigateTo} />;
+      case 'invoice':
+        return <InvoicePrintView bookingId={bookingId || ''} onNavigate={navigateTo} />;
+      case 'lookup':
+      case '/lookup':
+        return <BookingLookupView />;
       case 'services/detail':
         return <ServicesDetailView slug={serviceSlug || ''} />;
 
-      
-      // Fallback for Privacy Policy and Terms of Service hash routes
+      // Dynamic Privacy Policy and Terms of Royal Engagement views
       case 'privacy':
       case '/privacy':
-        return (
-          <div className="pt-32 pb-24 max-w-4xl mx-auto px-4">
-            <button
-              onClick={() => navigateTo('#/')}
-              className="inline-flex items-center space-x-2 text-xs font-mono font-bold uppercase tracking-widest text-maroon-900 hover:text-gold-700 transition-colors mb-6 cursor-pointer"
-            >
-              <ArrowLeft size={14} />
-              <span>Back to Home</span>
-            </button>
-            <div className="bg-white rounded-3xl p-8 sm:p-12 border border-gold-600/10 shadow-lg">
-              <div className="w-12 h-12 rounded-xl bg-maroon-900 flex items-center justify-center text-gold-400 mb-6">
-                <Shield size={22} />
-              </div>
-              <h1 className="font-serif text-3xl sm:text-4xl text-maroon-950 font-bold mb-4">
-                Privacy Protocol
-              </h1>
-              <span className="font-mono text-xs uppercase text-gold-700 tracking-wider block mb-6">
-                Effective: July 2026
-              </span>
-              <div className="font-sans text-sm sm:text-base text-gray-700 leading-relaxed font-light space-y-4">
-                <p>
-                  At <strong>Barmantra</strong>, based in Raja Park, Jaipur, we take the confidentiality of your personal, logistical, and bar booking specifications with absolute seriousness.
-                </p>
-                <p>
-                  We collect your Name, Phone, Email, and Event Specifications exclusively to curate your customized design schedule. We do not distribute, lease, or trade your personal information to external commercial syndicates or third-party advertisers. All vendor communication is governed under strict non-disclosure parameters.
-                </p>
-                <p>
-                  For deep inquiries regarding your data security, please contact our privacy compliance desk at <strong>privacy@barmantra.com</strong>.
-                </p>
-              </div>
-            </div>
-          </div>
-        );
+        return <PrivacyView />;
 
       case 'terms':
       case '/terms':
-        return (
-          <div className="pt-32 pb-24 max-w-4xl mx-auto px-4">
-            <button
-              onClick={() => navigateTo('#/')}
-              className="inline-flex items-center space-x-2 text-xs font-mono font-bold uppercase tracking-widest text-maroon-900 hover:text-gold-700 transition-colors mb-6 cursor-pointer"
-            >
-              <ArrowLeft size={14} />
-              <span>Back to Home</span>
-            </button>
-            <div className="bg-white rounded-3xl p-8 sm:p-12 border border-gold-600/10 shadow-lg">
-              <div className="w-12 h-12 rounded-xl bg-maroon-900 flex items-center justify-center text-gold-400 mb-6">
-                <Shield size={22} />
-              </div>
-              <h1 className="font-serif text-3xl sm:text-4xl text-maroon-950 font-bold mb-4">
-                Terms of Royal Engagement
-              </h1>
-              <span className="font-mono text-xs uppercase text-gold-700 tracking-wider block mb-6">
-                Effective: July 2026
-              </span>
-              <div className="font-sans text-sm sm:text-base text-gray-700 leading-relaxed font-light space-y-4">
-                <p>
-                  All curation engagements executed by <strong>Barmantra</strong> are governed under formal bilateral contracts. 
-                </p>
-                <p>
-                  <strong>Deposits & Booking:</strong> To secure a date range within our Jaipur fabrication workshop, an initial retainer deposit is required. Retainers are non-refundable but fully transferable to alternate dates within a 12-month calendar window, subject to palace venue availability.
-                </p>
-                <p>
-                  <strong>Accounting Integrity:</strong> In accordance with our open-ledger policy, all actual vendor prices are passed directly to clients. Technical specifications and stage blueprints are proprietary artistic creations of Barmantra and may not be distributed without design licenses.
-                </p>
-              </div>
-            </div>
-          </div>
-        );
+        return <TermsView />;
 
       default:
         return (
