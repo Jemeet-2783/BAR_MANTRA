@@ -413,6 +413,41 @@ test.describe('Barmantra E2E Production Suite', () => {
     expect(verifyData.booking.status).toBe('Approved');
   });
 
+  test('Scenario 9: Public Proposal Lookup & GST Quotation Invoice Endpoint Verification', async ({ request }) => {
+    // 1. Submit a test booking
+    const testPhone = '+91 97777 66666';
+    const bookingRes = await request.post('/api/bookings', {
+      data: {
+        name: 'Lookup & Invoice E2E Test Client',
+        phone: testPhone,
+        email: 'lookup.invoice@barmantra.com',
+        eventType: 'private-soiree',
+        eventDate: '2026-12-31',
+        guestCount: 80,
+        message: 'E2E testing lookup API and invoice details.'
+      }
+    });
+    expect(bookingRes.status()).toBe(201);
+    const bookingObj = (await bookingRes.json()).booking;
+
+    // 2. Perform public proposal lookup by phone number
+    const lookupRes = await request.post('/api/public/bookings/lookup', {
+      data: { query: testPhone }
+    });
+    expect(lookupRes.ok()).toBeTruthy();
+    const lookupData = await lookupRes.json();
+    expect(lookupData.bookings).toBeDefined();
+    expect(lookupData.bookings.length).toBeGreaterThan(0);
+    expect(lookupData.bookings[0].id).toBe(bookingObj.id);
+
+    // 3. Verify public invoice pay-info API returns complete tax details
+    const payInfoRes = await request.get(`/api/public/bookings/${bookingObj.id}/pay-info`);
+    expect(payInfoRes.ok()).toBeTruthy();
+    const payInfo = await payInfoRes.json();
+    expect(payInfo.pricingEstimate).toBeGreaterThan(0);
+    expect(payInfo.depositAmount).toBe(Math.round(payInfo.pricingEstimate * 0.30));
+  });
+
 });
 
 
