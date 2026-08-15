@@ -343,6 +343,55 @@ async function startServer() {
     }
   });
 
+  // Public: Client self-service proposal lookup by phone or reference ID
+  app.post('/api/public/bookings/lookup', publicFormRateLimiter, (req, res) => {
+    try {
+      const { query } = req.body || {};
+      if (!query || typeof query !== 'string' || !query.trim()) {
+        return res.status(400).json({ error: 'Please provide a valid phone number or booking reference ID.' });
+      }
+
+      const rawQuery = query.trim().toLowerCase();
+      const digitsOnly = query.replace(/\D/g, '');
+
+      const db = getDb();
+      const matches = db.bookings.filter(b => {
+        if (b.deletedAt) return false;
+        const bId = b.id.toLowerCase();
+        const bPhoneDigits = b.phone ? b.phone.replace(/\D/g, '') : '';
+        const bEmail = b.email ? b.email.toLowerCase() : '';
+
+        // Match exact/partial ID, exact phone digits, or exact email
+        const matchesId = bId === rawQuery || bId.includes(rawQuery);
+        const matchesPhone = digitsOnly.length >= 7 && bPhoneDigits.endsWith(digitsOnly);
+        const matchesEmail = rawQuery.includes('@') && bEmail === rawQuery;
+
+        return matchesId || matchesPhone || matchesEmail;
+      });
+
+      const formattedBookings = matches.slice(0, 10).map(b => ({
+        id: b.id,
+        name: b.name,
+        phone: b.phone,
+        email: b.email,
+        eventType: b.eventType,
+        eventDate: b.eventDate,
+        guestCount: b.guestCount,
+        status: b.status,
+        pricingEstimate: b.pricingEstimate,
+        depositAmount: b.depositAmount || Math.round(b.pricingEstimate * 0.30),
+        paymentStatus: b.paymentStatus || 'Unpaid',
+        paymentLink: b.paymentLink,
+        paidAt: b.paidAt,
+        createdAt: b.createdAt
+      }));
+
+      res.json({ bookings: formattedBookings });
+    } catch (err: any) {
+      res.status(500).json({ error: 'Failed to execute proposal lookup.' });
+    }
+  });
+
   // Public/Webhook: Verify & complete deposit payment
   app.post('/api/payments/verify', async (req, res) => {
     try {

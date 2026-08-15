@@ -97,6 +97,14 @@ export function Footer() {
                     Enquire Consultation
                   </button>
                 </li>
+                <li>
+                  <button
+                    onClick={() => handleLinkClick('#/lookup')}
+                    className="hover:text-gold-500 transition-colors text-left cursor-pointer text-gold-400 font-medium flex items-center gap-1"
+                  >
+                    <Sparkles className="w-3 h-3 text-gold-400" /> Track Proposal Status
+                  </button>
+                </li>
               </ul>
             </div>
 
