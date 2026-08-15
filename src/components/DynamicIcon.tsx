@@ -1,10 +1,58 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Barmantra — Optimized Dynamic Lucide Icon Component
  */
 
 import React from 'react';
-import * as Icons from 'lucide-react';
+import {
+  Heart,
+  Briefcase,
+  GlassWater,
+  Layers,
+  Sparkles,
+  Wine,
+  PhoneCall,
+  Compass,
+  Zap,
+  CheckCircle,
+  CheckCircle2,
+  Award,
+  ShieldCheck,
+  Users,
+  Calendar,
+  Clock,
+  Flame,
+  Star,
+  Crown,
+  Palette,
+  Utensils,
+  Feather,
+  Building,
+  Building2,
+  Phone,
+  Mail,
+  Lock,
+  Shield,
+  ShieldAlert,
+  ArrowRight,
+  ArrowLeft,
+  Search,
+  Printer,
+  Download,
+  Receipt,
+  ExternalLink,
+  Eye,
+  UserPlus,
+  Menu,
+  X,
+  Instagram,
+  Facebook,
+  MessageSquare,
+  MapPin,
+  HelpCircle,
+  Scale,
+  FileSignature,
+  AlertCircle
+} from 'lucide-react';
 
 interface DynamicIconProps {
   name: string;
@@ -12,14 +60,59 @@ interface DynamicIconProps {
   size?: number;
 }
 
+// Optimized dictionary map of supported icons for maximum tree-shaking performance
+const ICON_MAP: Record<string, React.ComponentType<any>> = {
+  Heart,
+  Briefcase,
+  GlassWater,
+  Layers,
+  Sparkles,
+  Wine,
+  PhoneCall,
+  Compass,
+  Zap,
+  CheckCircle,
+  CheckCircle2,
+  Award,
+  ShieldCheck,
+  Users,
+  Calendar,
+  Clock,
+  Flame,
+  Star,
+  Crown,
+  Palette,
+  Utensils,
+  Feather,
+  Building,
+  Building2,
+  Phone,
+  Mail,
+  Lock,
+  Shield,
+  ShieldAlert,
+  ArrowRight,
+  ArrowLeft,
+  Search,
+  Printer,
+  Download,
+  Receipt,
+  ExternalLink,
+  Eye,
+  UserPlus,
+  Menu,
+  X,
+  Instagram,
+  Facebook,
+  MessageSquare,
+  MapPin,
+  HelpCircle,
+  Scale,
+  FileSignature,
+  AlertCircle
+};
+
 export function DynamicIcon({ name, className = '', size }: DynamicIconProps) {
-  // Map the string name to the actual Lucide component
-  const IconComponent = (Icons as any)[name];
-
-  if (!IconComponent) {
-    // Fallback to a default Sparkles icon if not found
-    return <Icons.Sparkles className={className} size={size} />;
-  }
-
+  const IconComponent = ICON_MAP[name] || Sparkles;
   return <IconComponent className={className} size={size} />;
 }
