@@ -9,6 +9,7 @@ import * as crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from './config.ts';
 import { withDbLock } from './dbWriteQueue.ts';
+import { syncDbToMongo } from './mongoDb.ts';
 
 
 
@@ -479,6 +480,8 @@ export function saveDb(data: DatabaseSchema): void {
     } catch {
       fs.writeFileSync(DB_FILE_PATH, jsonString, 'utf-8');
     }
+    // Asynchronously synchronize MongoDB collections
+    syncDbToMongo(data).catch(() => {});
   } catch (error) {
     console.error('Failed to write database file:', error);
   }

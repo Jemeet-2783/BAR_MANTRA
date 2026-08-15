@@ -51,7 +51,7 @@ import {
 } from './src/server/db.ts';
 import { sendWhatsAppNotification } from './src/server/whatsappService.ts';
 import { createPaymentOrder, verifyPaymentSignature } from './src/server/paymentService.ts';
-
+import { initMongoDb } from './src/server/mongoDb.ts';
 
 // In-Memory Rate Limiter Middleware Factory
 interface RateLimitOptions {
@@ -98,6 +98,9 @@ const adminLoginRateLimiter = createRateLimiter({
 
 // Main server bootstrapping
 async function startServer() {
+  // Initialize MongoDB Database connection and seed migration
+  await initMongoDb();
+
   const app = express();
   const PORT = 3000;
 
