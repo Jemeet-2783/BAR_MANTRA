@@ -14,6 +14,16 @@ let client: MongoClient | null = null;
 let dbInstance: Db | null = null;
 let isConnected = false;
 
+const ALL_COLLECTION_NAMES = [
+  'bookings',
+  'contacts',
+  'users',
+  'site_content',
+  'pricing_rules',
+  'audit_logs',
+  'sessions'
+];
+
 export async function initMongoDb(): Promise<boolean> {
   try {
     console.log(`[MongoDB Engine] Connecting to ${MONGODB_URI}...`);
@@ -24,6 +34,9 @@ export async function initMongoDb(): Promise<boolean> {
     dbInstance = client.db(DB_NAME);
     isConnected = true;
     console.log(`[MongoDB Engine] Successfully connected to MongoDB database "${DB_NAME}".`);
+
+    // Ensure all 7 collections are created so they appear in MongoDB Compass
+    await ensureAllCollectionsExist();
 
     // Perform auto-seed migration from db.json if collections are empty
     await seedMongoFromDbJson();
@@ -43,6 +56,27 @@ export function isMongoConnected(): boolean {
 
 export function getMongoDb(): Db | null {
   return dbInstance;
+}
+
+/**
+ * Ensures all 7 collection names exist in MongoDB Compass
+ */
+async function ensureAllCollectionsExist(): Promise<void> {
+  if (!dbInstance) return;
+
+  try {
+    const existingColls = await dbInstance.listCollections().toArray();
+    const existingNames = new Set(existingColls.map(c => c.name));
+
+    for (const colName of ALL_COLLECTION_NAMES) {
+      if (!existingNames.has(colName)) {
+        await dbInstance.createCollection(colName);
+        console.log(`[MongoDB Engine] Created collection "${colName}" in database "${DB_NAME}".`);
+      }
+    }
+  } catch (err: any) {
+    console.warn('[MongoDB Engine Warning] Error listing/creating collections:', err.message);
+  }
 }
 
 /**
@@ -129,6 +163,9 @@ async function seedMongoFromDbJson(): Promise<void> {
       await sessionsColl.insertMany(docs as any);
       console.log(`[MongoDB Migration] Seeded active sessions into MongoDB "sessions" collection.`);
     }
+
+    // Perform an initial full sync to make sure all collections have data documents
+    await syncDbToMongo(dbJson);
 
   } catch (err: any) {
     console.error('[MongoDB Migration Error] Failed to seed MongoDB collections:', err.message);
